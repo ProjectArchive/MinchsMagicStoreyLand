@@ -31,6 +31,7 @@ class Matrix(object):
 			for x in range(self.numColumns): #grab a "col" in which that value lives
 				currentStr += self.matrix[x][y].__repr__()
 			outStr += currentStr + "\n"
+		
 		return outStr
   
  

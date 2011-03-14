@@ -1,0 +1,13 @@
+The too doo list.
+This should be handled as a queue of somesort, so we can organize what was done by who. An potential method of organization would be as follows:
+[ItemDescription-Status-Who@DATE]. Status descriptions could be standardized and or customizable.
+Enclosing items in square braces (or any other obvious deliniatiating character) will help keep this document clean and useful. No items should be deleted from this list, but merely
+marked as DONE, the next entry would then follow below it. Having the oldest entry at the top seems illogical, but it will make Git happy, as otherwise, I fear we will create
+consistent MERGE errors in git, as we will all be editing the same line consistently. The date stamp was entered using Gedit's insert date. It may be unnesecary, I would love some input as to other ways to do get a TODO list together thtat will work well. Another thought I had was using googledocs, a spreadsheet. However it could potentially provide one more resource we need to manage...I guess we can play around with it/someone can take lead and come up with a solution that works well.
+####################EXAMPLE####################
+[Downloadgit-DONE-Cory@Fri 11 Mar 2011 10:47:15 PM EDT]
+[Breakgit-PARTIAL-Cory@Sun 13 Mar 2011 10:47:24 PM EDT]
+
+
+
+

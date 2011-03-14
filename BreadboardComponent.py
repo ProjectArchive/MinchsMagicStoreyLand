@@ -13,6 +13,9 @@ class BreadboardComponent(object):
 		self.width = width
 		self.height = height
 		self.pinList=pinList
+		self.referencePin = None #Organize placement via this absolute
+		#pin, it is the Location of REF in pinList if this component
+		#has been placed on the breadboard.
 		
 	def __repr__(self):
 		return str((self.width, self.height))
