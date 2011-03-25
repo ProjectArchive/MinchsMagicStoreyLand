@@ -27,7 +27,7 @@ class FixedBreadboardComponent(BreadboardComponent):
 		attributes are qualities (like resistance), location based
 		off the location of a reference pin"""
 		
-		BreadboardComponent.__init__(self,attributes,referencePin,displayName,technicalName)
+		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin)
 		self.attributes = attributes
 		self.width = width
 		self.height = height
@@ -45,14 +45,13 @@ class VariableBreadboardComponent(BreadboardComponent):
 		of pins this thing can expand to."""
 		
 		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin)
-		self.attributes = attributes
 		self.radiusRange = radiusRange
 		
 	def __repr__(self):
 		return 'component of %d pins' % (len(self.pinList))
 		
 class Resistor(VariableBreadboardComponent):
-	"""A two pin resistor"""
+	"""A two pin resistor.  give it a reference point and a name"""
 	
 	def __init__(self,resistance,referencePin,displayName):
 		"""resistor having size range 1 pin to 20"""
@@ -67,7 +66,7 @@ class Resistor(VariableBreadboardComponent):
 		return "%d ohm %s at %d,%d"  % (self.resistance,self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
 				
 class OpAmp(FixedBreadboardComponent):
-	"""An eight-pin op amp"""
+	"""An eight-pin op amp. give it a reference pin and a name"""
 	
 	def __init__(self,referencePin,displayName):
 		"""reference is location of bottom left pin"""
@@ -82,19 +81,15 @@ class OpAmp(FixedBreadboardComponent):
 		pin8 = RelativeLocation(3,3)
 		pinList=[pin1,pin2,pin3,pin4,pin5,pin6,pin7,pin8]
 		attributes=None
-		self.technicalName = 'OPA551'
+		technicalName = 'OPA551'
 		
-		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,referencePin,displayName,self.technicalName)
-		
-		self.displayName = displayName
-		self.technicalName = 'OPA551'
-		
-		
+		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,referencePin,displayName,technicalName)
+		#self.displayName = displayName
 		
 	def __repr__(self):
 		return "%s at reference pin %d,%d"  % (self.displayName,(self.pinList[0]).yLoc , (self.pinList[0]).xLoc)
 		
-minch = Resistor(5,Location(5,5),'opamp')
-print minch.technicalName
+minch = OpAmp(Location(5,5),'OpAmp')
+print minch
 
 
