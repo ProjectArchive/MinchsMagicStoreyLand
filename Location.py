@@ -1,7 +1,7 @@
 class Location(object):
 	"""an abstraction of a pin/hole on a BreadBoard. These are 
 	typically absolute, with respect to the cartesian coordinate system
-	starting at (0,0) for the top left pin. However, subclases such as
+	starting at (0,0) for the top left pin. However, subclasses such as
 	RelativeLocation use coordinates relative to a reference, for the
 	purpose of placing components on the BreadBoard"""
 	
@@ -16,9 +16,10 @@ class Location(object):
 		return str((self.xLoc, self.yLoc))
 		
 class RelativeLocation(Location):
-	"""An abstraction of a relative locaiton, used for fitting items on
+	"""An abstraction of a relative location, used for fitting items on
 	the bread board, using a reference pin.
 	"""
+	
 	def __init__(self,xIn=0,yIn=0,referenceLocation=None):
 		""" Defaults create a REF RelativeLocation
 		"""
