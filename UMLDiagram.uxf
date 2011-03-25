@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>490</x><y>50</y><w>480</w><h>370</h></coordinates><panel_attributes>&lt;&lt;Breadboard&gt;&gt;
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>5</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>705</x><y>120</y><w>240</w><h>180</h></coordinates><panel_attributes>*&lt;&lt;Breadboard&gt;&gt;*
 --
 --
 Attributes
@@ -43,13 +43,13 @@ Methods
 /+isFiled(int x, int y) : boolean/
 /+str() : String/
 /+repr() : String/
-
 --
 Responsibilities
 --
 --
 -Keep track of all AbsoluteLocations and manage the placement of
-components.</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>0</x><y>50</y><w>480</w><h>210</h></coordinates><panel_attributes>&lt;&lt;BreadboardComponent&gt;&gt;
+components.
+bg=red</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>460</x><y>120</y><w>180</w><h>115</h></coordinates><panel_attributes>*&lt;&lt;BreadboardComponent&gt;&gt;*
 --
 --
 Attributes
@@ -58,7 +58,7 @@ Attributes
 -attributes : Dict&lt;String,int&gt;
 -displayName : String
 -dbName : String
-
+-pinList : List&lt;Location&gt;
 --
 Methods
 --
@@ -69,4 +69,109 @@ Methods
 Responsibilities
 --
 --
--Encapsulates what it means to be a component.</panel_attributes><additional_attributes/></element></umlet_diagram>
+-Encapsulates what it means to be a component.
+bg=blue</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>450</x><y>215</y><w>99</w><h>104</h></coordinates><panel_attributes>lt=&lt;.
+</panel_attributes><additional_attributes>15;95;90;15</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>400</x><y>310</y><w>140</w><h>105</h></coordinates><panel_attributes>*&lt;&lt;VariableBreadboardComponent&gt;&gt;*
+--
+--
+Attributes
+--
+--
+-radiusRange : tuple(int,int)
+--
+Methods
+--
+--
+/+str() : String/
+/+repr() : String/
+--
+Responsibilities
+--
+--
+-adds variable length, for wires, etc.
+bg=blue</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>550</x><y>310</y><w>145</w><h>105</h></coordinates><panel_attributes>*&lt;&lt;FixedBreadboardComponent&gt;&gt;*
+--
+--
+Attributes
+--
+--
+-width : int
+-height : int
+--
+Methods
+--
+--
+/+str() : String/
+/+repr() : String/
+--
+Responsibilities
+--
+--
+-represents rectangular components
+of fixed size.
+bg=blue</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>525</x><y>215</y><w>89</w><h>104</h></coordinates><panel_attributes>lt=&lt;.
+</panel_attributes><additional_attributes>80;95;15;15</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>200</x><y>120</y><w>110</w><h>140</h></coordinates><panel_attributes>*&lt;&lt;Location&gt;&gt;*
+--
+--
+Attributes
+--
+--
+-xLoc : int
+-yLoc : int
+-voltage : int
+-isSet : boolean
+--
+Methods
+--
+--
+/+str() : String/
+/+repr() : String/
+/+add() : AbsoluteLocation/
+/+radd() : AbsoluteLocation/
+--
+Responsibilities
+--
+--
+-Encapsulates what it means
+to be a location
+bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>135</x><y>310</y><w>110</w><h>125</h></coordinates><panel_attributes>*&lt;&lt;RelativeLocation&gt;&gt;*
+--
+--
+Attributes
+--
+-refLoc : AbsoluteLocation
+--
+Methods
+--
+--
+/+str() : String/
+/+repr() : String/
+--
+Responsibilities
+--
+--
+-Encapsulates what it means
+to be a relative location
+bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>250</x><y>310</y><w>110</w><h>125</h></coordinates><panel_attributes>*&lt;&lt;AbsoluteLocation&gt;&gt;*
+--
+--
+Attributes
+--
+--
+-voltage : int
+-isSet : boolean
+--
+Methods
+--
+--
+/+str() : String/
+/+repr() : String/
+--
+Responsibilities
+--
+--
+-Encapsulates what it means
+to be a location on the
+bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>240</x><y>245</y><w>69</w><h>74</h></coordinates><panel_attributes>lt=&lt;.
+</panel_attributes><additional_attributes>60;65;15;15</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>175</x><y>245</y><w>89</w><h>74</h></coordinates><panel_attributes>lt=&lt;.
+</panel_attributes><additional_attributes>15;65;80;15</additional_attributes></element></umlet_diagram>
