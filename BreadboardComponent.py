@@ -35,7 +35,6 @@ class FixedBreadboardComponent(BreadboardComponent):
 		
 	def __repr__(self):
 		return 'component of width %d height %d and %d pins' % (self.width, self.height, len(self.pinList))
-
 class VariableBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--ones 
 	that have no fixed dimension, like a resistor or a wire"""
@@ -53,25 +52,27 @@ class VariableBreadboardComponent(BreadboardComponent):
 class Resistor(VariableBreadboardComponent):
 	"""A two pin resistor.  give it a reference point and a name"""
 	
-	def __init__(self,resistance,referencePin,displayName):
+	def __init__(self,resistance):
 		"""resistor having size range 1 pin to 20"""
 		
-		technicalName = 'R'
+		referencePin = RelativeLocation()
+		displayName = 'Resistor'
+		secondPin = None
+		technicalName = 'R'+str(resistance)
 		radiusRange = (1,20)
 		attributes = resistance
 		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin)
 		self.resistance = resistance
 		
 	def __repr__(self):
-		return "%d ohm %s at %d,%d"  % (self.resistance,self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
-				
+		return "%d ohm %s at %d,%d"  % (self.resistance,self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)		
 class OpAmp(FixedBreadboardComponent):
-	"""An eight-pin op amp. give it a reference pin and a name"""
+	"""An eight-pin op amp. give me a reference pin and a name"""
 	
-	def __init__(self,referencePin,displayName):
+	def __init__(self):
 		"""reference is location of bottom left pin"""
 		
-		pin1 = referencePin
+		pin1 = RelativeLocation(0,0)
 		pin2 = RelativeLocation(1,0)
 		pin3 = RelativeLocation(2,0)
 		pin4 = RelativeLocation(3,0)
@@ -81,15 +82,18 @@ class OpAmp(FixedBreadboardComponent):
 		pin8 = RelativeLocation(3,3)
 		pinList=[pin1,pin2,pin3,pin4,pin5,pin6,pin7,pin8]
 		attributes=None
+		displayName= 'OpAmp' 		#default
 		technicalName = 'OPA551'
 		
-		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,referencePin,displayName,technicalName)
-		#self.displayName = displayName
+		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,pin1,displayName,technicalName)
 		
 	def __repr__(self):
-		return "%s at reference pin %d,%d"  % (self.displayName,(self.pinList[0]).yLoc , (self.pinList[0]).xLoc)
-		
-minch = OpAmp(Location(5,5),'OpAmp')
-print minch
+		return "%s at %d,%d"  % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)		
 
+
+minch = OpAmp()
+storey = Resistor(100)
+
+print minch
+print storey
 
