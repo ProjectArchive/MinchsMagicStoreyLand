@@ -30,6 +30,13 @@ class Breadboard(object):
 	def setFilled(self,x,y):
 		self.getLocation(x,y).isFilled = True
 	
+	def setAllFilled(self,pinList):
+		"""sets all pins filled. at that point, 
+		the reference pin is already defined"""
+		for pin in pinList:
+			self.setFilled(pin.xLoc,pin.yLoc)
+			
+	
 	def translateLocation(self,referenceLocation,relativeLocation):
 		"""A method to return the absolute location produced by
 		translating the referenceLocation by the displacements specified
@@ -40,6 +47,7 @@ class Breadboard(object):
 		yCoord = referenceLocation.yLoc + relativeLocation.yLoc
 		return self.getLocation(xCoord,yCoord)
 	
+
 	def translateAllLocations(self,refLoc,relLocs):
 		transLocs = []
 		for relLoc in relLocs:
@@ -67,15 +75,17 @@ class Breadboard(object):
 		"""Second go.  This function puts the first pin down. 
 		If component is fixed size, this does the job for you, putting down
 		every pin. If it is a variable size one, you need to 
-		choose the location of the second pin using putSecondPin.
+		choose the location of the next pin using putNextPin.
 		"""		
 		
 		if self.canPutComponent(aComponent,x,y):
+			
 			self.componentList.append(aComponent)
-			aComponent.referencePin = self.locMatrix.getItem(x,y)
+			spot = self.locMatrix.getItem(x,y)
+			aComponent.referencePin = spot
 			if aComponent.type=='Fixed':
-				absolutePinList = self.translateAllLocations()
-				self.setAllFilled(x,y,aComponent.pinList)
+				absolutePinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
+				self.setAllFilled(aComponent.pinList)
 				return True
 			else:
 				self.setFilled(x,y)
@@ -83,18 +93,18 @@ class Breadboard(object):
 		return False
 		
 
-	def putSecondPin(self,aComponent,x,y):
-		"""Puts down the second pin of a variable 
+	def putNextPin(self,aComponent,x,y,n):
+		"""Puts down the nth pin of a variable 
 		size component"""
 		
 		if self.canPutComponent(aComponent,x,y):
 			import math
 			self.setFilled(x,y)
-			
+			n=1
 			deltaX = aComponent.referencePin.xLoc-x
 			deltaY = aComponent.referencePin.xLoc-x
 			distance = (deltaX**2 + deltaY**2)**.5
-			aComponent.secondPin = self.locMatrix.getItem(x,y)
+			aComponent.pinList[n] = self.locMatrix.getItem(x,y)
 			if distance > aComponent.radiusRange[1]:
 				return False
 			return True
@@ -114,10 +124,9 @@ class Breadboard(object):
 			
 			
 hello = Breadboard()
-print hello
-minch = OpAmp()
-print minch
-hello.putReferencePin(minch,5,6)
-print hello.putSecondPin(minch,5,7)
+minch = Resistor(100)
+brad = Capacitor(10)
+hello.putReferencePin(minch,4,6)
+print hello.putNextPin(minch,4,6,1)
+print hello.putReferencePin(minch,4,6)
 
-print minch.secondPin

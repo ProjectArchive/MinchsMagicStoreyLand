@@ -4,7 +4,7 @@ class BreadboardComponent(object):
 	"""An abstraction of a breadboard component, any and all components
 	that live on our breadboard. """
 	
-	def __init__(self,attributes,displayName,technicalName,referencePin):
+	def __init__(self,attributes,displayName,technicalName,referencePin,pinList):
 		""" General breadboard component. Pin #1 (index 0) is the reference pin for positioning.
 		attributes are qualities, like resistance"""
 		
@@ -12,7 +12,8 @@ class BreadboardComponent(object):
 		self.displayName = displayName
 		self.technicalName = technicalName
 		self.referencePin = referencePin
-		
+		self.pinList = pinList
+			
 	def __repr__(self):
 		return str(self.referencePin)
 
@@ -27,11 +28,10 @@ class FixedBreadboardComponent(BreadboardComponent):
 		attributes are qualities (like resistance), location based
 		off the location of a reference pin"""
 		
-		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin)
+		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin,pinList)
 		self.attributes = attributes
 		self.width = width
 		self.height = height
-		self.pinList = pinList
 		self.type = 'Fixed'
 		
 	def __repr__(self):
@@ -40,14 +40,14 @@ class VariableBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--ones 
 	that have no fixed dimension, like a resistor or a wire"""
 	
-	def __init__(self,radiusRange,attributes,displayName,technicalName,referencePin,secondPin):
+	def __init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList):
 		""" Radius is the minimum to maximum number
 		of pins this thing can expand to."""
 		
-		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin)
+		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin,pinList)
 		self.radiusRange = radiusRange
 		self.type = 'Variable'
-		self.secondPin = secondPin
+		
 		
 	def __repr__(self):
 		return 'component'
@@ -64,12 +64,16 @@ class Resistor(VariableBreadboardComponent):
 		technicalName = 'R%d' % resistance
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation()
-		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,secondPin)
+		pinList = [referencePin,secondPin]
+		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList)
 		self.resistance = resistance
-		self.pinList = [referencePin,secondPin]
+		
+		
+		
 		
 	def __repr__(self):
 		return "%g ohm %s at %d,%d"  % (self.resistance,self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)		
+
 class Capacitor(VariableBreadboardComponent):
 	"""A two pin capacitor of size 1 to 20 pins"""
 	
@@ -82,9 +86,9 @@ class Capacitor(VariableBreadboardComponent):
 		technicalName = 'C%d' % capacitance
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation()
-		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,secondPin)
+		pinList = [referencePin,secondPin]
+		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList)
 		self.capacitance = capacitance
-		self.pinList = [referencePin,secondPin]
 		
 	def __repr__(self):
 		return "%g farad %s at %d,%d" % (self.capacitance,self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
