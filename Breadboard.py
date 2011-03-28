@@ -93,14 +93,14 @@ class Breadboard(object):
 		return False
 		
 
-	def putNextPin(self,aComponent,x,y,n):
+	def putNextPin(self,aComponent,x,y,n=2):
 		"""Puts down the nth pin of a variable 
 		size component"""
 		
+		n-=1
 		if self.canPutComponent(aComponent,x,y):
 			import math
 			self.setFilled(x,y)
-			n=1
 			deltaX = aComponent.referencePin.xLoc-x
 			deltaY = aComponent.referencePin.xLoc-x
 			distance = (deltaX**2 + deltaY**2)**.5
@@ -127,6 +127,6 @@ hello = Breadboard()
 minch = Resistor(100)
 brad = Capacitor(10)
 hello.putReferencePin(minch,4,6)
-print hello.putNextPin(minch,4,6,1)
+print hello.putNextPin(minch,4,7)
 print hello.putReferencePin(minch,4,6)
 
