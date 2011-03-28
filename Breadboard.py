@@ -1,15 +1,20 @@
 from Matrix import *
 from Location import *
-from Breadboard import *
+from BreadboardComponent import *
 
 class Breadboard(object):
-	"""represents a breadboard"""
+	"""represents a breadboard.
+	At root, is powered like a DAQ powers a breadboard,
+	going (bottom to top) ground,2.5V,2.5V,5V"""
 		
 	def __init__(self):
 		self.numRows = 12
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = [] #contains all BreadBoardComponents
+		self.voltageOne = 2.5
+		self.voltageTwo = 5
+		
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y))	
@@ -38,7 +43,7 @@ class Breadboard(object):
 	def translateAllLocations(self,refLoc,relLocs):
 		transLocs = []
 		for relLoc in relLocs:
-			transLocs.append(self.translateLocation(refLoc,relLoc)
+			transLocs.append(self.translateLocation(refLoc,relLoc))
 		return transLocs
 		
 	def canPutComponent(self,aComponent,x,y,hard=False):
@@ -58,17 +63,61 @@ class Breadboard(object):
 					return False
 		return True
 	
-	def putComponent(self,aComponent,x,y):
-		"""In this first implementation, given a reference pin Location,
-		there is only one possible way for the component to be placed.
-		This will need to be reworked, as some items will need to be
-		able to rotate, also some items have dimensions that can be
-		changed very easily (I.E. a resistor or a capacitor)
+	def putReferencePin(self,aComponent,x,y):
+		"""Second go.  This function puts the first pin down. 
+		If component is fixed size, this does the job for you, putting down
+		every pin. If it is a variable size one, you need to 
+		choose the location of the second pin using putSecondPin.
 		"""		
+		
 		if self.canPutComponent(aComponent,x,y):
+			self.componentList.append(aComponent)
 			aComponent.referencePin = self.locMatrix.getItem(x,y)
-			absolutePinList = self.translateAllLocations(
-			self.setAllFilled(x,y,aComponent.pinList)
-			return True
-			
+			if aComponent.type=='Fixed':
+				absolutePinList = self.translateAllLocations()
+				self.setAllFilled(x,y,aComponent.pinList)
+				return True
+			else:
+				self.setFilled(x,y)
+				return True
 		return False
+		
+
+	def putSecondPin(self,aComponent,x,y):
+		"""Puts down the second pin of a variable 
+		size component"""
+		
+		if self.canPutComponent(aComponent,x,y):
+			import math
+			self.setFilled(x,y)
+			
+			deltaX = aComponent.referencePin.xLoc-x
+			deltaY = aComponent.referencePin.xLoc-x
+			distance = (deltaX**2 + deltaY**2)**.5
+			aComponent.secondPin = self.locMatrix.getItem(x,y)
+			if distance > aComponent.radiusRange[1]:
+				return False
+			return True
+		else:
+			return False
+			
+
+	def sendToGnu(self):
+		"""Takes circuit information and sends it to
+		GnuCap.  This is the kitchen sink here."""
+		
+		nodes = []
+		for component in self.componentList:
+			if component.Referencepin.xLoc==a:
+				return 1
+			
+			
+			
+hello = Breadboard()
+print hello
+minch = OpAmp()
+print minch
+hello.putReferencePin(minch,5,6)
+print hello.putSecondPin(minch,5,7)
+
+print minch.secondPin
