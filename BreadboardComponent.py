@@ -11,11 +11,12 @@ class BreadboardComponent(object):
 		self.attributes = attributes
 		self.displayName = displayName
 		self.technicalName = technicalName
-		self.referencePin = referencePin
 		self.pinList = pinList
+		self.referencePin = referencePin
 			
 	def __repr__(self):
-		return str(self.referencePin)
+		return 'Generalized Component'
+
 
 class FixedBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--but only
@@ -36,6 +37,8 @@ class FixedBreadboardComponent(BreadboardComponent):
 		
 	def __repr__(self):
 		return 'component of width %d height %d and %d pins' % (self.width, self.height, len(self.pinList))
+		
+		
 class VariableBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--ones 
 	that have no fixed dimension, like a resistor or a wire"""
@@ -56,20 +59,18 @@ class Resistor(VariableBreadboardComponent):
 	"""A two pin resistor having size range 1 pin to 20"""
 	
 	def __init__(self,resistance):
-		"""give it a resistance"""
+		"""give it a resistance. it is situated at
+		relativeLocation 0,0"""
 		
 		radiusRange = (1,20)
 		attributes = resistance
 		displayName = 'Resistor'
 		technicalName = 'R%d' % resistance
 		referencePin = RelativeLocation()
-		secondPin = RelativeLocation()
+		secondPin = RelativeLocation(0,0)
 		pinList = [referencePin,secondPin]
 		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList)
 		self.resistance = resistance
-		
-		
-		
 		
 	def __repr__(self):
 		return "%g ohm %s at %d,%d"  % (self.resistance,self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)		
@@ -101,7 +102,7 @@ class OpAmp(FixedBreadboardComponent):
 		"""reference is location of bottom left pin
 		8 pins. bottom left is reference pin"""
 		
-		referencePin = RelativeLocation(0,0)
+		referencePin = RelativeLocation()
 		pin2 = RelativeLocation(1,0)
 		pin3 = RelativeLocation(2,0)
 		pin4 = RelativeLocation(3,0)
@@ -144,18 +145,16 @@ class QuadChip(FixedBreadboardComponent):
 		attributes = None
 		displayName = 'Quad Chip'
 		technicalName = 'HDL551'
-		FixedBreadboardComponent.__init__(self,width,height,pinList,attributes,displayName,technicalName,referencePin,)
+		FixedBreadboardComponent.__init__(self,width,height,pinList,attributes,displayName,technicalName,referencePin)
 	
 	def __repr__(self):
 		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
 
+#~ 
+minch = OpAmp()
+#~ storey = Resistor(100)
+#~ 
+#~ 
+minch.pinList
+#~ print storey
 
-#minch = OpAmp()
-#storey = Resistor(100)
-#art = Capacitor(.001)
-#brad = QuadChip()
-
-#print minch
-#print storey
-#print art
-#print brad

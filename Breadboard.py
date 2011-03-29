@@ -45,6 +45,7 @@ class Breadboard(object):
 		"""
 		xCoord = referenceLocation.xLoc + relativeLocation.xLoc
 		yCoord = referenceLocation.yLoc + relativeLocation.yLoc
+
 		return self.getLocation(xCoord,yCoord)
 	
 
@@ -59,6 +60,7 @@ class Breadboard(object):
 		reference (absolute) x,y coordinate by checking each pin
 		specified by the pinList of aComponent
 		"""
+		
 		refLocTest = self.getLocation(x,y) #the loc to test at
 		#first test if the reference location is available
 		if refLocTest == None or refLocTest.isFilled:
@@ -72,17 +74,16 @@ class Breadboard(object):
 		return True
 	
 	def putReferencePin(self,aComponent,x,y):
-		"""Second go.  This function puts the first pin down. 
-		If component is fixed size, this does the job for you, putting down
-		every pin. If it is a variable size one, you need to 
+		"""This function puts the first pin down. 
+		If the component has a fixed size, this puts down
+		every pin. If it is a variable component, you need to 
 		choose the location of the next pin using putNextPin.
 		"""		
 		
 		if self.canPutComponent(aComponent,x,y):
-			
 			self.componentList.append(aComponent)
-			spot = self.locMatrix.getItem(x,y)
-			aComponent.referencePin = spot
+			aComponent.referencePin = Location(x,y)
+			aComponent.pinList[0] = Location(x,y)
 			if aComponent.type=='Fixed':
 				absolutePinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
@@ -95,22 +96,24 @@ class Breadboard(object):
 
 	def putNextPin(self,aComponent,x,y,n=2):
 		"""Puts down the nth pin of a variable 
-		size component"""
+		size component; if you dont give a number,
+		it assumes it is a two pin component,  Returns False
+		if the distance needed to bridge the gap is too large"""
 		
 		n-=1
 		if self.canPutComponent(aComponent,x,y):
-			import math
 			self.setFilled(x,y)
+	
 			deltaX = aComponent.referencePin.xLoc-x
-			deltaY = aComponent.referencePin.xLoc-x
+			deltaY = aComponent.referencePin.yLoc-y
 			distance = (deltaX**2 + deltaY**2)**.5
-			aComponent.pinList[n] = self.locMatrix.getItem(x,y)
 			if distance > aComponent.radiusRange[1]:
 				return False
+			aComponent.pinList[n] = Location(x,y)
 			return True
 		else:
 			return False
-			
+
 
 	def sendToGnu(self):
 		"""Takes circuit information and sends it to
@@ -118,15 +121,13 @@ class Breadboard(object):
 		
 		nodes = []
 		for component in self.componentList:
-			if component.Referencepin.xLoc==a:
+			if component.Referencepin.xLoc == a:
 				return 1
 			
 			
 			
-hello = Breadboard()
-minch = Resistor(100)
-brad = Capacitor(10)
-hello.putReferencePin(minch,4,6)
-print hello.putNextPin(minch,4,7)
-print hello.putReferencePin(minch,4,6)
-
+bb = Breadboard()
+minch = Capacitor(5)
+bb.putReferencePin(minch,1,1)
+bb.putNextPin(minch,2,2)
+print minch.pinList

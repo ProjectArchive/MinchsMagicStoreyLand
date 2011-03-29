@@ -1,3 +1,5 @@
+
+
 class Matrix(object):
 	"""This class is an abstraction of a two dimensional matrix, where
 	there is a list which stores columns, and a given value lives at 
@@ -15,7 +17,7 @@ class Matrix(object):
 				ea_col.append(0)
 			self.matrix.append(ea_col)#append this column to the row
 			# which contains column, the overarching matrix
-  
+
 	def setItem(self, col, row, v):
 		#to set a value, we first get the column in which it lives,
 		#then the index at which that value lives, the rowNumber.
@@ -33,5 +35,3 @@ class Matrix(object):
 			outStr += currentStr + "\n"
 		
 		return outStr
-  
- 
