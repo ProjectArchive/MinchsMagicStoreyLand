@@ -102,7 +102,7 @@ class OpAmp(FixedBreadboardComponent):
 		"""reference is location of bottom left pin
 		8 pins. bottom left is reference pin"""
 		
-		referencePin = RelativeLocation()
+		referencePin = RelativeLocation(0,0)
 		pin2 = RelativeLocation(1,0)
 		pin3 = RelativeLocation(2,0)
 		pin4 = RelativeLocation(3,0)
@@ -150,11 +150,9 @@ class QuadChip(FixedBreadboardComponent):
 	def __repr__(self):
 		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
 
-#~ 
-minch = OpAmp()
-#~ storey = Resistor(100)
-#~ 
-#~ 
-minch.pinList
-#~ print storey
 
+#~ minch = QuadChip()
+#~ storey = Resistor(100)
+#~ print minch.pinList
+#~ print storey
+#~ 

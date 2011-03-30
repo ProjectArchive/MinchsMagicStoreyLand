@@ -40,13 +40,12 @@ class Breadboard(object):
 	def translateLocation(self,referenceLocation,relativeLocation):
 		"""A method to return the absolute location produced by
 		translating the referenceLocation by the displacements specified
-		by the relativeLocation. This method returns a REFERENCE to the
-		location, and /DOES NOT/ create a new Location.
+		by the relativeLocation. This method returns a new Location.
 		"""
 		xCoord = referenceLocation.xLoc + relativeLocation.xLoc
 		yCoord = referenceLocation.yLoc + relativeLocation.yLoc
-
-		return self.getLocation(xCoord,yCoord)
+		newLoc = Location(xCoord,yCoord)
+		return newLoc
 	
 
 	def translateAllLocations(self,refLoc,relLocs):
@@ -83,12 +82,12 @@ class Breadboard(object):
 		if self.canPutComponent(aComponent,x,y):
 			self.componentList.append(aComponent)
 			aComponent.referencePin = Location(x,y)
-			aComponent.pinList[0] = Location(x,y)
 			if aComponent.type=='Fixed':
-				absolutePinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
+				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
 				return True
 			else:
+				aComponent.pinList[0] = self.locMatrix.getItem(x,y)
 				self.setFilled(x,y)
 				return True
 		return False
@@ -124,10 +123,11 @@ class Breadboard(object):
 			if component.Referencepin.xLoc == a:
 				return 1
 			
-			
+
 			
 bb = Breadboard()
-minch = Capacitor(5)
-bb.putReferencePin(minch,1,1)
-bb.putNextPin(minch,2,2)
+minch = Resistor(1000)
+bb.putReferencePin(minch,21,1)
+bb.putNextPin(minch,10,11)
+
 print minch.pinList
