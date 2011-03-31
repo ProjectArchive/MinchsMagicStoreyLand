@@ -94,7 +94,6 @@ class Breadboard(object):
 				return True
 		return False
 		
-
 	def putNextPin(self,aComponent,x,y,n=2):
 		"""Puts down the nth pin of a variable 
 		size component; if you dont give a number,
@@ -124,11 +123,3 @@ class Breadboard(object):
 		for component in self.componentList:
 			if component.Referencepin.xLoc == a:
 				return 1
-			
-
-			
-bb = Breadboard()
-minch = Resistor(1000)
-bb.putReferencePin(minch,21,11)
-bb.putNextPin(minch,10,11)
-print minch.pinList
