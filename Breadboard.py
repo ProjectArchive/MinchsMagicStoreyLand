@@ -18,6 +18,7 @@ class Breadboard(object):
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y))	
+				
 	def __repr__(self):
 		return self.locMatrix.__repr__()
 		
@@ -44,7 +45,7 @@ class Breadboard(object):
 		"""
 		xCoord = referenceLocation.xLoc + relativeLocation.xLoc
 		yCoord = referenceLocation.yLoc + relativeLocation.yLoc
-		newLoc = Location(xCoord,yCoord)
+		newLoc =self.getLocation(xCoord,yCoord)
 		return newLoc
 	
 
@@ -67,8 +68,9 @@ class Breadboard(object):
 		else:
 			#then check if every pin the component specifies is also
 			#available, if not, then we cannot place the component here
-			for relLoc in aComponent.pinList:
-				if self.translateLocation(refLocTest,relLoc).isFilled:
+			for relLoc in aComponent.pinList[1:]: #thisneeds a little work...
+				print relLoc
+				if self.translateLocation(refLocTest,relLoc).isFilled: #hmmm I think somethign is wrong?
 					return False
 		return True
 	
@@ -108,7 +110,7 @@ class Breadboard(object):
 			distance = (deltaX**2 + deltaY**2)**.5
 			if distance > aComponent.radiusRange[1]:
 				return False
-			aComponent.pinList[n] = Location(x,y)
+			aComponent.pinList[n] = self.getLocation(x,y)
 			return True
 		else:
 			return False
@@ -127,7 +129,6 @@ class Breadboard(object):
 			
 bb = Breadboard()
 minch = Resistor(1000)
-bb.putReferencePin(minch,21,1)
+bb.putReferencePin(minch,21,11)
 bb.putNextPin(minch,10,11)
-
 print minch.pinList
