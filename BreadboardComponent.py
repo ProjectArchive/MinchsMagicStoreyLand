@@ -55,7 +55,27 @@ class VariableBreadboardComponent(BreadboardComponent):
 		
 	def __repr__(self):
 		return 'component'
+
+
+class Wire(VariableBreadboardComponent):
+	"""A two pin wire"""
+	
+	def __init__(self):
+		"""its a wire"""
 		
+		maxLength = None
+		attributes = None
+		displayName = 'Resistor'
+		technicalName = ''
+		referencePin = RelativeLocation(0,0)
+		secondPin = RelativeLocation(0,0)
+		pinList = [referencePin,secondPin]
+		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,technicalName,referencePin,pinList)
+		
+	def __repr__(self):
+		return "wire, fucker"  	
+
+
 class Resistor(VariableBreadboardComponent):
 	"""A two pin resistor having size range 1 pin to 20"""
 	
@@ -152,8 +172,8 @@ class QuadChip(FixedBreadboardComponent):
 		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
 
 
-#~ minch = QuadChip()
-#~ storey = Resistor(100)
-#~ print minch.pinList
-#~ print storey
+minch = Wire()
+#storey = Resistor(100)
+print minch
+#print storey
 

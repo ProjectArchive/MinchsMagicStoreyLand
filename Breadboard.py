@@ -8,7 +8,7 @@ class Breadboard(object):
 	going (bottom to top) ground,2.5V,2.5V,5V"""
 		
 	def __init__(self):
-		self.numRows = 12
+		self.numRows = 18
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = [] #contains all BreadBoardComponents
