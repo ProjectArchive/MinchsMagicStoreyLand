@@ -1,0 +1,29 @@
+  .TITLE Demonstration Circuit #1
+  
+  *Written by Wenton L. Davis, January 22, 2007
+  *This is a simple circuit demonstration, showing some of the
+  *basic structure for a simple AC circuit analysis.
+  
+  *============================================================
+  * Define the circuit.  This is a simple R/RC voltage divider.
+  *============================================================
+  
+  Vin 0 1 AC 1
+  R1  1 2 1K
+  R2  0 2 1K
+  C1  0 2 1UF
+  
+  *============================================================
+  * Define the output.
+  *============================================================
+  
+  .OPTION OUT=80
+  .PRINT OP Iter(0) V(2)
+  
+  .PLOT AC  VDB(2)(-20,0)
+  
+  *============================================================
+  * Perform the analysis and output.
+  *============================================================
+  
+  .AC 5 1K OCT

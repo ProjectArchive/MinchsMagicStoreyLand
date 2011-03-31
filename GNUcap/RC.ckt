@@ -1,0 +1,9 @@
+SIMPLE RC CIRCUIT
+
+V1 1 0 2
+R1 1 2 1k
+C1 2 0 1u
+
+.print op v(0) v(1) v(2)
+.dc V1 0 2 .2 >RC.dat
+.end
