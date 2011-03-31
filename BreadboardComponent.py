@@ -65,7 +65,7 @@ class Wire(VariableBreadboardComponent):
 		
 		maxLength = None
 		attributes = None
-		displayName = 'Resistor'
+		displayName = 'Wire'
 		technicalName = ''
 		referencePin = RelativeLocation(0,0)
 		secondPin = RelativeLocation(0,0)
@@ -73,7 +73,7 @@ class Wire(VariableBreadboardComponent):
 		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,technicalName,referencePin,pinList)
 		
 	def __repr__(self):
-		return "wire, fucker"  	
+		return "%s at %d,%d"  % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)	
 
 
 class Resistor(VariableBreadboardComponent):
