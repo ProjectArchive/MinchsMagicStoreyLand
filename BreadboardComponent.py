@@ -34,6 +34,7 @@ class FixedBreadboardComponent(BreadboardComponent):
 		self.width = width
 		self.height = height
 		self.type = 'Fixed'
+		self.maxLength = None
 		
 	def __repr__(self):
 		return 'component of width %d height %d and %d pins' % (self.width, self.height, len(self.pinList))
@@ -43,12 +44,12 @@ class VariableBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--ones 
 	that have no fixed dimension, like a resistor or a wire"""
 	
-	def __init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList):
-		""" Radius is the minimum to maximum number
+	def __init__(self,maxLength,attributes,displayName,technicalName,referencePin,pinList):
+		""" Radius is the aximum number
 		of pins this thing can expand to."""
 		
 		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin,pinList)
-		self.radiusRange = radiusRange
+		self.maxLength = maxLength
 		self.type = 'Variable'
 		
 		
@@ -62,14 +63,14 @@ class Resistor(VariableBreadboardComponent):
 		"""give it a resistance. it is situated at
 		relativeLocation 0,0"""
 		
-		radiusRange = (1,20)
+		maxLength = 20
 		attributes = resistance
 		displayName = 'Resistor'
 		technicalName = 'R%d' % resistance
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation(0,0)
 		pinList = [referencePin,secondPin]
-		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList)
+		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,technicalName,referencePin,pinList)
 		self.resistance = resistance
 		
 	def __repr__(self):
@@ -81,14 +82,14 @@ class Capacitor(VariableBreadboardComponent):
 	def __init__(self,capacitance):
 		"""Give it a capacitance"""
 		
-		radiusRange = (1,20)
+		maxLength = 20
 		attributes = capacitance
 		displayName = 'Capacitor'
 		technicalName = 'C%d' % capacitance
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation()
 		pinList = [referencePin,secondPin]
-		VariableBreadboardComponent.__init__(self,radiusRange,attributes,displayName,technicalName,referencePin,pinList)
+		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,technicalName,referencePin,pinList)
 		self.capacitance = capacitance
 		
 	def __repr__(self):
@@ -155,4 +156,4 @@ class QuadChip(FixedBreadboardComponent):
 #~ storey = Resistor(100)
 #~ print minch.pinList
 #~ print storey
-#~ 
+

@@ -31,6 +31,9 @@ class Breadboard(object):
 	def setFilled(self,x,y):
 		self.getLocation(x,y).isFilled = True
 	
+	def setUnfilled(self,x,y):
+		self.getLocation(x,y).isFilled = False
+	
 	def setAllFilled(self,pinList):
 		"""sets all pins filled. at that point, 
 		the reference pin is already defined"""
@@ -55,6 +58,7 @@ class Breadboard(object):
 			transLocs.append(self.translateLocation(refLoc,relLoc))
 		return transLocs
 		
+		
 	def canPutComponent(self,aComponent,x,y,hard=False):
 		"""Tests whether or not a component can be placed at the
 		reference (absolute) x,y coordinate by checking each pin
@@ -68,8 +72,7 @@ class Breadboard(object):
 		else:
 			#then check if every pin the component specifies is also
 			#available, if not, then we cannot place the component here
-			for relLoc in aComponent.pinList[1:]: #thisneeds a little work...
-				print relLoc
+			for relLoc in aComponent.pinList[1:]: 
 				if self.translateLocation(refLocTest,relLoc).isFilled: #hmmm I think somethign is wrong?
 					return False
 		return True
@@ -98,37 +101,63 @@ class Breadboard(object):
 	def putNextPin(self,aComponent,x,y,n=2):
 		"""Puts down the nth pin of a variable 
 		size component; if you dont give a number,
-		it assumes it is a two pin component,  Returns False
-		if the distance needed to bridge the gap is too large"""
+		it assumes it is a two pin component.  Returns False
+		if the component is too short to bridge the gap or the pin is 
+		taken."""
 		
 		n-=1
 		if self.canPutComponent(aComponent,x,y):
 			self.setFilled(x,y)
-	
-			deltaX = aComponent.referencePin.xLoc-x
-			deltaY = aComponent.referencePin.yLoc-y
-			distance = (deltaX**2 + deltaY**2)**.5
-			if distance > aComponent.radiusRange[1]:
+			if self.checkDistance(x,y,aComponent):
 				return False
+				
 			aComponent.pinList[n] = self.getLocation(x,y)
 			return True
 		else:
 			return False
 
-
-	def sendToGnu(self):
-		"""Takes circuit information and sends it to
-		GnuCap.  This is the kitchen sink here."""
+	def checkDistance(self,x,y,aComponent):
+		return (x**2 + y**2)**.5 > aComponent.maxLength
+	
+	def movePin(self,aComponent,x,y,xNew,yNew):
+		"""I designed this function with the intent that the
+		user would click a current pin on the breadboard, then click another,
+		and the gui would either move the image or not depending on """
 		
-		nodes = []
-		for component in self.componentList:
-			if component.Referencepin.xLoc == a:
-				return 1
+		count=0 #i realize this is implemented rly inefficiently but it works
+		for pin in aComponent.pinList:
+			if pin.xLoc==x and pin.yLoc==y:
+				pinNo = count
+			count+=1
+			
+		if self.canPutComponent(aComponent,xNew,yNew):
+			self.setUnfilled(x,y)
+			self.setFilled(xNew,yNew)
+			if aComponent.type == 'Fixed':
+				if pinNo != 0:
+					return False
+				aComponent.pinList = self.translateAllLocations(self.getLocation(xNew,yNew),aComponent.pinList)
+			else:
+				aComponent.pinList[pinNo] = self.getLocation(xNew,yNew)
+			return True
+		return False
+			
+			
+	def highlightFilled(self,x,y):
+		"""returns True if pin is available. might be useful
+		for the GUI is you want the pins highlighted.
+		maybe this can be ran continuously on loop"""
+		return self.canPutComponent(x,y)
+	
+	def sendToGNU(self):
+		"""sends stuff to Noam-land"""
+		return self.componentList
 			
 
 			
 bb = Breadboard()
-minch = Resistor(1000)
-bb.putReferencePin(minch,21,11)
-bb.putNextPin(minch,10,11)
+minch = OpAmp()
+bb.putReferencePin(minch,1,1)
+bb.putNextPin(minch,1,1)
+bb.movePin(minch,1,1,25,5)
 print minch.pinList
