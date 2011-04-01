@@ -7,6 +7,10 @@ class BreadboardToGNUcap(object):
 	turn BreadBoard Components into a netlist
 	line usable by GNUcap. Also contains anaylsis
 	options and the interface with GNUcap"""
+	def __init__(self):
+		self.width = Breadboard.width
+		self.height = Breadboard.height
+	
 	def netListName(self,BreadboardComponent):
 		"""uses a component's attributes and name to
 		determine the first part of the component's
@@ -17,11 +21,21 @@ class BreadboardToGNUcap(object):
 		of the resistor.
 		"""
 		if BreadboardComponent.attributes != None:
-			componentPrefix = BreadBreadboardComponent.displayName[0] 
+			componentPrefix = BreadboardComponent.displayName[0] 
 		else:
 			return 1
 		componentName = componentPrefix + BreadboardComponent.displayName
 		return componentName
 	
-	def locationToNode(self, Breadboard Component):
-		return locNodeDict[Location]
+	def l2nInit(self):
+		l2n = {}
+		for i in range(63):
+			l2n[(0,i)] = 1
+			l2n[(1,i)] = 2
+			l2n[(16,i)] = 3
+			l2n[(17,i)] = 0
+		return l2n
+
+b = BreadboardToGNUcap
+
+

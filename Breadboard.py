@@ -155,9 +155,9 @@ class Breadboard(object):
 			
 
 			
-bb = Breadboard()
-minch = OpAmp()
-bb.putReferencePin(minch,1,1)
-bb.putNextPin(minch,1,1)
-bb.movePin(minch,1,1,25,5)
-print minch.pinList
+#~ bb = Breadboard()
+#~ minch = OpAmp()
+#~ bb.putReferencePin(minch,1,1)
+#~ bb.putNextPin(minch,1,1)
+#~ bb.movePin(minch,1,1,25,5)
+#~ print minch.pinList
