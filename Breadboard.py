@@ -133,7 +133,7 @@ class Breadboard(object):
 		if self.canPutComponent(aComponent,xNew,yNew):
 			self.setUnfilled(x,y)
 			self.setFilled(xNew,yNew)
-			if aComponent.type == 'Fixed':
+			if aComponent.type == 'Fixed': #this should? be ? isinstance(aComponenet,FixedBreadboardComponent
 				if pinNo != 0:
 					return False
 				aComponent.pinList = self.translateAllLocations(self.getLocation(xNew,yNew),aComponent.pinList)
@@ -152,6 +152,7 @@ class Breadboard(object):
 	def sendToGNU(self):
 		"""sends stuff to Noam-land"""
 		return self.componentList
+<<<<<<< HEAD
 			
 
 			
@@ -161,3 +162,5 @@ class Breadboard(object):
 #~ bb.putNextPin(minch,1,1)
 #~ bb.movePin(minch,1,1,25,5)
 #~ print minch.pinList
+=======
+>>>>>>> 381088d67b549ed95ad8d6dcb4f5290a0d7a5656
