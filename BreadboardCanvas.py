@@ -7,7 +7,7 @@ PADDING_PIXEL_COUNT = 1
 def drawBreadboard(breadBoard,canvas):
 	for yNum in range(breadBoard.numRows):
 		for xNum in range(breadBoard.numColumns):
-			print(yNum,xNum)
+			#print(yNum,xNum, breadBoard.getLocation(xNum,yNum).isFilled)
 			startX = 1 + ((PIN_PIXEL_COUNT+PADDING_PIXEL_COUNT)*xNum)
 			startY = 1 + ((PIN_PIXEL_COUNT+PADDING_PIXEL_COUNT)*yNum)
 			color = 'green'
@@ -21,6 +21,12 @@ def drawBreadboard(breadBoard,canvas):
 
 top = Tk()
 myBoard = Breadboard()
+minch = OpAmp()
+myBoard.putReferencePin(minch,1,1)
+myBoard.putNextPin(minch,1,1)
+myBoard.movePin(minch,1,1,25,5)
+myBoard.getLocation(1,1).isFilled = True
+#print myBoard.getLocation(1,1).isFilled
 C = Canvas(top, bg="white", height=600, width=900)
 bitm = BitmapImage("@pinhole.xbm")
 

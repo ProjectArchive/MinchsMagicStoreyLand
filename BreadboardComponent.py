@@ -170,10 +170,3 @@ class QuadChip(FixedBreadboardComponent):
 	
 	def __repr__(self):
 		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
-
-
-minch = Wire()
-#storey = Resistor(100)
-print minch
-#print storey
-
