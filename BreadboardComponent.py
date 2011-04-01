@@ -84,7 +84,7 @@ class Resistor(VariableBreadboardComponent):
 		maxLength = 20
 		attributes = resistance
 		displayName = 'Resistor'
-		technicalName = 'R%d' % resistance
+		technicalName = 'R' 
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation(0,0)
 		pinList = [referencePin,secondPin]
@@ -103,7 +103,7 @@ class Capacitor(VariableBreadboardComponent):
 		maxLength = 20
 		attributes = capacitance
 		displayName = 'Capacitor'
-		technicalName = 'C%d' % capacitance
+		technicalName = 'C'
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation()
 		pinList = [referencePin,secondPin]
@@ -168,6 +168,7 @@ class QuadChip(FixedBreadboardComponent):
 	
 	def __repr__(self):
 		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
+<<<<<<< HEAD
 
 
 #~ minch = Wire()
@@ -175,3 +176,5 @@ class QuadChip(FixedBreadboardComponent):
 #~ print minch
 #print storey
 
+=======
+>>>>>>> 80f98ff4595cf46c6e63a63938ef24ae4ba394f6
