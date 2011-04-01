@@ -40,6 +40,12 @@ class Breadboard(object):
 		for pin in pinList:
 			self.setFilled(pin.xLoc,pin.yLoc)
 			
+	def setAllUnfilled(self,pinList):
+		"""sets all pins filled. at that point, 
+		the reference pin is already defined"""
+		for pin in pinList:
+			self.setUnfilled(pin.xLoc,pin.yLoc)
+			
 	
 	def translateLocation(self,referenceLocation,relativeLocation):
 		"""A method to return the absolute location produced by
@@ -76,91 +82,50 @@ class Breadboard(object):
 				if self.translateLocation(refLocTest,relLoc).isFilled: #hmmm I think somethign is wrong?
 					return False
 		return True
-	
-	def putReferencePin(self,aComponent,x,y):
-		"""This function puts the first pin down. 
-		If the component has a fixed size, this puts down
-		every pin. If it is a variable component, you need to 
-		choose the location of the next pin using putNextPin.
-		"""		
 		
-		if self.canPutComponent(aComponent,x,y):
+	
+	def putComponent(self,aComponent,*args):
+		"""This function puts the a component down.
+		Give it a reference pin for a regular component.
+		Give it x1,y1,x2,y2 for a variable size component.
+		"""		
+
+		if self.canPutComponent(aComponent,args[0],args[1]):
 			self.componentList.append(aComponent)
-			aComponent.referencePin = Location(x,y)
+			aComponent.referencePin = self.getLocation(args[0],args[1])
 			if aComponent.type=='Fixed':
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
 				return True
 			else:
-				aComponent.pinList[0] = self.locMatrix.getItem(x,y)
-				self.setFilled(x,y)
+				count=0
+				for i in range(0,len(args),2):
+					aComponent.pinList[count] = self.locMatrix.getItem(args[i],args[i+1])
+					self.setFilled(args[0],args[1])
+					count+=1
 				return True
 		return False
+	
+	def removeComponent(self,aComponent):
+		"""removes a component from the breadboard.
+		essentially unfills all the holes and pops it from
+		the breadboard component list."""
 		
-
-	def putNextPin(self,aComponent,x,y,n=2):
-		"""Puts down the nth pin of a variable 
-		size component; if you dont give a number,
-		it assumes it is a two pin component.  Returns False
-		if the component is too short to bridge the gap or the pin is 
-		taken."""
+		self.setAllUnfilled(aComponent.pinList)
+		self.componentList.remove(aComponent)
 		
-		n-=1
-		if self.canPutComponent(aComponent,x,y):
-			self.setFilled(x,y)
-			if self.checkDistance(x,y,aComponent):
-				return False
-				
-			aComponent.pinList[n] = self.getLocation(x,y)
-			return True
-		else:
-			return False
-
+	
 	def checkDistance(self,x,y,aComponent):
+		"""Makes sure we aren't stretching a component
+		beyond its maximum length"""
 		return (x**2 + y**2)**.5 > aComponent.maxLength
-	
-	def movePin(self,aComponent,x,y,xNew,yNew):
-		"""I designed this function with the intent that the
-		user would click a current pin on the breadboard, then click another,
-		and the gui would either move the image or not depending on """
-		
-		count=0 #i realize this is implemented rly inefficiently but it works
-		for pin in aComponent.pinList:
-			if pin.xLoc==x and pin.yLoc==y:
-				pinNo = count
-			count+=1
-			
-		if self.canPutComponent(aComponent,xNew,yNew):
-			self.setUnfilled(x,y)
-			self.setFilled(xNew,yNew)
-			if aComponent.type == 'Fixed':
-				if pinNo != 0:
-					return False
-				aComponent.pinList = self.translateAllLocations(self.getLocation(xNew,yNew),aComponent.pinList)
-			else:
-				aComponent.pinList[pinNo] = self.getLocation(xNew,yNew)
-			return True
-		return False
-			
-			
-	def highlightFilled(self,x,y):
-		"""returns True if pin is available. might be useful
-		for the GUI is you want the pins highlighted.
-		maybe this can be ran continuously on loop"""
-		return self.canPutComponent(x,y)
-	
-	def sendToGNU(self):
-		"""sends stuff to Noam-land"""
-		return self.componentList
 			
 
-			
-bb = Breadboard()
-minch = OpAmp()
-bb.putReferencePin(minch,1,1)
-art = Wire()
-bb.putReferencePin(art,10,10)
-bb.putNextPin(art,5,5)
-bb.putNextPin(minch,1,1)
-bb.movePin(minch,1,1,25,5)
-print bb.componentList
+#~ bb = Breadboard()
+#~ minch = Wire()
+#~ Resist = Resistor(1)
+#~ bb.putComponent(Resist,1,3,4,5)
+#~ bb.putComponent(minch,1,1,2,2)
+#~ print bb.componentList
+#~ bb.removeComponent(minch)
+#~ print bb.componentList

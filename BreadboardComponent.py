@@ -172,8 +172,8 @@ class QuadChip(FixedBreadboardComponent):
 		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
 
 
-minch = Wire()
+#~ minch = Wire()
 #storey = Resistor(100)
-print minch
+#~ print minch
 #print storey
 
