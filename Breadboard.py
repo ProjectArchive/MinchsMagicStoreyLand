@@ -152,15 +152,3 @@ class Breadboard(object):
 	def sendToGNU(self):
 		"""sends stuff to Noam-land"""
 		return self.componentList
-<<<<<<< HEAD
-			
-
-			
-#~ bb = Breadboard()
-#~ minch = OpAmp()
-#~ bb.putReferencePin(minch,1,1)
-#~ bb.putNextPin(minch,1,1)
-#~ bb.movePin(minch,1,1,25,5)
-#~ print minch.pinList
-=======
->>>>>>> 381088d67b549ed95ad8d6dcb4f5290a0d7a5656

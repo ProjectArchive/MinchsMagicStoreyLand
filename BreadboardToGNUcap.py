@@ -2,6 +2,7 @@ import os
 from Breadboard import *
 from BreadboardComponent import *
 from Location import *
+
 class BreadboardToGNUcap(object):
 	"""encapsulates a set of methods to
 	turn BreadBoard Components into a netlist
@@ -48,7 +49,6 @@ class BreadboardToGNUcap(object):
 		for item in pinList:
 			nodeList.append(self.l2n[item])
 		return nodeList
-		
 		
 	def __repr__(self):
 		return 'at least something worked'
