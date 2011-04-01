@@ -3,7 +3,6 @@ from Breadboard import *
 PIN_PIXEL_COUNT = 7
 PADDING_PIXEL_COUNT = 1
 
-
 def drawBreadboard(breadBoard,canvas):
 	for yNum in range(breadBoard.numRows):
 		for xNum in range(breadBoard.numColumns):
@@ -14,25 +13,21 @@ def drawBreadboard(breadBoard,canvas):
 			if breadBoard.getLocation(xNum,yNum).isFilled:
 				color = 'red'
 			canvas.create_rectangle(startX,startY,startX+PIN_PIXEL_COUNT,startY+PIN_PIXEL_COUNT,fill=color)
-	canvas.pack()
-		
+	canvas.pack(fill=BOTH, expand=YES)
 
+def funFunFunction():
+	print 'ohh hai'
 
-
+breadBoard = Breadboard()
 top = Tk()
-myBoard = Breadboard()
-minch = OpAmp()
-myBoard.putReferencePin(minch,1,1)
-myBoard.putNextPin(minch,1,1)
-myBoard.movePin(minch,1,1,25,5)
-myBoard.getLocation(1,1).isFilled = True
-#print myBoard.getLocation(1,1).isFilled
-C = Canvas(top, bg="white", height=600, width=900)
-bitm = BitmapImage("@pinhole.xbm")
+f = Frame(top,width=100,height=300)
+f.pack(fill=BOTH, expand=YES)
+cv = Canvas(f, width=800, height=200, bg='white')
+#cv.pack(fill=BOTH, expand=YES)
+drawBreadboard(breadBoard,cv)
+b1 = Button( f, text='Hello', height=1, width=10, padx=0, pady=1,command=funFunFunction)
+b1.pack(side=BOTTOM, anchor=E, padx=4, pady=4)
 
-#C.create_bitmap(2,2,bitmap=bitm)
-drawBreadboard(myBoard,C)
-C.pack()
-#for i in range(15):
-#	C.create_rectangle(1+((3+1)*i), 1,4+((3+1)*i) , 4, fill="blue",outline='white')
 top.mainloop()
+
+
