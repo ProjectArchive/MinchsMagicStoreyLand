@@ -86,7 +86,7 @@ class Resistor(VariableBreadboardComponent):
 		maxLength = 20
 		attributes = resistance
 		displayName = 'Resistor'
-		technicalName = 'R%d' % resistance
+		technicalName = 'R' 
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation(0,0)
 		pinList = [referencePin,secondPin]
@@ -105,7 +105,7 @@ class Capacitor(VariableBreadboardComponent):
 		maxLength = 20
 		attributes = capacitance
 		displayName = 'Capacitor'
-		technicalName = 'C%d' % capacitance
+		technicalName = 'C'
 		referencePin = RelativeLocation()
 		secondPin = RelativeLocation()
 		pinList = [referencePin,secondPin]
