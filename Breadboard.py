@@ -29,9 +29,11 @@ class Breadboard(object):
 		return self.getLocation(x,y).isFilled
 	
 	def setFilled(self,x,y):
+		"""fills a pin"""
 		self.getLocation(x,y).isFilled = True
 	
 	def setUnfilled(self,x,y):
+		"""infills a pin"""
 		self.getLocation(x,y).isFilled = False
 	
 	def setAllFilled(self,pinList):
@@ -87,13 +89,12 @@ class Breadboard(object):
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down.
 		Give it a reference pin for a regular component.
-		Give it x1,y1,x2,y2 for a variable size component.
-		"""		
+		Give it x1,y1,x2,y2 for a variable size component. """		
 
 		if self.canPutComponent(aComponent,args[0],args[1]):
 			self.componentList.append(aComponent)
 			aComponent.referencePin = self.getLocation(args[0],args[1])
-			if aComponent.type=='Fixed':
+			if isinstance(aComponent,FixedBreadboardComponent):
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
 				return True
@@ -121,11 +122,11 @@ class Breadboard(object):
 		return (x**2 + y**2)**.5 > aComponent.maxLength
 			
 
-#~ bb = Breadboard()
-#~ minch = Wire()
-#~ Resist = Resistor(1)
-#~ bb.putComponent(Resist,1,3,4,5)
-#~ bb.putComponent(minch,1,1,2,2)
-#~ print bb.componentList
-#~ bb.removeComponent(minch)
-#~ print bb.componentList
+bb = Breadboard()
+minch = Wire()
+Resist = Resistor(1)
+bb.putComponent(Resist,1,3,4,5)
+bb.putComponent(minch,1,1,2,2)
+print bb.componentList
+bb.removeComponent(minch)
+print bb

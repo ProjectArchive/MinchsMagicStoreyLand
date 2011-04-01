@@ -33,7 +33,6 @@ class FixedBreadboardComponent(BreadboardComponent):
 		self.attributes = attributes
 		self.width = width
 		self.height = height
-		self.type = 'Fixed'
 		self.maxLength = None
 		
 	def __repr__(self):
@@ -50,7 +49,6 @@ class VariableBreadboardComponent(BreadboardComponent):
 		
 		BreadboardComponent.__init__(self,attributes,displayName,technicalName,referencePin,pinList)
 		self.maxLength = maxLength
-		self.type = 'Variable'
 		
 		
 	def __repr__(self):
