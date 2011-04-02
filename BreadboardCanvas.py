@@ -1,5 +1,6 @@
 from Tkinter import *
 from Breadboard import *
+
 PIN_PIXEL_COUNT = 7
 PADDING_PIXEL_COUNT = 1
 
@@ -19,6 +20,7 @@ def funFunFunction():
 	print 'ohh hai'
 
 breadBoard = Breadboard()
+
 top = Tk()
 f = Frame(top,width=100,height=300)
 f.pack(fill=BOTH, expand=YES)

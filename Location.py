@@ -10,9 +10,7 @@ class Location(object):
 		self.yLoc = yIn
 		self.isFilled = False
 		
-		
 	def __repr__(self):
-		# '(%s,%s)\n' 
 		return str((self.xLoc, self.yLoc))
 		
 class RelativeLocation(Location):
@@ -21,8 +19,7 @@ class RelativeLocation(Location):
 	"""
 	
 	def __init__(self,xIn=0,yIn=0,referenceLocation=None):
-		""" Defaults create a REF RelativeLocation
-		"""
+		""" Defaults create a REF RelativeLocation"""
 		self.referenceLocation = referenceLocation
 		Location.__init__(self,xIn,yIn)
 		
@@ -30,4 +27,3 @@ class RelativeLocation(Location):
 		if self.xLoc == 0 and self.yLoc == 0 and self.referenceLocation==None:
 			return "REF"
 		return Location.__repr__(self) + " From REF"
-	
