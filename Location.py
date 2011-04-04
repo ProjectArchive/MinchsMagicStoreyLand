@@ -1,3 +1,5 @@
+from Node import *
+
 class Location(object):
 	"""an abstraction of a pin/hole on a BreadBoard. These are 
 	typically absolute, with respect to the cartesian coordinate system
@@ -9,6 +11,7 @@ class Location(object):
 		self.xLoc = xIn
 		self.yLoc = yIn
 		self.isFilled = False
+		self.node = Node(xIn,yIn)
 		
 	def __repr__(self):
 		return str((self.xLoc, self.yLoc))

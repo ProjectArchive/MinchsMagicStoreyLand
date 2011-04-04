@@ -81,7 +81,8 @@ class Breadboard(object):
 
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down.Give it a reference pin for a regular component.
-		Give it x1,y1,x2,y2 for a variable size component. """		
+		Give it x1,y1,x2,y2 for a variable size component. """	
+			
 		if self.canPutComponent(aComponent,args[0],args[1]):
 			self.componentList.append(aComponent)
 			aComponent.referencePin = self.getLocation(args[0],args[1])
@@ -103,8 +104,9 @@ class Breadboard(object):
 		self.setAllUnfilled(aComponent.pinList)
 		self.componentList.remove(aComponent)
 
-	def unplugComponent(self,aComponent): pass
+	def unplugComponent(self,aComponent): #pass
 		#should be implemented, convert back to relative locations.
+		a=1
 
 	def checkDistance(self,x,y,aComponent):
 		"""Makes sure we aren't stretching a component
