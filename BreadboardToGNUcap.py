@@ -4,7 +4,7 @@ from BreadboardComponent import *
 from Location import *
 
 class BreadboardToGNUcap(object):
-	"""encapsulates a set of methods to
+	"""encapsulatst4es a set of methods to
 	turn BreadBoard Components into a netlist
 	line usable by GNUcap. Also contains anaylsis
 	options and the interface with GNUcap"""
@@ -29,6 +29,15 @@ class BreadboardToGNUcap(object):
 		attr = self.getAttr(BreadboardComponent)
 		ans = attr[0] + nodes + attr[1]
 		return ans
+		
+	def builtNetList(self,Breadboard):
+		netList = ''
+		compList = Breadboard.componentList
+		for components in compList:
+			netList += self.buildText(components) + '\n'
+		return netList
+		
+	def talkToSPICE
 		
 	
 	def __repr__(self):
