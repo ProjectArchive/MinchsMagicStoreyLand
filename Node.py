@@ -10,6 +10,7 @@ class Node(object):
 		self.position = position
 		nodeDict = self.nodeDictionary()
 		self.node = nodeDict.get((position),-1)
+		self.voltage = None
 	
 	
 	def nodeDictionary(self):
@@ -37,5 +38,3 @@ class Node(object):
 		return 'the %gth node' % self.node
 		
 
-el = Node((11,4))
-print el
