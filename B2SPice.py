@@ -3,11 +3,11 @@ from Breadboard import *
 from BreadboardComponent import *
 from Location import *
 
-class BreadboardToGNUcap(object):
+class B2Spice(object):
 	"""encapsulatst4es a set of methods to
 	turn BreadBoard Components into a netlist
-	line usable by GNUcap. Also contains anaylsis
-	options and the interface with GNUcap"""
+	line usable by SPICE. Also contains anaylsis
+	options and the interface with SPICE"""
 	def __init__(self):
 		self.width = 63
 		self.height = 18
@@ -44,7 +44,7 @@ class BreadboardToGNUcap(object):
 		fout = open(fileName,'w')
 		title = 'C1'
 		fout.write('%s\n' % title) 
-		fout.write(BreadboardToGNUcap.buildNetList(Breadboard))
+		fout.write(B2Spice.buildNetList(Breadboard))
 		cmdList = ['.print dc i(R1) i(R2) i(R3) ','.dc','.end']
 		fout.close()
 
