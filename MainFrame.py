@@ -3,6 +3,7 @@ from Tkinter import *
 from Breadboard import *
 from BreadboardComponent import *
 from BreadboardFrame import *
+from PartBrowserFrame import *
 import tkMessageBox
 
 class MainFrame(Frame):
@@ -27,8 +28,9 @@ class MainFrame(Frame):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
 		self.breadBoardFrame = BreadboardFrame(self.breadBoard,master=self)
-		self.b = Button(self, text="Place op amp", command=self.placeAnOpAmp)
-		self.b.pack()
+		self.breadBoardFrame.pack(side = LEFT)
+		self.partBrowserFrame = PartBrowserFrame(master=self)
+		self.partBrowserFrame.pack(side = BOTTOM)
 		
 if __name__ == "__main__":
 	guiFrame = MainFrame(Breadboard(),Tk())	

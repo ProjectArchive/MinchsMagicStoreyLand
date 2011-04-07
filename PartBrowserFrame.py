@@ -5,8 +5,6 @@ from PIL import Image,ImageTk
 import tkMessageBox
 
 class PartBrowserFrame(Frame):
-	PIN_PIXEL_COUNT=8
-	PADDING_PIXEL_COUNT = 1
 	"""This is the GUI"""
 	def __init__(self,master=None):
 		"""Initialize yourself"""
@@ -17,12 +15,21 @@ class PartBrowserFrame(Frame):
 		with a little bit of padding"""
 		self.grid(padx=10,pady=10)
 		self.createWidgets()
-		self.pack(fill=BOTH, expand=YES)
 	   
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
-		photo = ImageTk.PhotoImage(Image.open("lenna.jpg"))
+		photo = Image.open("res/resistor_image.png")
+		photo=ImageTk.PhotoImage(photo.resize((50, 15), Image.ANTIALIAS))
+		self.resistorLabel = Label(image=photo)
+		self.resistorLabel.image = photo
+		self.resistorLabel.pack(side=LEFT)
+		photo = Image.open("res/resistor_image.png")
+		photo=ImageTk.PhotoImage(photo.resize((50, 15), Image.ANTIALIAS))
+
+		self.capacitorLabel = Label(image=photo)
+		self.capacitorLabel.image = photo
+		self.capacitorLabel.pack(side=LEFT)
 		
 if __name__ == "__main__":
 	guiFrame = PartBrowserFrame(master=Tk())
