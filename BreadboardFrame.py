@@ -4,14 +4,14 @@ from Breadboard import *
 import tkMessageBox
 
 class BreadboardFrame(Frame):
-	PIN_PIXEL_COUNT = 7
+	PIN_PIXEL_COUNT=8
 	PADDING_PIXEL_COUNT = 1
 	"""This is the GUI"""
 	def __init__(self,breadBoard,master=None):
 		"""Initialize yourself"""
 		"""Initialise the base class"""
 		Frame.__init__(self,master)
-		self.master.title("Minch's Magic Storey Land!")
+		self.master = master
 		self.breadBoard = breadBoard
 		"""Display the main window"
 		with a little bit of padding"""
@@ -22,11 +22,10 @@ class BreadboardFrame(Frame):
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
-		self.breadBoardCanvas = BreadboardCanvas(self.breadBoard,master=self)
-		
-	def Display(self):
-		"""Called when btnDisplay is clicked, displays the contents of self.enText"""
-		tkMessageBox.showinfo("Text", "You typed: %s" % self.enText.get())
+		self.breadboardCanvas = BreadboardCanvas(self.breadBoard,master=self)
+	def redraw(self):
+		self.breadboardCanvas.canvas.delete(ALL)
+		self.breadboardCanvas.drawBreadboard()
 
 class BreadboardCanvas(object):
 	def __init__(self,breadBoard,master=None,width=600,height=200):
@@ -36,6 +35,7 @@ class BreadboardCanvas(object):
 		self.canvas.pack(fill=BOTH, expand=YES)
 	
 	def drawBreadboard(self):
+		self.canvas.delete(ALL)
 		for yNum in range(self.breadBoard.numRows):
 			for xNum in range(self.breadBoard.numColumns):
 				#print(yNum,xNum, breadBoard.getLocation(xNum,yNum).isFilled)
@@ -47,6 +47,7 @@ class BreadboardCanvas(object):
 				self.canvas.create_rectangle(startX,startY,startX+BreadboardFrame.PIN_PIXEL_COUNT,startY+BreadboardFrame.PIN_PIXEL_COUNT,fill=color)
 
 if __name__ == "__main__":
-	guiFrame = BreadboardFrame(Breadboard(),Tk())
+	guiFrame = BreadboardFrame(Breadboard(),master=Tk())
 	
 	guiFrame.mainloop()
+
