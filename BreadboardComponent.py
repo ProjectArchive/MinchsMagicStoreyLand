@@ -1,4 +1,5 @@
 from Location import *
+import copy
 
 class BreadboardComponent(object):
 	"""An abstraction of a breadboard component, any and all components
@@ -7,15 +8,13 @@ class BreadboardComponent(object):
 	def __init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList):
 		""" General breadboard component. Pin #1 (index 0) is the reference pin for positioning.
 		attributes are qualities, like resistance"""
-		
 		self.attributes = attributes #attributes is a dict of attributes i.e. "resistance":50
 		self.displayName = displayName #informal name, i.e. resistor/opAmp
 		self.technicalName = technicalName #model number, i.e. OPA551
 		self.spiceName = spiceName #the string used to interface with third party program/library
 		self.referencePin = referencePin #the upper left pin of this component
 		self.pinList = pinList #a list (initially) of RelativeLocations representing pin geometry with respect to the referencePin
-		savedStandard = tuple(pinList)  #saves the initial relative location list by making it an immutable tuple
-		self.standardPinList = list(savedStandard) #converts the saved standard back to regular list notation
+		self.standardPinList = copy.copy(pinList) #saves initialized relativelocaiton list
 
 	def __repr__(self):
 		return 'Generalized Component'

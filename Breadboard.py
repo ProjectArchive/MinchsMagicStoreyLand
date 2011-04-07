@@ -11,7 +11,7 @@ class Breadboard(object):
 		self.numRows = 18
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
-		self.componentList = [] #contains all BreadBoardComponents #this might be a dictionary...{component:id}?
+		self.componentList = []
 		self.voltageOne = 2.5 #fillers for now
 		self.voltageTwo = 5 
 		self.voltageThree = 5
@@ -120,6 +120,7 @@ class Breadboard(object):
 	def unplugComponent(self,aComponent): #pass
 		self.setAllUnfilled(aComponent.pinList)
 		aComponent.pinList = aComponent.standardPinList
+		return True
 
 	def checkDistance(self,x,y,aComponent):
 		"""Makes sure we aren't stretching a component
@@ -127,6 +128,7 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
+
 
 bb = Breadboard()		
 r = Resistor(100)
@@ -136,6 +138,7 @@ bb.putComponent(m,1,2,2,3)
 bb.removeComponent(m)
 z = OpAmp('g','aafd')
 bb.putComponent(z,2,5)
+
 print r.pinList
 bb.unplugComponent(r)
 print r.pinList
