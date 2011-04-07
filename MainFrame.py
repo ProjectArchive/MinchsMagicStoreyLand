@@ -31,7 +31,26 @@ class MainFrame(Frame):
 		self.breadBoardFrame.pack(side = LEFT)
 		self.partBrowserFrame = PartBrowserFrame(master=self)
 		self.partBrowserFrame.pack(side = BOTTOM)
+		self.createMenu()
+	
+	def createMenu(self):
+		self.menu = Menu(self)
+		self.master.config(menu=self.menu)
+
+		self.filemenu = Menu(self.menu)
+		self.menu.add_cascade(label="File", menu=self.filemenu)
+		self.filemenu.add_command(label="New", command=self.callback)
+		self.filemenu.add_command(label="Open...", command=self.callback)
+		self.filemenu.add_separator()
+		self.filemenu.add_command(label="Exit", command=self.callback)
+		self.helpmenu = Menu(self.menu)
+		self.menu.add_cascade(label="Help", menu=self.helpmenu)
+		self.helpmenu.add_command(label="About...", command=self.callback)
 		
+	def callback():
+		print 'callback'
+
+
 if __name__ == "__main__":
 	guiFrame = MainFrame(Breadboard(),Tk())	
 	guiFrame.mainloop()
