@@ -11,7 +11,7 @@ class Location(object):
 		self.xLoc = xIn
 		self.yLoc = yIn
 		self.isFilled = False
-		self.node = Node(xIn,yIn)
+		self.node = Node((xIn,yIn))  #Node takes a tuple of x and y
 		
 	def __repr__(self):
 		return str((self.xLoc, self.yLoc))

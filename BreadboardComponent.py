@@ -13,7 +13,9 @@ class BreadboardComponent(object):
 		self.technicalName = technicalName #model number, i.e. OPA551
 		self.spiceName = spiceName #the string used to interface with third party program/library
 		self.referencePin = referencePin #the upper left pin of this component
-		self.pinList = pinList #a list of RelativeLocations representing pin geometry with respect to the referencePin
+		self.pinList = pinList #a list (initially) of RelativeLocations representing pin geometry with respect to the referencePin
+		savedStandard = tuple(pinList)  #saves the initial relative location list by making it an immutable tuple
+		self.standardPinList = list(savedStandard) #converts the saved standard back to regular list notation
 
 	def __repr__(self):
 		return 'Generalized Component'
@@ -33,11 +35,9 @@ class FixedBreadboardComponent(BreadboardComponent):
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 		self.width = width
 		self.height = height
-		self.maxLength = None #look here later, check that this is fully functional
 
 	def __repr__(self):
-		return 'component of width %d height %d and %d pins' % (self.width, self.height, len(self.pinList))
-
+		return '%s of size %dx%d attributes %s and %g pins at ref pin %g,%g' % (self.displayName,self.width, self.height,str(self.attributes), len(self.pinList),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
 class VariableBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--ones 
@@ -50,7 +50,7 @@ class VariableBreadboardComponent(BreadboardComponent):
 		self.maxLength = maxLength
 
 	def __repr__(self):
-		return 'component'
+		return '%s of %s %s at ref pin %g,%g' %(self.displayName,str(self.attributes.keys()),str(self.attributes.values()),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
 
 class Wire(VariableBreadboardComponent):
@@ -63,8 +63,8 @@ class Wire(VariableBreadboardComponent):
 		displayName = 'Wire'
 		spiceName = '' #empty string, not useful in spice
 		technicalName = '' #empty string, not useful
-		referencePin = RelativeLocation(0,0)
-		secondPin = RelativeLocation(0,0)  #there is no second pin attribute, this is local
+		referencePin = RelativeLocation()
+		secondPin = RelativeLocation()  #there is no second pin attribute, this is local
 		pinList = [referencePin,secondPin]
 		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 
@@ -103,17 +103,17 @@ class OpAmp(FixedBreadboardComponent):
 	"""An eight-pin op amp. doesnt have any attributes.
 	We start counting pins at 1, like in the real world"""
 	
-	def __init__(self,technicalName):
+	def __init__(self,technicalName,spiceName):
 		"""reference is location of bottom left pin
 		8 pins. bottom left is reference pin"""		
-		referencePin = RelativeLocation(0,0)
+		referencePin = RelativeLocation()
 		pin2 = RelativeLocation(1,0)
 		pin3 = RelativeLocation(2,0)
 		pin4 = RelativeLocation(3,0)
-		pin5 = RelativeLocation(0,3)
-		pin6 = RelativeLocation(1,3)
-		pin7 = RelativeLocation(2,3)
-		pin8 = RelativeLocation(3,3)
+		pin5 = RelativeLocation(3,3)
+		pin6 = RelativeLocation(2,3)
+		pin7 = RelativeLocation(1,3)
+		pin8 = RelativeLocation(0,3)
 		pinList = [referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8]
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default

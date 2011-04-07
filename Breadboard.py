@@ -12,8 +12,10 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = [] #contains all BreadBoardComponents #this might be a dictionary...{component:id}?
-		self.voltageOne = 2.5 #we should be careful
-		self.voltageTwo = 5 #we should be careful
+		self.voltageOne = 2.5 #fillers for now
+		self.voltageTwo = 5 
+		self.voltageThree = 5
+		self.voltageFour = 0
 		
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
@@ -63,27 +65,31 @@ class Breadboard(object):
 			transLocs.append(self.translateLocation(refLoc,relLoc))
 		return transLocs
 
-	def canPutComponent(self,aComponent,x,y): #this only works for fixed sized componenets, should be changed to reflect the paradigm of putComponent
+	def canPutComponent(self,aComponent,pinPositions): 
 		"""Tests whether or not a component can be placed at the
 		reference (absolute) x,y coordinate by checking each pin
-		specified by the pinList of aComponent"""		
-		refLocTest = self.getLocation(x,y) #the loc to test at
-		#first test if the reference location is available
-		if refLocTest == None or refLocTest.isFilled:
-			return False
-		else:
-			#then check if every pin the component specifies is also
-			#available, if not, then we cannot place the component here
-			for relLoc in aComponent.pinList[1:]:#all but the zero'th pin in the pinlist
-				if self.translateLocation(refLocTest,relLoc).isFilled:
-					return False
-		return True
+		specified by the pinList of aComponent"""
+		flag=True		
+		for i in range(0,len(pinPositions),2):
+			x = pinPositions[i]
+			y = pinPositions[i+1]
+			refLocTest = self.getLocation(x,y) #the loc to test at
+			#first test if the reference location is available
+			if refLocTest == None or refLocTest.isFilled:
+				flag=False
+			else:
+				#then check if every pin the component specifies is also
+				#available, if not, then we cannot place the component here
+				for relLoc in aComponent.pinList[1:]:#all but the zero'th pin in the pinlist
+					if self.translateLocation(refLocTest,relLoc).isFilled:
+						flag=False
+		return flag
 
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down.Give it a reference pin for a regular component.
 		Give it x1,y1,x2,y2 for a variable size component. """	
-			
-		if self.canPutComponent(aComponent,args[0],args[1]):
+		
+		if self.canPutComponent(aComponent,args):
 			self.componentList.append(aComponent)
 			aComponent.referencePin = self.getLocation(args[0],args[1])
 			if isinstance(aComponent,FixedBreadboardComponent):
@@ -94,21 +100,45 @@ class Breadboard(object):
 				count=0
 				for i in range(0,len(args),2):
 					aComponent.pinList[count] = self.locMatrix.getItem(args[i],args[i+1])
-					self.setFilled(args[0],args[1])
+					self.setFilled(args[i],args[i+1])
 					count+=1
 				return True
 		return False
 
 	def removeComponent(self,aComponent):
-		"""removes a component from the breadboard. Essentially unfills all the holes and pops it from the breadboard component list."""		
+		"""removes a component from the breadboard. unfills all the holes and pops it from the breadboard component list.
+		then deletes the component from memory"""		
 		self.setAllUnfilled(aComponent.pinList)
 		self.componentList.remove(aComponent)
+		for val in globals():  #actually kills the global variable aComponent refers to
+			if globals()[val]==aComponent:
+				del globals()[val]
+				return True
+		return False
+		
 
 	def unplugComponent(self,aComponent): #pass
-		#should be implemented, convert back to relative locations.
-		a=1
+		self.setAllUnfilled(aComponent.pinList)
+		aComponent.pinList = aComponent.standardPinList
 
 	def checkDistance(self,x,y,aComponent):
 		"""Makes sure we aren't stretching a component
 		beyond its maximum length"""
-		return (x**2 + y**2)**.5 > aComponent.maxLength
+		if isinstance(aComponent,FixedBreadboardComponent):
+			return (x**2 + y**2)**.5 > aComponent.maxLength
+		return True
+
+bb = Breadboard()		
+r = Resistor(100)
+bb.putComponent(r,1,1,2,2)
+m = Capacitor(50)
+bb.putComponent(m,1,2,2,3)
+bb.removeComponent(m)
+z = OpAmp('g','aafd')
+bb.putComponent(z,2,5)
+print r.pinList
+bb.unplugComponent(r)
+print r.pinList
+
+
+
