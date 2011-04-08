@@ -22,6 +22,8 @@ class Breadboard(object):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
 				if y==3 or y==9 or y==10 or y==16:
 					self.setFilled(x,y)
+				if x%5==0 and (y==0 or y==1 or y==18 or y==19):
+					self.setFilled(x,y)
 				print x,y,self.isFilled(x,y)
 
 	def __repr__(self):
