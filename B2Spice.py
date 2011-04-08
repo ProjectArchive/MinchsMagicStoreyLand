@@ -58,7 +58,14 @@ class B2Spice(object):
 		for comp in compList:
 			for pin in comp.pinList:
 				if pin.Node.node < 4 and pin.Node.node >0:
-					voltagePower = pin.Node.voltage.volts
+					if pin.Node.node ==1:
+						voltagePower = 2.5
+					elif pin.Node.node ==2:
+						voltagePower = 2.5
+					elif pin.Node.node ==3:
+						voltagePower = 5
+					else:
+						voltagePower = 0
 					voltageNode = pin.Node.node
 					return voltagePower,voltageNode
 				else:
@@ -88,7 +95,10 @@ class B2Spice(object):
 		netList += analysisLine + '\n'
 		vAtNodeLine = '.print dc'
 		for node in self.nodeList:
-			vAtNodeLine += ' v(%s)' % node
+			if int(node) < 1:
+				vAtNodeLine += ''
+			else:
+				vAtNodeLine += ' v(%s)' % node
 		vAtNodeLine += ' \n'
 		netList += vAtNodeLine
 		netList += '.end'
@@ -176,5 +186,9 @@ if __name__ == "__main__":
 	bb.putComponent(r5,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
+<<<<<<< HEAD
 	print b.buildNetList()
+=======
+	#~ print b.buildNetList()
+>>>>>>> 9044585fa7f5581b61a55cebd433321b3e611281
 	print b.loadBb()

@@ -4,8 +4,9 @@ from Breadboard import *
 from BreadboardComponent import *
 from BreadboardCanvas import *
 from PartBrowserFrame import *
-from PIL import Image,ImageTk
+from PIL import Image,ImageTk 
 from B2Spice import *
+
 
 import tkMessageBox
 
