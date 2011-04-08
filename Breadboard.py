@@ -134,6 +134,12 @@ class Breadboard(object):
 				return True
 		return False
 		
+	def clearBreadboard(self):
+		""" Removes all components from component list
+		unfills all pins
+		deletes all components from memory """
+		for component in self.componentList:
+			self.removeComponent(component)
 
 	def unplugComponent(self,aComponent): 
 		self.setAllUnfilled(aComponent.pinList)
