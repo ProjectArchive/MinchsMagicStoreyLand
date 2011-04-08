@@ -21,10 +21,10 @@ class BreadboardCanvas(Canvas):
 				#print(yNum,xNum, breadBoard.getLocation(xNum,yNum).isFilled)
 				startX = 1 + ((self.PXPERx+1)*xNum)
 				startY = 1 + ((self.PXPERy+1)*yNum)
-				color = 'green'
+				color = 'white'
 				tLoc =self.breadBoard.getLocation(xNum,yNum) 
 				if tLoc.isFilled:
-					color = 'red'
+					color = 'blue'
 				tempItem = self.create_rectangle(startX,startY,startX+self.PXPERx,startY+self.PXPERy,fill=color)
 				self.idToLoc[tempItem] = tLoc
 	def reDraw(self):
