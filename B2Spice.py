@@ -13,8 +13,8 @@ class B2Spice(object):
 	def __init__(self,board):
 		self.board = board
 		self.cirName = 'CIRCUIT'+str(id(self))
-		self.nodeList = self.makeNodeList(board)
-		self.netList = self.buildNetList(board)
+		self.nodeList = self.makeNodeList()
+		self.netList = self.buildNetList()
 		try:
 			os.system('mkdir .temp')
 			os.system('cd .temp')
@@ -68,7 +68,7 @@ class B2Spice(object):
 		
 	def getRailandAnalysis(self):
 		board = self.board
-		vPower,vNode = self.getRail(board)
+		vPower,vNode = self.getRail()
 		sourceName = 'v' + str(id(board))
 		groundNode =  '0'
 		powerNode = str(vNode)
@@ -80,7 +80,7 @@ class B2Spice(object):
 	def buildNetList(self):
 		board = self.board
 		netList = self.cirName + '\n'
-		sourceLine,analysisLine = self.getRailandAnalysis(board)
+		sourceLine,analysisLine = self.getRailandAnalysis()
 		netList += sourceLine + '\n'
 		compList = board.componentList
 		for components in compList:
@@ -135,4 +135,4 @@ if __name__ == "__main__":
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
 	#~ print b.buildNetList(bb)
-	b.loadBb(bb)
+	b.loadBb()
