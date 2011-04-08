@@ -23,16 +23,16 @@ class Node(object):
 		width = 63
 		l2n = {}
 		for i in range(width):
-			l2n[(0,i)] = 1 #5 Volts
-			l2n[(1,i)] = 2 # 2.5V
-			l2n[(16,i)] = 3 # 2.5V
-			l2n[(17,i)] = 0 # 0 is ground
+			l2n[(i,0)] = 1 #5 Volts
+			l2n[(i,1)] = 2 # 2.5V
+			l2n[(i,16)] = 3 # 2.5V
+			l2n[(i,17)] = 0 # 0 is ground
 		for i in range(3,8):
 			for j in range(width):
-				l2n[(i,j)] = 4*j
+				l2n[(j,i)] = 4*j
 		for i in range(10,15):
 			for j in range(width):
-				l2n[(i,j)] = 4*j+1
+				l2n[(j,i)] = 4*j+1
 		return l2n	
 			
 	

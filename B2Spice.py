@@ -3,18 +3,29 @@ from Breadboard import *
 from BreadboardComponent import *
 from Location import *
 from Node import *
+from Voltage import *
 
 class B2Spice(object):
 	"""encapsulatstes a set of methods to
 	turn BreadBoard Components into a netlist
 	line usable by SPICE. Also contains anaylsis
 	options and the interface with SPICE"""
-	def __init__(self):
-		self.width = 63
-		self.height = 18
+	def __init__(self,board):
 		self.cirName = 'CIRCUIT'+str(id(self))
-		os.system('mkdir .temp')
-		os.system('cd .temp')
+		self.nodeList = self.makeNodeList(board)
+		self.netList = self.buildNetList(board)
+		try:
+			os.system('mkdir .temp')
+			os.system('cd .temp')
+		except:
+			pass
+	
+	def makeNodeList(self,board):
+		nodeList = []
+		for comp in board.componentList:
+			for pin in comp.pinList:
+				nodeList.append(pin.Node.node)
+		return nodeList
 	
 	def getNodes(self,component):
 		nodeStr = ' '
@@ -44,14 +55,15 @@ class B2Spice(object):
 		for comp in compList:
 			for pin in comp.pinList:
 				if pin.Node.node < 4 and pin.Node.node >0:
-					voltagePower = pin.Node.voltage
+					voltagePower = pin.Node.voltage.volts
 					voltageNode = pin.Node.node
+					return voltagePower,voltageNode
 				else:
 					voltagePower = 0
 					voltageNode = 0
-		return voltagePower,voltageNode
+					return voltagePower,voltageNode
 		
-	def getRailandAnal(self,board):
+	def getRailandAnalysis(self,board):
 		vPower,vNode = self.getRail(board)
 		sourceName = 'v' + str(id(board))
 		groundNode =  '0'
@@ -63,50 +75,69 @@ class B2Spice(object):
 		
 	def buildNetList(self,board):
 		netList = self.cirName + '\n'
-		sourceLine,analysisLine = self.getRailandAnal(board)
+		sourceLine,analysisLine = self.getRailandAnalysis(board)
 		netList += sourceLine + '\n'
 		compList = board.componentList
 		for components in compList:
 			netList += self.buildText(components) + '\n'
 		netList += analysisLine + '\n'
-		netList += '.print dc v(4) \n'
+		vAtNodeLine = '.print dc'
+		for node in self.nodeList:
+			vAtNodeLine += ' v(%s)' % node
+		vAtNodeLine += ' \n'
+		netList += vAtNodeLine
 		netList += '.end'
 		return netList
+			
 		
-		
-	def sendBbToSpice(self,board):
+	def loadBb(self,board):
 		fileName = self.cirName + '.cir'
-		netList = self.buildNetList(board)
+		resFileName = 'res.txt'
+		netList = self.netList
 		os.system('touch %s' % fileName) 
 		fout = open(fileName,'w')
 		fout.write(netList)
 		fout.close()
-		res = os.system('ngspice -b ' + fileName) 
+		res = os.system('ngspice -b ' + fileName + ' > ' + resFileName) 
 		os.system('rm ' + fileName)
 		os.system('cd ..')
 		os.system('rm -rf .temp/')
-
-#~ 
-	#~ def getV(self,Node):
-		#~ try:
-			#~ os.system('v(%d)' % Node.node)
-		#~ ##expect module
+		return res
 	
-	def __repr__(self):
-		return 'at least something worked'
+	#~ def getVoltageAtLocations(self,board):
+		#~ nodeList = []
+		#~ for comp in board.componentList:
+			#~ for loc in comp.pinList:
+				#~ nodeList += 
 
-b = B2Spice()
+
+	def railExists(self,board):
+		compList = board.componentList
+		nodeList = []
+		for comp in compList:
+			for pin in comp.pinList:
+				nodeList.append(pin.Node.node)
+		for node in nodeList:
+			if node > 0 and node < 5:
+				return True
+		return False
+	
+
+
 bb = Breadboard()
-r1 = Resistor(50)
-r2 = Resistor(60)
-c1 = Capacitor(.000001)
+r1 = Resistor(500)
+w2 = Wire()
+r3 = Resistor(2000)
+#~ c1 = Capacitor(.000001)
+c4 = Capacitor(.00001)
+r5 = Resistor(200)
 #~ w1 = Wire()
-print bb.putComponent(r1,3,7,31,5)
-print bb.putComponent(r2,1,5,3,5)
-print bb.putComponent(c1,31,3,25,13)
-
-#~ print isinstance(c1, Capacitor)
-#~ bb.putComponent(w1,5,6,6,6)
-#~ print r1.pinList
-print b.buildNetList(bb)
-#~ inter.sendBbToSpice(bb)
+bb.putComponent(r1,18,1,18,7)
+bb.putComponent(w2,18,6,11,6)
+bb.putComponent(r3,18,5,22,5)
+bb.putComponent(c4,22,6,22,17)
+bb.putComponent(r5,11,5,11,17)
+r1.pinList[0].Node.voltage = Voltage(-5)
+b = B2Spice(bb)
+#~ print b.buildNetList(bb)
+b.loadBb(bb)

@@ -17,7 +17,7 @@ class BreadboardComponent(object):
 		self.standardPinList = copy.copy(pinList) #saves initialized relativelocaiton list
 
 	def __repr__(self):
-		return 'Generalized Component'
+		return '%s' % self.displayName
 
 
 class FixedBreadboardComponent(BreadboardComponent):
@@ -35,8 +35,8 @@ class FixedBreadboardComponent(BreadboardComponent):
 		self.width = width
 		self.height = height
 
-	def __repr__(self):
-		return '%s of size %dx%d attributes %s and %g pins at ref pin %g,%g' % (self.displayName,self.width, self.height,str(self.attributes), len(self.pinList),self.pinList[0].xLoc,self.pinList[0].yLoc)
+	#~ def __repr__(self):
+		#~ return '%s of size %dx%d attributes %s and %g pins at ref pin %g,%g' % (self.displayName,self.width, self.height,str(self.attributes), len(self.pinList),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
 class VariableBreadboardComponent(BreadboardComponent):
 	"""An abstraction of a breadboard component--ones 
@@ -48,8 +48,8 @@ class VariableBreadboardComponent(BreadboardComponent):
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 		self.maxLength = maxLength
 
-	def __repr__(self):
-		return '%s of %s %s at ref pin %g,%g' %(self.displayName,str(self.attributes.keys()),str(self.attributes.values()),self.pinList[0].xLoc,self.pinList[0].yLoc)
+	#~ def __repr__(self):
+		#~ return '%s of %s %s at ref pin %g,%g' %(self.displayName,str(self.attributes.keys()),str(self.attributes.values()),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
 class Resistor(VariableBreadboardComponent):
 	"""A two pin resistor having size range 1 pin to 20"""
