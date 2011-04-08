@@ -122,7 +122,7 @@ class B2Spice(object):
 					a = b[i][j+2:j+flag]
 					if 'sw' in a or a=='':
 						a = 2**8
-					key.append(a) 
+					key.append(int(a)) 
 				if b[i][j:j+2] == 'e+' or  b[i][j:j+2]=='e-':
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
@@ -171,8 +171,8 @@ if __name__ == "__main__":
 	r5 = Resistor(200)
 	w1 = Wire()
 	bb.putComponent(r1,18,1,18,7)
-	bb.putComponent(w2,18,6,11,6)
-	bb.putComponent(r3,18,5,11,17)
+	bb.putComponent(w2,18,6,11,17)
+	#~ bb.putComponent(r3,18,5,11,17)
 	#~ bb.putComponent(c1,22,6,22,17)
 	#~ bb.putComponent(w1,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
