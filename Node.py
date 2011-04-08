@@ -34,9 +34,7 @@ class Node(object):
 			for j in range(width):
 				l2n[(i,j)] = 4*j+1
 		return l2n	
-	
-	def voltageDictionar
-
+			
 	
 	def __repr__(self):
 		return 'the %gth node' % self.node

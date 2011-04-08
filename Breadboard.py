@@ -12,10 +12,10 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.voltageOne = 2.5 #fillers for now
-		self.voltageTwo = 5 
-		self.voltageThree = 5
-		self.voltageFour = 0
+		self.voltageZero = 2.5 #fillers for now
+		self.voltageOne = 5 
+		self.voltageTwo = 5
+		self.voltageThree = 0
 		
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
@@ -24,9 +24,13 @@ class Breadboard(object):
 					self.setFilled(x,y)
 				if x%5==0 and (y==0 or y==1 or y==16 or y==17):
 					self.setFilled(x,y)
+				if x==0:
+					
 
 	def __repr__(self):
 		return self.locMatrix.__repr__() #pretty okay for debugging
+
+	def setVoltage
 
 	def getLocation(self,x,y):
 		return self.locMatrix.getItem(x,y)
