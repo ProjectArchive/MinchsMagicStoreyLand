@@ -61,7 +61,7 @@ class MainFrame(Frame):
 	def startSimulation(self):
 		print 'Start Simulation'
 		simInstance = B2Spice(self.breadBoard)
-		res = simInstance.loadBB()
+		res = simInstance.loadBb()
 		print res
 	
 if __name__ == "__main__":
