@@ -30,9 +30,13 @@ class B2Spice(object):
 		return str(attrKey),str(attrVal)
 		
 	def buildText(self,BreadboardComponent):
+		if isinstance(BreadboardComponent,Capacitor):
+			suffix = ' ic=0'
+		else:
+			suffix = ''
 		nodes = self.getNodes(BreadboardComponent)
 		attr = self.getAttr(BreadboardComponent)
-		ans = attr[0] + nodes + attr[1]
+		ans = attr[0] + nodes + attr[1] + suffix
 		return ans
 	
 	def getRail(self,Breadboard):
@@ -42,24 +46,31 @@ class B2Spice(object):
 				if pin.Node.node < 4 and pin.Node.node >0:
 					voltagePower = pin.Node.voltage
 					voltageNode = pin.Node.node
+				else:
+					voltagePower = 0
+					voltageNode = 0
 		return voltagePower,voltageNode
 		
-	def writeVoltageSource(self,Breadboard):
+	def getRailandAnal(self,Breadboard):
 		vPower,vNode = self.getRail(Breadboard)
-		sourceName = str(id(Breadboard))
+		sourceName = 'v' + str(id(Breadboard))
 		groundNode =  '0'
 		powerNode = str(vNode)
 		power = str(vPower)
-		return sourceName + ' ' + groundNode + ' ' + powerNode + ' ' + power
+		sourceLine = sourceName + ' ' + groundNode + ' ' + powerNode + ' dc ' + power
+		analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
+		return sourceLine,analysisLine
 		
 	def buildNetList(self,Breadboard):
 		netList = self.cirName + '\n'
+		sourceLine,analysisLine = self.getRailandAnal(Breadboard)
+		netList += sourceLine + '\n'
 		compList = Breadboard.componentList
 		for components in compList:
 			netList += self.buildText(components) + '\n'
-		source = self.writeVoltageSource(Breadboard)
-		netList += source + '\n'
-		netList += 'end'
+		netList += analysisLine + '\n'
+		netList += '.print dc v(4) \n'
+		netList += '.end'
 		return netList
 		
 		
@@ -95,4 +106,5 @@ bb.putComponent(r2,3,2,3,3)
 bb.putComponent(c1,3,4,4,4)
 #~ bb.putComponent(w1,5,6,6,6)
 #~ print r.pinList
+#~ print inter.buildNetList(bb)
 inter.sendBbToSpice(bb)
