@@ -121,7 +121,7 @@ class B2Spice(object):
 					a = b[i][j+2:j+flag]
 					if 'sw' in a or a=='':
 						a = 2**8
-					key.append(int(a)) 
+					key.append(a) 
 				if b[i][j:j+2] == 'e+' or  b[i][j:j+2]=='e-':
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
