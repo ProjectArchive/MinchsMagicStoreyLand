@@ -20,11 +20,10 @@ class Breadboard(object):
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
-				if y==3 or y==9 or y==10 or y==16:
+				if y==2 or y==8 or y==9 or y==15:
 					self.setFilled(x,y)
-				if x%5==0 and (y==0 or y==1 or y==18 or y==19):
+				if x%5==0 and (y==0 or y==1 or y==16 or y==17):
 					self.setFilled(x,y)
-				print x,y,self.isFilled(x,y)
 
 	def __repr__(self):
 		return self.locMatrix.__repr__() #pretty okay for debugging
@@ -137,6 +136,6 @@ class Breadboard(object):
 
 bb = Breadboard()		
 r = Resistor(100)
-print bb.putComponent(r,1,1,2,2)
+bb.putComponent(r,1,1,2,2)
 m = Capacitor(50)
-print bb.putComponent(m,1,2,4,4)
+bb.putComponent(m,1,2,4,4)
