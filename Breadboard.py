@@ -22,6 +22,7 @@ class Breadboard(object):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
 				if y==3 or y==9 or y==10 or y==16:
 					self.setFilled(x,y)
+				print x,y,self.isFilled(x,y)
 
 	def __repr__(self):
 		return self.locMatrix.__repr__() #pretty okay for debugging
@@ -111,8 +112,6 @@ class Breadboard(object):
 		"""removes a component from the breadboard. unfills all the holes and pops it from the breadboard component list.
 		then deletes the component from memory"""		
 		self.setAllUnfilled(aComponent.pinList)
-		print self.componentList
-		print aComponent
 		self.componentList.remove(aComponent)
 		for val in globals():  #actually kills the global variable aComponent refers to
 			if globals()[val]==aComponent:
@@ -136,16 +135,6 @@ class Breadboard(object):
 
 bb = Breadboard()		
 r = Resistor(100)
-bb.putComponent(r,1,1,2,2)
+print bb.putComponent(r,1,1,2,2)
 m = Capacitor(50)
-bb.putComponent(m,1,2,2,3)
-bb.removeComponent(m)
-z = OpAmp('g','aafd')
-bb.putComponent(z,2,5)
-
-print r.pinList
-bb.unplugComponent(r)
-print r.pinList
-
-
-
+print bb.putComponent(m,1,2,4,4)
