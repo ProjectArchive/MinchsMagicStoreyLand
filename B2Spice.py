@@ -11,6 +11,7 @@ class B2Spice(object):
 	line usable by SPICE. Also contains anaylsis
 	options and the interface with SPICE"""
 	def __init__(self,board):
+		self.board = board
 		self.cirName = 'CIRCUIT'+str(id(self))
 		self.nodeList = self.makeNodeList(board)
 		self.netList = self.buildNetList(board)
@@ -20,7 +21,8 @@ class B2Spice(object):
 		except:
 			pass
 	
-	def makeNodeList(self,board):
+	def makeNodeList(self):
+		board = self.board
 		nodeList = []
 		for comp in board.componentList:
 			for pin in comp.pinList:
@@ -50,7 +52,8 @@ class B2Spice(object):
 		ans = attr[0] + nodes + attr[1] + suffix
 		return ans
 	
-	def getRail(self,board):
+	def getRail(self):
+		board = self.board
 		compList = board.componentList
 		for comp in compList:
 			for pin in comp.pinList:
@@ -63,7 +66,8 @@ class B2Spice(object):
 					voltageNode = 0
 					return voltagePower,voltageNode
 		
-	def getRailandAnalysis(self,board):
+	def getRailandAnalysis(self):
+		board = self.board
 		vPower,vNode = self.getRail(board)
 		sourceName = 'v' + str(id(board))
 		groundNode =  '0'
@@ -73,7 +77,8 @@ class B2Spice(object):
 		analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
 		return sourceLine,analysisLine
 		
-	def buildNetList(self,board):
+	def buildNetList(self):
+		board = self.board
 		netList = self.cirName + '\n'
 		sourceLine,analysisLine = self.getRailandAnalysis(board)
 		netList += sourceLine + '\n'
@@ -90,7 +95,8 @@ class B2Spice(object):
 		return netList
 			
 		
-	def loadBb(self,board):
+	def loadBb(self):
+		board = self.board
 		fileName = self.cirName + '.cir'
 		resFileName = 'res.txt'
 		netList = self.netList
