@@ -5,8 +5,6 @@ from PIL import Image,ImageTk
 import tkMessageBox
 
 class PartBrowserFrame(Frame):
-	PIN_PIXEL_COUNT=8
-	PADDING_PIXEL_COUNT = 1
 	"""This is the GUI"""
 	def __init__(self,master=None):
 		"""Initialize yourself"""
@@ -17,12 +15,29 @@ class PartBrowserFrame(Frame):
 		with a little bit of padding"""
 		self.grid(padx=10,pady=10)
 		self.createWidgets()
-		self.pack(fill=BOTH, expand=YES)
 	   
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
-		photo = ImageTk.PhotoImage(Image.open("lenna.jpg"))
+		###make resistor button
+		photo = Image.open("res/resistor_image.png")
+		photo=ImageTk.PhotoImage(photo.resize((50, 50), Image.ANTIALIAS))
+		self.resistorButton = Button(image=photo)
+		self.resistorButton.image = photo
+		self.resistorButton.grid(row=0,column=0)
+		###make capacitor button
+		photo = Image.open("res/capacitor_image.png")
+		photo=ImageTk.PhotoImage(photo.resize((50, 50), Image.ANTIALIAS))
+		self.capacitorButton = Button(image=photo)
+		self.capacitorButton.image = photo
+		self.capacitorButton.grid(row=0,column=1)
+		###make wire button
+		photo = Image.open("res/wire_image.png")
+		photo=ImageTk.PhotoImage(photo.resize((50, 50), Image.ANTIALIAS))		
+		self.wireButton = Button(image=photo)
+		self.wireButton.image = photo
+		self.wireButton.grid(row=0,column=2)
+				
 		
 if __name__ == "__main__":
 	guiFrame = PartBrowserFrame(master=Tk())
