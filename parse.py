@@ -4,7 +4,7 @@ def parse(textFile):
 	makes that v(x) into a list.
 	Then looks for e+ or e-, making that into a list.
 	euqal numbers of e's and v(x)s.
-	zips both into a combined list.
+	ints them, then zips both into a combined list.
 	kills the voltage at the source nodes.
 	converts shortened list to dictionary.
 	bye bye.
@@ -26,7 +26,7 @@ def parse(textFile):
 				a = b[i][j+2:j+flag]
 				if 'sw' in a or a=='':
 					a = 2**16
-				key.append(int(a)) # = b[i+2][j-22:j-10]
+				key.append(int(a)) 
 			if b[i][j:j+2] == ('e+' or 'e-'):
 				val.append(float(b[i][j-8:j+4]))
 	a = zip(key,val)
@@ -34,6 +34,3 @@ def parse(textFile):
 		if part[0]==2**16:
 			a.remove(part)
 	return dict(a)
-	
-h = open('res.txt')
-print parse(h)
