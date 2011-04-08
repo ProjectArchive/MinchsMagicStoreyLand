@@ -118,7 +118,7 @@ class B2Spice(object):
 				#~ nodeList += 
 	
 
-if __name__ == __main__:
+if __name__ == "__main__":
 	bb = Breadboard()
 	r1 = Resistor(500)
 	w2 = Wire()

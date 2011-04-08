@@ -5,6 +5,7 @@ from BreadboardComponent import *
 from BreadboardCanvas import *
 from PartBrowserFrame import *
 from PIL import Image,ImageTk
+from B2Spice import *
 
 import tkMessageBox
 
