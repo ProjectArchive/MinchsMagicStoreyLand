@@ -109,14 +109,16 @@ class B2Spice(object):
 						if b[i][j+k]==')':
 							flag=k
 					a = b[i][j+2:j+flag]
+					if type(a) != int:
+						a='0'
 					if 'sw' in a or a=='':
-						a = 2**16
+						a = 12345
 					key.append(int(a)) 
 				if b[i][j:j+2] == ('e+' or 'e-'):
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
 		for part in a:
-			if part[0]==2**16:
+			if part[0]==12345:
 				a.remove(part)
 		return dict(a)
 			
@@ -136,11 +138,12 @@ class B2Spice(object):
 		fin = open(resFileName,'r')
 		voltageNodeDict = self.parse(fin)
 		fin.close()
-		#~ os.system('rm ' + fileName)
-		#~ os.system('rm ' + resFileName)
-		#~ os.system('cd ..')
-		#~ os.system('rm -rf .temp/')
+		os.system('rm ' + fileName)
+		os.system('rm ' + resFileName)
+		os.system('cd ..')
+		os.system('rm -rf .temp/')
 		return voltageNodeDict
+		#~ return fin
 	
 	#~ def getVoltageAtLocations(self,board):
 		#~ nodeList = []
