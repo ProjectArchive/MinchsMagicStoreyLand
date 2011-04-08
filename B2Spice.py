@@ -110,13 +110,13 @@ class B2Spice(object):
 							flag=k
 					a = b[i][j+2:j+flag]
 					if 'sw' in a or a=='':
-						a = 2**16
+						a = 2**8
 					key.append(int(a)) 
 				if b[i][j:j+2] == ('e+' or 'e-'):
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
 		for part in a:
-			if part[0]==2**16:
+			if part[0]==2**8:
 				a.remove(part)
 		return dict(a)
 			
@@ -165,5 +165,5 @@ if __name__ == "__main__":
 	bb.putComponent(r5,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
-	#~ print b.buildNetList(bb)
+	print b.buildNetList()
 	print b.loadBb()
