@@ -20,6 +20,10 @@ class Breadboard(object):
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
+				if y==2 or y==8 or y==9 or y==15:
+					self.setFilled(x,y)
+				if x%5==0 and (y==0 or y==1 or y==16 or y==17):
+					self.setFilled(x,y)
 
 	def __repr__(self):
 		return self.locMatrix.__repr__() #pretty okay for debugging
@@ -117,7 +121,7 @@ class Breadboard(object):
 		return False
 		
 
-	def unplugComponent(self,aComponent): #pass
+	def unplugComponent(self,aComponent): 
 		self.setAllUnfilled(aComponent.pinList)
 		aComponent.pinList = aComponent.standardPinList
 		return True
@@ -128,20 +132,3 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
-
-
-bb = Breadboard()		
-r = Resistor(100)
-bb.putComponent(r,1,1,2,2)
-m = Capacitor(50)
-bb.putComponent(m,1,2,2,3)
-bb.removeComponent(m)
-z = OpAmp('g','aafd')
-bb.putComponent(z,2,5)
-
-print r.pinList
-bb.unplugComponent(r)
-print r.pinList
-
-
-

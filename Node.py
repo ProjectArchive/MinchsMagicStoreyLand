@@ -1,3 +1,5 @@
+from Voltage import *
+
 class Node(object):
 	"""This class represents the in-between
 	for spice and the breadboard class"""
@@ -10,7 +12,7 @@ class Node(object):
 		self.position = position
 		nodeDict = self.nodeDictionary()
 		self.node = nodeDict.get((position),-1)
-		self.voltage = None
+		self.voltage = Voltage()
 	
 	
 	def nodeDictionary(self):
@@ -32,9 +34,9 @@ class Node(object):
 			for j in range(width):
 				l2n[(i,j)] = 4*j+1
 		return l2n	
+	
+	def voltageDictionar
 
 	
 	def __repr__(self):
 		return 'the %gth node' % self.node
-		
-
