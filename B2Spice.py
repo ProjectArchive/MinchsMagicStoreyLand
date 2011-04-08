@@ -115,35 +115,23 @@ class B2Spice(object):
 		#~ for comp in board.componentList:
 			#~ for loc in comp.pinList:
 				#~ nodeList += 
-
-
-	def railExists(self,board):
-		compList = board.componentList
-		nodeList = []
-		for comp in compList:
-			for pin in comp.pinList:
-				nodeList.append(pin.Node.node)
-		for node in nodeList:
-			if node > 0 and node < 5:
-				return True
-		return False
 	
 
-
-bb = Breadboard()
-r1 = Resistor(500)
-w2 = Wire()
-r3 = Resistor(2000)
-#~ c1 = Capacitor(.000001)
-c4 = Capacitor(.00001)
-r5 = Resistor(200)
-#~ w1 = Wire()
-bb.putComponent(r1,18,1,18,7)
-bb.putComponent(w2,18,6,11,6)
-bb.putComponent(r3,18,5,22,5)
-bb.putComponent(c4,22,6,22,17)
-bb.putComponent(r5,11,5,11,17)
-r1.pinList[0].Node.voltage = Voltage(-5)
-b = B2Spice(bb)
-#~ print b.buildNetList(bb)
-b.loadBb(bb)
+if __name__ = __main__:
+	bb = Breadboard()
+	r1 = Resistor(500)
+	w2 = Wire()
+	r3 = Resistor(2000)
+	#~ c1 = Capacitor(.000001)
+	c4 = Capacitor(.00001)
+	r5 = Resistor(200)
+	#~ w1 = Wire()
+	bb.putComponent(r1,18,1,18,7)
+	bb.putComponent(w2,18,6,11,6)
+	bb.putComponent(r3,18,5,22,5)
+	bb.putComponent(c4,22,6,22,17)
+	bb.putComponent(r5,11,5,11,17)
+	r1.pinList[0].Node.voltage = Voltage(-5)
+	b = B2Spice(bb)
+	#~ print b.buildNetList(bb)
+	b.loadBb(bb)
