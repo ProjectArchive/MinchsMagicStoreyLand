@@ -122,21 +122,15 @@ class B2Spice(object):
 					if type(a) != int:
 						a='0'
 					if 'sw' in a or a=='':
-<<<<<<< HEAD
 						a = 2**8
-=======
 						a = 12345
->>>>>>> 51b4357e1eb66bf5d37c46ea884251438eddbdf6
 					key.append(int(a)) 
 				if b[i][j:j+2] == ('e+' or 'e-'):
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
 		for part in a:
-<<<<<<< HEAD
 			if part[0]==2**8:
-=======
 			if part[0]==12345:
->>>>>>> 51b4357e1eb66bf5d37c46ea884251438eddbdf6
 				a.remove(part)
 		return dict(a)
 			
@@ -186,9 +180,6 @@ if __name__ == "__main__":
 	bb.putComponent(r5,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
-<<<<<<< HEAD
 	print b.buildNetList()
-=======
 	#~ print b.buildNetList()
->>>>>>> 9044585fa7f5581b61a55cebd433321b3e611281
 	print b.loadBb()
