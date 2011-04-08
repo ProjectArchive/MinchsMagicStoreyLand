@@ -32,7 +32,7 @@ class Breadboard(object):
 					self.setNodeVoltage(x,y,self.railTwo)
 				if x==17:
 					self.setNodeVoltage(x,y,self.railThree)
-				print self.getLocation(x,y).Node.voltage,
+				print x,y,self.getLocation(x,y).Node.voltage,'   ',
 					
 					
 
