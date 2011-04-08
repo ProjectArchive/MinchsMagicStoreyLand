@@ -25,13 +25,15 @@ def parse(textFile):
 						flag=k
 				a = b[i][j+2:j+flag]
 				if 'sw' in a or a=='':
-					a = 'V-source'
-				key.append(a) # = b[i+2][j-22:j-10]
+					a = 2**16
+				key.append(int(a)) # = b[i+2][j-22:j-10]
 			if b[i][j:j+2] == ('e+' or 'e-'):
-				val.append(b[i][j-8:j+4])
+				val.append(float(b[i][j-8:j+4]))
 	a = zip(key,val)
 	for part in a:
-		if part[0]=='V-source':
+		if part[0]==2**16:
 			a.remove(part)
 	return dict(a)
-
+	
+h = open('res.txt')
+print parse(h)
