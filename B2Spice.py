@@ -136,10 +136,10 @@ class B2Spice(object):
 		fin = open(resFileName,'r')
 		voltageNodeDict = self.parse(fin)
 		fin.close()
-		os.system('rm ' + fileName)
-		os.system('rm ' + resFileName)
-		os.system('cd ..')
-		os.system('rm -rf .temp/')
+		#~ os.system('rm ' + fileName)
+		#~ os.system('rm ' + resFileName)
+		#~ os.system('cd ..')
+		#~ os.system('rm -rf .temp/')
 		return voltageNodeDict
 	
 	#~ def getVoltageAtLocations(self,board):
@@ -153,15 +153,15 @@ if __name__ == "__main__":
 	bb = Breadboard()
 	r1 = Resistor(500)
 	w2 = Wire()
-	r3 = Resistor(2000)
+	r3 = Resistor(2000)5
 	#~ c1 = Capacitor(.000001)
-	c4 = Capacitor(.00001)
+	r4 = Resistor(100000)
 	r5 = Resistor(200)
 	#~ w1 = Wire()
 	bb.putComponent(r1,18,1,18,7)
 	bb.putComponent(w2,18,6,11,6)
 	bb.putComponent(r3,18,5,22,5)
-	bb.putComponent(c4,22,6,22,17)
+	bb.putComponent(r4,22,6,22,17)
 	bb.putComponent(r5,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
