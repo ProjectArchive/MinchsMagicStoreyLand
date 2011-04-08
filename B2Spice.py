@@ -112,6 +112,7 @@ class B2Spice(object):
 
 		for line in textFile:
 			b.append(line)
+			print line
 		for i in range(len(b)-1):
 			for j in range(len(b[i])-1):
 				if b[i][j:j+2] == 'v(' or b[i][j:j+2] == 'v-':
@@ -126,7 +127,7 @@ class B2Spice(object):
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
 		for part in a:
-			if part[0]==2**8:
+			if part[0]==2**8 or part[0]==256:
 				a.remove(part)
 		return dict(a)
 			
@@ -177,5 +178,5 @@ if __name__ == "__main__":
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
 	print b.buildNetList()
-	#~ print b.buildNetList()
+	print b.buildNetList()
 	print b.loadBb()
