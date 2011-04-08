@@ -98,13 +98,14 @@ class B2Spice(object):
 	def loadBb(self):
 		board = self.board
 		fileName = self.cirName + '.cir'
-		resFileName = 'res.txt'
+		#~ resFileName = 'res.txt'
 		netList = self.netList
 		os.system('touch %s' % fileName) 
 		fout = open(fileName,'w')
 		fout.write(netList)
 		fout.close()
-		res = os.system('ngspice -b ' + fileName + ' > ' + resFileName) 
+		#~ res = os.system('ngspice -b ' + fileName + ' > ' + resFileName) 
+		res = os.system('ngspice -b ' + fileName)
 		os.system('rm ' + fileName)
 		os.system('cd ..')
 		os.system('rm -rf .temp/')
