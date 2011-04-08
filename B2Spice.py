@@ -153,7 +153,7 @@ if __name__ == "__main__":
 	bb = Breadboard()
 	r1 = Resistor(500)
 	w2 = Wire()
-	r3 = Resistor(2000)5
+	r3 = Resistor(2000)
 	#~ c1 = Capacitor(.000001)
 	r4 = Resistor(100000)
 	r5 = Resistor(200)
