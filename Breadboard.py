@@ -132,10 +132,3 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
-
-
-bb = Breadboard()		
-r = Resistor(100)
-bb.putComponent(r,1,1,2,2)
-m = Capacitor(50)
-bb.putComponent(m,1,2,4,4)

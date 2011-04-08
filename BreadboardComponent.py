@@ -112,6 +112,3 @@ class OpAmp(FixedBreadboardComponent):
 		displayName = 'OpAmp' #default
 		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
 		
-
-weldon = Wire()
-print weldon
