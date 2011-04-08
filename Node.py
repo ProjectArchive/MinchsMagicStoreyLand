@@ -13,7 +13,7 @@ class Node(object):
 		nodeDict = self.nodeDictionary()
 		self.node = nodeDict.get((position),-1)
 		self.voltage = Voltage()
-	
+
 	
 	def nodeDictionary(self):
 		"""initializes the dictionary that relates position tuples
@@ -38,4 +38,3 @@ class Node(object):
 	
 	def __repr__(self):
 		return 'the %gth node' % self.node
-

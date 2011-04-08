@@ -4,7 +4,7 @@ from BreadboardComponent import *
 
 class Breadboard(object):
 	"""represents a breadboard.
-	At root, is powered like a DAQ powers a breadboard,
+	By default, is powered like a DAQ powers a breadboard,
 	going (bottom to top) ground,2.5V,2.5V,5V"""
 
 	def __init__(self): #maybe this should take on voltage rail
@@ -12,7 +12,7 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.railZero = Voltage(2.5) #fillers for now
+		self.railZero = Voltage(2.5) 
 		self.railOne = Voltage(5) 
 		self.railTwo = Voltage(5)
 		self.railThree = Voltage(0)
@@ -20,27 +20,27 @@ class Breadboard(object):
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
-				if y==2 or y==8 or y==9 or y==15:
+				if y==2 or y==8 or y==9 or y==15: #fills pins between rows
 					self.setFilled(x,y)
-				if x%5==0 and (y==0 or y==1 or y==16 or y==17):
+				if x%5==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
-				if x==0:
-					self.setNodeVoltage(x,y,self.railZero)
+				if x==0:	
+					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail
 				if x==1:
-					self.setNodeVoltage(x,y,self.railOne)
+					self.setNodeVoltage(x,y,self.railOne)	#sets power at second from top rail
 				if x==16:
-					self.setNodeVoltage(x,y,self.railTwo)
+					self.setNodeVoltage(x,y,self.railTwo)	#sets power at third from top rail
 				if x==17:
-					self.setNodeVoltage(x,y,self.railThree)
-				#print x,y,self.getLocation(x,y).Node.voltage,'   ',
-					
+					self.setNodeVoltage(x,y,self.railThree)	#sets power at fourth from top rail
 					
 
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
 
 	def setNodeVoltage(self,x,y,voltage):
-		self.getLocation(x,y).Node.voltage = voltage
+		"""makes a node have a nonezero voltage"""
+		self.locMatrix.matrix[x][y].Node.voltage = voltage
+		return True
 
 	def getLocation(self,x,y):
 		return self.locMatrix.getItem(x,y)
@@ -146,5 +146,3 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
-
-bb = Breadboard()

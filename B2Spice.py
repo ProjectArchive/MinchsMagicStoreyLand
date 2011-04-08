@@ -16,56 +16,67 @@ class B2Spice(object):
 		os.system('mkdir .temp')
 		os.system('cd .temp')
 	
-	def getNodes(self,BreadboardComponent):
+	def getNodes(self,component):
 		nodeStr = ' '
-		for pins in BreadboardComponent.pinList:
+		for pins in component.pinList:
 			nodeStr += str(pins.Node.node) + ' '
 		return nodeStr
 		
-	def getAttr(self,BreadboardComponent):
-		attributeDict = BreadboardComponent.attributes
+	def getAttr(self,component):
+		attributeDict = component.attributes
 		attrKey = attributeDict.keys()[0]
 		attrVal = attributeDict[attrKey]
-		attrKey = attrKey[0] + str(id(BreadboardComponent))
+		attrKey = attrKey[0] + str(id(component))
 		return str(attrKey),str(attrVal)
 		
-	def buildText(self,BreadboardComponent):
-		nodes = self.getNodes(BreadboardComponent)
-		attr = self.getAttr(BreadboardComponent)
-		ans = attr[0] + nodes + attr[1]
+	def buildText(self,component):
+		if isinstance(component,Capacitor):
+			suffix = ' ic=0'
+		else:
+			suffix = ''
+		nodes = self.getNodes(component)
+		attr = self.getAttr(component)
+		ans = attr[0] + nodes + attr[1] + suffix
 		return ans
 	
-	def getRail(self,Breadboard):
-		compList = Breadboard.componentList
+	def getRail(self,board):
+		compList = board.componentList
 		for comp in compList:
 			for pin in comp.pinList:
 				if pin.Node.node < 4 and pin.Node.node >0:
 					voltagePower = pin.Node.voltage
 					voltageNode = pin.Node.node
+				else:
+					voltagePower = 0
+					voltageNode = 0
 		return voltagePower,voltageNode
 		
-	def writeVoltageSource(self,Breadboard):
-		vPower,vNode = self.getRail(Breadboard)
-		sourceName = str(id(Breadboard))
+	def getRailandAnal(self,board):
+		vPower,vNode = self.getRail(board)
+		sourceName = 'v' + str(id(board))
 		groundNode =  '0'
 		powerNode = str(vNode)
 		power = str(vPower)
-		return sourceName + ' ' + groundNode + ' ' + powerNode + ' ' + power
+		sourceLine = sourceName + ' ' + groundNode + ' ' + powerNode + ' dc ' + power
+		analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
+		return sourceLine,analysisLine
 		
-	def buildNetList(self,Breadboard):
+	def buildNetList(self,board):
 		netList = self.cirName + '\n'
-		compList = Breadboard.componentList
+		sourceLine,analysisLine = self.getRailandAnal(board)
+		netList += sourceLine + '\n'
+		compList = board.componentList
 		for components in compList:
 			netList += self.buildText(components) + '\n'
-		source = self.writeVoltageSource(Breadboard)
-		netList += source + '\n'
-		netList += 'end'
+		netList += analysisLine + '\n'
+		netList += '.print dc v(4) \n'
+		netList += '.end'
 		return netList
 		
 		
-	def sendBbToSpice(self,Breadboard):
+	def sendBbToSpice(self,board):
 		fileName = self.cirName + '.cir'
-		netList = self.buildNetList(Breadboard)
+		netList = self.buildNetList(board)
 		os.system('touch %s' % fileName) 
 		fout = open(fileName,'w')
 		fout.write(netList)
@@ -84,15 +95,18 @@ class B2Spice(object):
 	def __repr__(self):
 		return 'at least something worked'
 
-inter = B2Spice()
+b = B2Spice()
 bb = Breadboard()
 r1 = Resistor(50)
 r2 = Resistor(60)
 c1 = Capacitor(.000001)
 #~ w1 = Wire()
-bb.putComponent(r1,1,1,1,2)
-bb.putComponent(r2,3,2,3,3)
-bb.putComponent(c1,3,4,4,4)
+print bb.putComponent(r1,3,7,31,5)
+print bb.putComponent(r2,1,5,3,5)
+print bb.putComponent(c1,31,3,25,13)
+
+#~ print isinstance(c1, Capacitor)
 #~ bb.putComponent(w1,5,6,6,6)
-#~ print r.pinList
-inter.sendBbToSpice(bb)
+#~ print r1.pinList
+print b.buildNetList(bb)
+#~ inter.sendBbToSpice(bb)
