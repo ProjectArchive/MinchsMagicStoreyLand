@@ -93,23 +93,54 @@ class B2Spice(object):
 		netList += vAtNodeLine
 		netList += '.end'
 		return netList
+	
+	def parse(self,textFile):
+		key=[]
+		val=[]
+		b=[]
+		flag=0
+
+		for line in textFile:
+			b.append(line)
+		for i in range(len(b)-1):
+			for j in range(len(b[i])-1):
+				if b[i][j:j+2] == 'v(' or b[i][j:j+2] == 'v-':
+					for k in range(-1,5):
+						if b[i][j+k]==')':
+							flag=k
+					a = b[i][j+2:j+flag]
+					if 'sw' in a or a=='':
+						a = 2**16
+					key.append(int(a)) 
+				if b[i][j:j+2] == ('e+' or 'e-'):
+					val.append(float(b[i][j-8:j+4]))
+		a = zip(key,val)
+		for part in a:
+			if part[0]==2**16:
+				a.remove(part)
+		return dict(a)
 			
 		
 	def loadBb(self):
 		board = self.board
 		fileName = self.cirName + '.cir'
-		#~ resFileName = 'res.txt'
+		resFileName = 'res.txt'
 		netList = self.netList
 		os.system('touch %s' % fileName) 
+		os.system('touch %s' % resFileName)
 		fout = open(fileName,'w')
 		fout.write(netList)
 		fout.close()
-		#~ res = os.system('ngspice -b ' + fileName + ' > ' + resFileName) 
-		res = os.system('ngspice -b ' + fileName)
+		res = os.system('ngspice -b ' + fileName + ' > ' + resFileName) 
+		#~ res = os.system('ngspice -b ' + fileName)
+		fin = open(resFileName,'r')
+		voltageNodeDict = self.parse(fin)
+		fin.close()
 		os.system('rm ' + fileName)
+		os.system('rm ' + resFileName)
 		os.system('cd ..')
 		os.system('rm -rf .temp/')
-		return res
+		return voltageNodeDict
 	
 	#~ def getVoltageAtLocations(self,board):
 		#~ nodeList = []
@@ -135,4 +166,4 @@ if __name__ == "__main__":
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
 	#~ print b.buildNetList(bb)
-	b.loadBb()
+	print b.loadBb()
