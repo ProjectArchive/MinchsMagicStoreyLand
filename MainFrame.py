@@ -5,7 +5,7 @@ from BreadboardComponent import *
 from BreadboardCanvas import *
 from PartBrowserFrame import *
 from PIL import Image,ImageTk
-import B2SPice
+from B2Spice import *
 
 import tkMessageBox
 
@@ -20,22 +20,20 @@ class MainFrame(Frame):
 		#self.master.rowconfigure( 0, weight = 1 )
 		#self.master.columnconfigure( 0, weight = 1 )
 		#self.grid( sticky = W+E+N+S )
-		self.grid()
 		self.createWidgets()
+		self.grid()
+
 
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
-		#self.createMenu()
+		self.createMenu()
+		self.breadBoardCanvas = BreadboardCanvas(self.breadBoard,master=self)
+		self.breadBoardCanvas.grid(row=1,column=1)
 		self.partBrowserFrame = PartBrowserFrame(master=self)
 		self.partBrowserFrame.grid(row=2,column =2)
-		self.breadBoardCanvas = BreadboardCanvas(self.breadBoard,master=self)
-		self.breadBoardCanvas.grid(row=0,column=0)
-
-		#self.grid()
-		#self.createSimulateButton()
-		#self.simulateButton.grid(row=1,column=3,sticky=N+E)
-
+		self.createSimulateButton()
+		self.simulateButton.grid(row=1,column=3,sticky=N+E)
 
 	def createMenu(self):
 		self.menu = Menu(self)
@@ -55,12 +53,16 @@ class MainFrame(Frame):
 		photo=ImageTk.PhotoImage(photo)
 		self.simulateButton = Button(self,image=photo,command=self.startSimulation)
 		self.simulateButton.photo = photo
+		
 	
 	def callback():
 		print 'callback'
 	
 	def startSimulation(self):
 		print 'Start Simulation'
+		simInstance = B2Spice(self.breadBoard)
+		res = simInstance.loadBb()
+		print res
 	
 if __name__ == "__main__":
 	guiFrame = MainFrame(Breadboard(),master=Tk(),width=900,height=500)	

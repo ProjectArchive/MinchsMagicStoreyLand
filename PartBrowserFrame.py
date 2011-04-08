@@ -10,10 +10,8 @@ class PartBrowserFrame(Frame):
 		"""Initialize yourself"""
 		"""Initialise the base class"""
 		Frame.__init__(self,**kw)
-		"""Display the main window"
-		with a little bit of padding"""
+		self.CURRENT = ""
 		self.createWidgets()
-		self.grid()
 	   
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
@@ -40,24 +38,42 @@ class PartBrowserFrame(Frame):
 	def createResistorEvent(self):
 		isRaised = self.resistorButton.cget('relief') == "raised" 
 		if isRaised:
+			self.wireButton.config(relief=RAISED)
+			self.capacitorButton.config(relief=RAISED)
 			self.resistorButton.config(relief=SUNKEN)
+			self.CURRENT = "RESISTOR"
 		else:
 			self.resistorButton.config(relief=RAISED)
+			self.CURRENT = ""
 		print 'create resistor event invoked'
 		
 	def createWireEvent(self):
-		isRaised = self.resistorButton.cget('relief') == "raised" 
+		isRaised = self.wireButton.cget('relief') == "raised" 
 		if isRaised:
-			self.resistorButton.config(relief=SUNKEN)
-		else:
 			self.resistorButton.config(relief=RAISED)
-		print 'create resistor event invoked'
+			self.capacitorButton.config(relief=RAISED)
+			self.wireButton.config(relief=SUNKEN)
+			self.CURRENT ="WIRE"
+		else:
+			self.wireButton.config(relief=RAISED)
+			self.CURRENT = ""
+		print 'create wire event invoked'
 		
 	def createCapacitorEvent(self):
-		print 'create resistor event invoked'
+		isRaised = self.capacitorButton.cget('relief') == "raised" 
+		if isRaised:
+			self.resistorButton.config(relief=RAISED)
+			self.wireButton.config(relief=RAISED)
+			self.capacitorButton.config(relief=SUNKEN)
+			self.CURRENT = "CAPACITOR"
+		else:
+			self.capacitorButton.config(relief=RAISED)
+			self.CURRENT = ""
+		print 'create capacitor event invoked'
 		
 if __name__ == "__main__":
 	root = Tk()
 	guiFrame = PartBrowserFrame(master=root)
+	guiFrame.grid()
 	root.mainloop()
 
