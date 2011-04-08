@@ -119,18 +119,14 @@ class B2Spice(object):
 						if b[i][j+k]==')':
 							flag=k
 					a = b[i][j+2:j+flag]
-					if type(a) != int:
-						a='0'
 					if 'sw' in a or a=='':
 						a = 2**8
-						a = 12345
 					key.append(int(a)) 
-				if b[i][j:j+2] == ('e+' or 'e-'):
+				if b[i][j:j+2] == 'e+' or  b[i][j:j+2]=='e-':
 					val.append(float(b[i][j-8:j+4]))
 		a = zip(key,val)
 		for part in a:
 			if part[0]==2**8:
-			if part[0]==12345:
 				a.remove(part)
 		return dict(a)
 			
