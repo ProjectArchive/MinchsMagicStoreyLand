@@ -22,7 +22,7 @@ class Breadboard(object):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
 				if y==2 or y==8 or y==9 or y==15: #fills pins between rows
 					self.setFilled(x,y)
-				if x%5==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
+				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 				if x==0:	
 					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail

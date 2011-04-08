@@ -104,32 +104,38 @@ class B2Spice(object):
 		netList += '.end'
 		return netList
 	
+	#~ def parse(self,textFile):
+		#~ key=[]
+		#~ val=[]
+		#~ b=[]
+		#~ flag=0
+#~ 
+		#~ for line in textFile:
+			#~ b.append(line)
+			#~ print line,
+		#~ for i in range(len(b)-1):
+			#~ for j in range(len(b[i])-1):
+				#~ if b[i][j:j+2] == 'v(' or b[i][j:j+2] == 'v-':
+					#~ for k in range(-1,5):
+						#~ if b[i][j+k]==')':
+							#~ flag=k
+					#~ a = b[i][j+2:j+flag]
+					#~ if 'sw' in a or a=='':
+						#~ a = 'Power'
+					#~ key.append(a) 
+				#~ if b[i][j:j+2] == 'e+' or  b[i][j:j+2]=='e-':
+					#~ val.append(float(b[i][j-8:j+4]))
+		#~ a = zip(key,val)
+		#~ return dict(a)
+		
 	def parse(self,textFile):
-		key=[]
-		val=[]
 		b=[]
-		flag=0
-
 		for line in textFile:
 			b.append(line)
-			print line
 		for i in range(len(b)-1):
-			for j in range(len(b[i])-1):
-				if b[i][j:j+2] == 'v(' or b[i][j:j+2] == 'v-':
-					for k in range(-1,5):
-						if b[i][j+k]==')':
-							flag=k
-					a = b[i][j+2:j+flag]
-					if 'sw' in a or a=='':
-						a = 2**8
-					key.append(int(a)) 
-				if b[i][j:j+2] == 'e+' or  b[i][j:j+2]=='e-':
-					val.append(float(b[i][j-8:j+4]))
-		a = zip(key,val)
-		for part in a:
-			if part[0]==2**8 or part[0]==256:
-				a.remove(part)
-		return dict(a)
+			if 'Index' in b[i]:
+				print b[i],b[i+1],b[i+2]
+		return True
 			
 		
 	def loadBb(self):
