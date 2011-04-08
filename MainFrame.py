@@ -11,31 +11,32 @@ import tkMessageBox
 
 class MainFrame(Frame):
 	"""This is the GUI"""
-	def __init__(self,breadBoard,master=None):
+	def __init__(self,breadBoard,**kw):
 		"""Initialize yourself"""
 		"""Initialise the base class"""
-		Frame.__init__(self,master)
-		self.master = master
+		Frame.__init__(self,**kw)
 		self.master.title("Minch's Magic Storey Land!")
 		self.breadBoard = breadBoard
-		self.grid(padx=10,pady=10)
-		self.createWidgets()		
-	def placeAnOpAmp(self):
-		self.breadBoard.putComponent(Resistor(100),1,1,2,2)
-		print 'placed an op amp'
-		self.breadBoardFrame.redraw()
-		
+		#self.master.rowconfigure( 0, weight = 1 )
+		#self.master.columnconfigure( 0, weight = 1 )
+		#self.grid( sticky = W+E+N+S )
+		self.grid()
+		self.createWidgets()
+
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
-		self.breadBoardCanvas = BreadboardCanvas(self,self.breadBoard)
-		self.breadBoardCanvas.grid(row=0,column=1)
+		#self.createMenu()
 		self.partBrowserFrame = PartBrowserFrame(master=self)
-		self.partBrowserFrame.grid(row=1,column =0)
-		self.createMenu()
-		self.createSimulateButton()
-		self.simulateButton.grid(row=1,column=2)
-	
+		self.partBrowserFrame.grid(row=2,column =2)
+		self.breadBoardCanvas = BreadboardCanvas(self.breadBoard,master=self)
+		self.breadBoardCanvas.grid(row=0,column=0)
+
+		#self.grid()
+		#self.createSimulateButton()
+		#self.simulateButton.grid(row=1,column=3,sticky=N+E)
+
+
 	def createMenu(self):
 		self.menu = Menu(self)
 		self.master.config(menu=self.menu)
@@ -60,7 +61,7 @@ class MainFrame(Frame):
 	
 	def startSimulation(self):
 		print 'Start Simulation'
-		
+	
 if __name__ == "__main__":
-	guiFrame = MainFrame(Breadboard(),Tk())	
+	guiFrame = MainFrame(Breadboard(),master=Tk(),width=900,height=500)	
 	guiFrame.mainloop()
