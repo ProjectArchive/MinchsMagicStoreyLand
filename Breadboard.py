@@ -12,10 +12,10 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.voltageZero = 2.5 #fillers for now
-		self.voltageOne = 5 
-		self.voltageTwo = 5
-		self.voltageThree = 0
+		self.railZero = Voltage(2.5) #fillers for now
+		self.railOne = Voltage(5) 
+		self.railTwo = Voltage(5)
+		self.railThree = Voltage(0)
 		
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
@@ -25,12 +25,22 @@ class Breadboard(object):
 				if x%5==0 and (y==0 or y==1 or y==16 or y==17):
 					self.setFilled(x,y)
 				if x==0:
+					self.setNodeVoltage(x,y,self.railZero)
+				if x==1:
+					self.setNodeVoltage(x,y,self.railOne)
+				if x==16:
+					self.setNodeVoltage(x,y,self.railTwo)
+				if x==17:
+					self.setNodeVoltage(x,y,self.railThree)
+				print self.getLocation(x,y).Node.voltage,
+					
 					
 
 	def __repr__(self):
-		return self.locMatrix.__repr__() #pretty okay for debugging
+		return self.locMatrix.__repr__() 
 
-	def setVoltage
+	def setNodeVoltage(self,x,y,voltage):
+		self.getLocation(x,y).Node.voltage = voltage
 
 	def getLocation(self,x,y):
 		return self.locMatrix.getItem(x,y)
@@ -136,3 +146,5 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
+
+bb = Breadboard()

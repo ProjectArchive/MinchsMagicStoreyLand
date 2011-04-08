@@ -5,10 +5,7 @@ class Voltage(object):
 	def __init__(self,currentType='DC',volts=0,frequency=None):
 		"""Either AC or DC, has voltage, and frequency.
 		Standard is 0VDC"""
-		if currentType=='DC' or currentType == 'AC':
-			self.currentType = currentType
-		else:
-			self.currentType = 'DC'
+		self.currentType = currentType
 		self.volts = volts
 		self.frequency = None
 		
