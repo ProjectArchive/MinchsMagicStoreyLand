@@ -51,22 +51,6 @@ class VariableBreadboardComponent(BreadboardComponent):
 	def __repr__(self):
 		return '%s of %s %s at ref pin %g,%g' %(self.displayName,str(self.attributes.keys()),str(self.attributes.values()),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
-
-class Wire(VariableBreadboardComponent):
-	"""A two pin wire"""
-	
-	def __init__(self):
-		"""its a wire"""
-		maxLength = 65536 #this should be the largest int16
-		attributes = {} #no attributes for a wire
-		displayName = 'Wire'
-		spiceName = '' #empty string, not useful in spice
-		technicalName = '' #empty string, not useful
-		referencePin = RelativeLocation()
-		secondPin = RelativeLocation()  #there is no second pin attribute, this is local
-		pinList = [referencePin,secondPin]
-		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,spiceName,technicalName,referencePin,pinList)
-
 class Resistor(VariableBreadboardComponent):
 	"""A two pin resistor having size range 1 pin to 20"""
 	
@@ -82,6 +66,16 @@ class Resistor(VariableBreadboardComponent):
 		secondPin = RelativeLocation(0,0)
 		pinList = [referencePin,secondPin]
 		VariableBreadboardComponent.__init__(self,maxLength,attributes,displayName,spiceName,technicalName,referencePin,pinList)
+
+class Wire(Resistor):
+	"""A two pin wire"""
+	
+	def __init__(self):
+		"""its a wire"""
+		Resistor.__init__(self,10**-9)
+	
+	def __repr__(self):
+		return "Wire at ref pin %g,%g" %(self.referencePin.xLoc,self.referencePin.yLoc)
 
 class Capacitor(VariableBreadboardComponent):
 	"""A two pin capacitor of size 1 to 20 pins"""
@@ -117,34 +111,7 @@ class OpAmp(FixedBreadboardComponent):
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default
 		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
+		
 
-
-class QuadChip(OpAmp):
-	"""A four op-amp chip. we start counting pins
-	at 1, like in the circuit diagrams"""
-	#this needs to be changed to reflect recent extension of OpAmp i.e. attributes, etc.
-	def __init__(self):
-		referencePin = RelativeLocation()
-		pin2 = RelativeLocation(1,0)
-		pin3 = RelativeLocation(2,0)
-		pin4 = RelativeLocation(3,0)
-		pin5 = RelativeLocation(4,0)
-		pin6 = RelativeLocation(5,0)
-		pin7 = RelativeLocation(6,0)
-		pin8 = RelativeLocation(0,0)
-		pin9 = RelativeLocation(1,3)
-		pin10 = RelativeLocation(2,3)
-		pin11 = RelativeLocation(3,3)
-		pin12 = RelativeLocation(4,3)
-		pin13 = RelativeLocation(5,3)
-		pin14 = RelativeLocation(6,3)
-		pinList=[referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14]
-		width = 7
-		height = 4
-		attributes = None
-		displayName = 'Quad Chip'
-		technicalName = 'HDL551'
-		FixedBreadboardComponent.__init__(self,width,height,pinList,attributes,displayName,technicalName,referencePin)
-
-	def __repr__(self):
-		return "%s at %d,%d" % (self.displayName,self.referencePin.xLoc,self.referencePin.yLoc)
+weldon = Wire()
+print weldon
