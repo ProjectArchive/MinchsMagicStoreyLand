@@ -111,4 +111,3 @@ class OpAmp(FixedBreadboardComponent):
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default
 		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
-		
