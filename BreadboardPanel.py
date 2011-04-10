@@ -24,11 +24,12 @@ class BreadboardPanel(wx.Panel):
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
 				bmp.Bind(wx.EVT_MOTION, self.onMotion,id=-1) #bind generic onMotion event,
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
-		print ('%d locations present') %len(self.someDict.values())
+		print ('%d locations present') %len(self.bitmapToXY.values())
 		self.SetSizer(self.gs) #set this panel's sizer as the grid sizer
-	def onMotion(self,event):
 		
-		x,y= self.someDict.get(event.GetEventObject())
+	def onMotion(self,event):
+		"""A generic onMotion event, TODO:look at hierachy, which event is invoked first?		"""
+		x,y= self.bitmapToXY.get(event.GetEventObject())
 		print self.breadBoard.getLocation(x,y)
 		#print "motion event:", event.m_x, event.m_y
 
