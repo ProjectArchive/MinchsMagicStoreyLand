@@ -1,4 +1,9 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#       Part of Minch's Magic Storey Land 2011
+#
+#       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 from Tkinter import *
 from Breadboard import *
 from PIL import Image,ImageTk

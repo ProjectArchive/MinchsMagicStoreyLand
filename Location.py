@@ -14,7 +14,8 @@ class Location(object):
 		self.Node = Node((xIn,yIn))  #Node takes a tuple of x and y
 		
 	def __repr__(self):
-		return str((self.xLoc, self.yLoc))
+		suffix = '-Filled' if self.isFilled else '-Empty'
+		return str((self.xLoc, self.yLoc)) + suffix
 		
 class RelativeLocation(Location):
 	"""An abstraction of a relative location, used for fitting items on
