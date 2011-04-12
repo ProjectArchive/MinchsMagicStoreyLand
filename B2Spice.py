@@ -22,6 +22,8 @@ class B2Spice(object):
 			pass
 	
 	def makeNodeList(self):
+		"""Creates a list of all 
+		occupied nodes on a breadboard"""
 		board = self.board
 		nodeList = []
 		for comp in board.componentList:
@@ -30,12 +32,17 @@ class B2Spice(object):
 		return nodeList
 	
 	def getNodes(self,component):
+		"""returns a string that contains
+		the nodes of a component, separated by spaces"""
 		nodeStr = ' '
 		for pins in component.pinList:
 			nodeStr += str(pins.Node.node) + ' '
 		return nodeStr
 		
 	def getAttr(self,component):
+		"""returns a tuple containing the attribute
+		of the component and its value,
+		both as strings"""
 		attributeDict = component.attributes
 		attrKey = attributeDict.keys()[0]
 		attrVal = attributeDict[attrKey]
@@ -43,6 +50,11 @@ class B2Spice(object):
 		return str(attrKey),str(attrVal)
 		
 	def buildText(self,component):
+		"""builds the line of text that SPICE
+		uses to describe the component. Only 
+		takes Resistors, Wires, and Capacitors 
+		right now. Also sets initial conditions
+		for Capacitors."""
 		if isinstance(component,Capacitor):
 			suffix = ' ic=0'
 		else:
@@ -53,6 +65,9 @@ class B2Spice(object):
 		return ans
 	
 	def getRail(self):
+		"""finds the voltage on the rail
+		of the breadboard. returns the Node
+		and power of the voltage rail source"""
 		board = self.board
 		compList = board.componentList
 		for comp in compList:
@@ -74,6 +89,11 @@ class B2Spice(object):
 					return voltagePower,voltageNode
 		
 	def getRailandAnalysis(self):
+		"""builds the line that describes
+		the source voltage of the breadboard
+		(probably from the rail). In addition, this method
+		tells SPICE what kind of analysis to do on the circuit.
+		Only handles DC circuits right now."""
 		board = self.board
 		vPower,vNode = self.getRail()
 		sourceName = 'v' + str(id(board))
@@ -85,6 +105,10 @@ class B2Spice(object):
 		return sourceLine,analysisLine
 		
 	def buildNetList(self):
+		"""This is the demi-motherlode. This
+		builds a string that describes the circuit and 
+		type of analysis. Only handles DC circuits right now
+		"""
 		board = self.board
 		netList = self.cirName + '\n'
 		sourceLine,analysisLine = self.getRailandAnalysis()
@@ -128,7 +152,10 @@ class B2Spice(object):
 		#~ a = zip(key,val)
 		#~ return dict(a)
 		
-	def parse(self,textFile):
+	def parse(self,textFile): 
+		"""parses the output string from SPICE.
+		Not perfect, probably not going to be used
+		later."""
 		b=[]
 		for line in textFile:
 			b.append(line)
@@ -139,6 +166,11 @@ class B2Spice(object):
 			
 		
 	def loadBb(self):
+		"""Creates the temporary files and directories
+		necessary for circuit analysis. Initializes ngspice, feeds
+		the netlist to it, and parses the output. Deletes all the files
+		and directories after analysis. Cory's really into anal.
+		"""
 		board = self.board
 		fileName = self.cirName + '.cir'
 		resFileName = 'res.txt'
