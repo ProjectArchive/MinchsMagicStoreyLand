@@ -21,9 +21,9 @@ class BreadboardPanel(wx.Panel):
 			for x in range(self.breadBoard.numColumns):
 				isFilled = breadBoard.getLocation(x,y).isFilled
 				if isFilled: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					bmp =wx.StaticBitmap(self, -1, bitmap=self.emptyBitMap,size=(50,50),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
+					bmp =wx.StaticBitmap(self, -1, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
 				else:
-					bmp =wx.StaticBitmap(self, -1, bitmap=self.openBitMap,size=(50,50),style = wx.NO_BORDER)
+					bmp =wx.StaticBitmap(self, -1, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
 				bmp.Bind(wx.EVT_MOTION, self.onMotion,id=-1) #bind generic onMotion event,
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
