@@ -1,28 +1,24 @@
 import wx
 import wx.aui
 from BreadboardPanel import *
+from SimulationPanel import *
 class BreadboardGUI(wx.Frame):
-	def __init__(self, parent, id=-1, title='wx.aui Test',
-				 pos=wx.DefaultPosition, size=(900, 400),
-				 style=wx.DEFAULT_FRAME_STYLE):
-		wx.Frame.__init__(self, parent, id, title, pos, size, style)
+	def __init__(self, parent,breadBoard, *args, **kwargs):
+		wx.Frame.__init__(self, parent,*args,**kwargs)
 		self._mgr = wx.aui.AuiManager(self)
-
 		# create several text controls
-		self.breadBoardPanel = BreadboardPanel(self,Breadboard())
+		self.breadBoardPanel = BreadboardPanel(self,breadBoard)
 
 		self.partBrowserPanel = wx.TextCtrl(self, -1, 'Part Browser Panel!',
-							wx.DefaultPosition, wx.Size(200,80),
+							wx.DefaultPosition, wx.Size(400,120),
 							wx.NO_BORDER | wx.TE_MULTILINE)
 
-		text3 = wx.TextCtrl(self, -1, 'History Panel?',
-							wx.DefaultPosition, wx.Size(200,150),
-							wx.NO_BORDER | wx.TE_MULTILINE)
+		text3 = SimulationPanel(self,size=(400,100))
 
 		# add the panes to the manager
 		self._mgr.AddPane(self.breadBoardPanel, wx.CENTER) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel, wx.BOTTOM, 'Part Browser')
-		self._mgr.AddPane(text3, wx.RIGHT, 'Simulation Toolbar?')
+		self._mgr.AddPane(text3, wx.RIGHT, 'Simulation Toolbar')
 
 		# tell the manager to 'commit' all the changes just made
 		self._mgr.Update()
@@ -38,6 +34,6 @@ class BreadboardGUI(wx.Frame):
 
 
 app = wx.App()
-frame = BreadboardGUI(None)
+frame = BreadboardGUI(None,Breadboard(),size=(900,400))
 frame.Show()
 app.MainLoop()
