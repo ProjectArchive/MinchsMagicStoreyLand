@@ -20,12 +20,21 @@ class Breadboard(object):
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
-				if y==2 or y==8 or y==9 or y==15: #fills pins between rows
+				if y==2: #fills pins between rows
 					self.setFilled(x,y)
-					self.setDisplayType(x,y,Location.BLUE_LINE)
+					self.setDisplayFlag(x,y,Location.BLUE_LINE)
+				if y==15:
+					self.setFilled(x,y)
+					self.setDisplayFlag(x,y,Location.RED_LINE)
+				if y==8:
+					self.setFilled(x,y)
+					self.setDisplayFlag(x,y,Location.CENTER_BOTTOM)
+				if y==9:
+					self.setFilled(x,y)
+					self.setDisplayFlag(x,y,Location.CENTER_TOP)
 				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
-					self.setDisplayType(x,y,Location.BLUE_LINE)
+					self.setDisplayFlag(x,y,Location.BLUE_LINE)
 				if x==0:	
 					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail
 				if x==1:
@@ -53,7 +62,7 @@ class Breadboard(object):
 		"""fills a pin"""
 		self.getLocation(x,y).isFilled = True
 	
-	def setDisplayType(self,x,y,displayFlag):
+	def setDisplayFlag(self,x,y,displayFlag):
 		self.getLocation(x,y).setDisplayFlag(displayFlag)
 
 	def setUnfilled(self,x,y):
