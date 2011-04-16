@@ -52,12 +52,12 @@ class VariableBreadboardComponent(BreadboardComponent):
 		#~ return '%s of %s %s at ref pin %g,%g' %(self.displayName,str(self.attributes.keys()),str(self.attributes.values()),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
 class Resistor(VariableBreadboardComponent):
-	"""A two pin resistor having size range 1 pin to 20"""
+	"""A two pin resistor having size range 1 pin to 30"""
 	
 	def __init__(self,resistance):
 		"""give it a resistance. it is situated at
 		relativeLocation 0,0"""
-		maxLength = 20
+		maxLength = 30
 		attributes = {'Resistance':resistance} #'string' mapping to int
 		displayName = 'Resistor'
 		spiceName = 'R'
@@ -78,11 +78,11 @@ class Wire(Resistor):
 		return "Wire at ref pin %g,%g" %(self.referencePin.xLoc,self.referencePin.yLoc)
 
 class Capacitor(VariableBreadboardComponent):
-	"""A two pin capacitor of size 1 to 20 pins"""
+	"""A two pin capacitor of size 1 to 30 pins"""
 
 	def __init__(self,capacitance):
 		"""Give it a capacitance"""
-		maxLength = 20
+		maxLength = 30
 		attributes = {'Capacitance':capacitance}
 		displayName = 'Capacitor'
 		spiceName = 'C'
