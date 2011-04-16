@@ -3,7 +3,8 @@
 #
 #       Part of Minch's Magic Storey Land 2011
 #
-#       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
+#       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>
+
 from Tkinter import *
 from Breadboard import *
 from BreadboardComponent import *
@@ -29,7 +30,6 @@ class MainFrame(Frame):
 		self.createWidgets()
 		self.grid()
 
-
 	def createWidgets(self):
 		"""Create all the widgets that we need"""
 		"""Create the Text"""
@@ -53,14 +53,13 @@ class MainFrame(Frame):
 		self.helpmenu = Menu(self.menu)
 		self.menu.add_cascade(label="Help", menu=self.helpmenu)
 		self.helpmenu.add_command(label="About...", command=self.callback)
-	
+
 	def createSimulateButton(self):
 		photo = Image.open("res/simulate_image.png")
 		photo=ImageTk.PhotoImage(photo)
 		self.simulateButton = Button(self,image=photo,command=self.startSimulation)
 		self.simulateButton.photo = photo
-		
-	
+
 	def callback():
 		print 'callback'
 	
@@ -69,7 +68,7 @@ class MainFrame(Frame):
 		simInstance = B2Spice(self.breadBoard)
 		res = simInstance.loadBb()
 		print res
-	
+
 if __name__ == "__main__":
 	guiFrame = MainFrame(Breadboard(),master=Tk(),width=900,height=500)	
 	guiFrame.mainloop()
