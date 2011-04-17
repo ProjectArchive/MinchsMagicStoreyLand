@@ -1,12 +1,15 @@
 from Matrix import *
 from Location import *
 from BreadboardComponent import *
+import os
+import pickle
+
 
 class Breadboard(object):
 	"""represents a breadboard.
 	By default, is powered like a DAQ powers a breadboard,
 	going (bottom to top) ground,2.5V,2.5V,5V"""
-
+	
 	def __init__(self): #maybe this should take on voltage rail
 		self.numRows = 18
 		self.numColumns = 63
@@ -34,7 +37,7 @@ class Breadboard(object):
 					self.setDisplayFlag(x,y,Location.CENTER_TOP)
 				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
-					self.setDisplayFlag(x,y,Location.BLUE_LINE)
+					self.setDisplayFlag(x,y,Location.BLANK)
 				if x==0:	
 					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail
 				if x==1:
@@ -155,9 +158,12 @@ class Breadboard(object):
 			self.removeComponent(component)
 
 	def unplugComponent(self,aComponent): 
+		"""removes a breadboard component from the bb by unfilling its pins
+		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
 		aComponent.pinList = aComponent.standardPinList
 		return True
+
 
 	def checkDistance(self,x,y,aComponent):
 		"""Makes sure we aren't stretching a component
@@ -165,3 +171,39 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
+		
+	def saveBreadboard(self,savedFileName):
+		"""checks if the filetype is a .txt first.
+		pickles the object to a string and saves it to the
+		working directory"""
+		if savedFileName[-4:] != '.txt':
+			savedFileName = savedFileName + '.txt'
+		os.system('touch ' + savedFileName)
+		s = pickle.dumps(self)	
+		try:
+			fin = open(savedFileName,'w')
+			fin.write(s)
+			fin.close()
+			return True
+		except:
+			return False
+	
+	@staticmethod
+	def openBreadboard(openFileName):
+		f1 = open(openFileName)
+		s = ''
+		for line in f1:
+			s = s + line
+		try:
+			bb = pickle.loads(s)
+			return bb
+		except:
+			return None
+
+if __name__=='__main__':
+	bb = Breadboard()
+	r = Resistor(100)
+	bb.putComponent(r,3,3,3,4)
+	bb.saveBreadboard('cool_beans4')
+	cc = Breadboard.openBreadboard('cool_beans4.txt')
+	print cc.componentList[0].pinList
