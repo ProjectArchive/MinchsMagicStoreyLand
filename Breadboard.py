@@ -15,10 +15,10 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.railZero = Voltage(2.5) 
-		self.railOne = Voltage(5) 
-		self.railTwo = Voltage(5)
-		self.railThree = Voltage(0)
+		self.railZero = 2.5
+		self.railOne = 5
+		self.railTwo = 5
+		self.railThree = 0
 		
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
@@ -50,29 +50,26 @@ class Breadboard(object):
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
 
-	def setNodeVoltage(self,x,y,voltage):
-		"""makes a node have a nonzero voltage."""
-		self.locMatrix.matrix[x][y].Node.voltage = voltage
+	def setNodeVoltage(self,x,y,voltage,voltageType='DC',frequency=0):
+		"""makes a node have a nonzero voltage,
+		or whatever voltage you want."""
+		self.locMatrix.matrix[x][y].Node.voltage = Voltage(voltage,voltageType,frequency)
 		return True
 	
-	def subtractNodeVoltage(self,x,y,voltage):
-		"""Reduces a node's voltage reduced by a certain amount.
-		This exists in order to allow for multiple power sources on same node.
-		Maybe not that useful, but totally doable by a user."""
-		
-		newVoltage = self.locMatrix.matrix[x][y].Node.voltage.volts - voltage.volts
-		print newVoltage
-		self.setNodeVoltage(x,y,newVoltage)
+	def clearNodeVoltage(self,x,y):
+		"""sets a voltage to zero."""
+		self.setNodeVoltage(x,y,0)
 		return True
+	
+	def getNodeVoltage(self,x,y):
+		"""returns voltage at a location"""
+		return self.getLocation(x,y).Node.voltage
 
 	def getLocation(self,x,y):
 		return self.locMatrix.getItem(x,y)
 
 	def isFilled(self,x,y):
 		return self.getLocation(x,y).isFilled
-	
-	def getNodeVoltage(self,x,y):
-		return self.getLocation(x,y).Node.voltage
 
 	def setFilled(self,x,y):
 		"""fills a pin"""
@@ -152,7 +149,7 @@ class Breadboard(object):
 				return True
 			elif isinstance(aComponent,InputDevice):
 				self.setAllFilled(aComponent.pinList)
-				self.setNodeVoltage(args[0],args[1],aComponent.voltage)
+				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 		return False
 	
 
@@ -163,7 +160,7 @@ class Breadboard(object):
 		self.setAllUnfilled(aComponent.pinList)
 		self.componentList.remove(aComponent)
 		if isinstance(aComponent,InputDevice):
-			self.subtractNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc,aComponent.voltage)
+			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
 		for val in globals():  #actually kills the global variable aComponent refers to
 			if globals()[val]==aComponent:
 				del globals()[val]
@@ -182,6 +179,8 @@ class Breadboard(object):
 		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
 		aComponent.pinList = aComponent.standardPinList
+		if isinstance(aComponent,InputDevice):
+			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
 		return True
 
 
@@ -223,14 +222,10 @@ class Breadboard(object):
 
 if __name__=='__main__':
 	bb = Breadboard()
-	r = InputDevice(10,'DC')
-	b = Resistor(10)
+	r = InputDevice(10,'AC',10)
 	bb.putComponent(r,3,3)
-	print bb.getNodeVoltage(3,3)
-	#~ bb.putComponent(b,3,4)
-	#~ print bb.componentList
+	bb.getNodeVoltage(3,3)
 	bb.removeComponent(r)
+	#~ bb.saveBreadboard('cool_beans4')
+	#~ cc = Breadboard.openBreadboard('cool_beans4.txt')
 	print bb.getNodeVoltage(3,3)
-	bb.saveBreadboard('cool_beans4')
-	cc = Breadboard.openBreadboard('cool_beans4.txt')
-	print cc.componentList
