@@ -9,8 +9,9 @@ from Breadboard import *
 from PIL import Image
 
 class BreadboardPanel(wx.Panel):
-	def __init__(self, parent,breadBoard):
-		wx.Panel.__init__(self, parent)
+	def __init__(self, parent,breadBoard,*args, **kwargs):
+ 		wx.Panel.__init__(self, parent,*args,**kwargs)
+ 		self.parent = parent
 		self.breadBoard = breadBoard
 		self.gs = wx.GridSizer(self.breadBoard.numRows, self.breadBoard.numColumns, 0, 0) #gridsizer with numRows rows and numCols col, 1 px padding
 		self.bitmapToXY = {} #.Rescale(20,20,wx.IMAGE_QUALITY_HIGH)
@@ -29,22 +30,54 @@ class BreadboardPanel(wx.Panel):
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
 		
 		print ('%d locations present') %len(self.bitmapToXY.values())
-		self.SetSizer(self.gs) #set this panel's sizer as the grid sizer
+		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
+		#self.Sizer.Fit(parent)
 
 	def onMotion(self,event):
+		print self.GetSize()
 		"""A generic onMotion event, TODO:look at hierachy, which event is invoked first?		"""
 		x,y= self.bitmapToXY.get(event.GetEventObject())
 		print event.GetEventObject().GetSize()
 		print self.breadBoard.getLocation(x,y)
 		#print "motion event:", event.m_x, event.m_y
 
+
+class BreadboardComponentWrapper:
+    def __init__(self, bmp,BreadboardComponent):
+        self.bmp = bmp
+        self.pos = (0,0)
+        self.shown = True
+        self.fullscreen = False
+
+    def HitTest(self, pt):
+        rect = self.GetRect()
+        return rect.InsideXY(pt.x, pt.y)
+
+    def GetRect(self):
+        return wx.Rect(self.pos[0], self.pos[1],
+                      self.bmp.GetWidth(), self.bmp.GetHeight())
+
+    def Draw(self, dc, op = wx.COPY):
+        if self.bmp.Ok():
+            memDC = wx.MemoryDC()
+            memDC.SelectObject(self.bmp)
+
+            dc.Blit(self.pos[0], self.pos[1],
+                    self.bmp.GetWidth(), self.bmp.GetHeight(),
+                    memDC, 0, 0, op, True)
+
+            return True
+        else:
+            return False
+
+
 		
 class Example(wx.Frame):
 	"""Dummy frame"""
 	def __init__(self, parent, title):
-		super(Example, self).__init__(parent, title=title, 
-			size=(1200, 700))
+		wx.Frame.__init__(self,parent, title=title)
 		BreadboardPanel(self,Breadboard())
+		self.Fit()
 		self.Show()
 
 

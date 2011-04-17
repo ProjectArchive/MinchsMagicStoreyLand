@@ -2,6 +2,8 @@ import wx
 import wx.aui
 from BreadboardPanel import *
 from SimulationPanel import *
+from PartBrowserPanel import *
+
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadBoard, *args, **kwargs):
 		wx.Frame.__init__(self, parent,*args,**kwargs)
@@ -11,19 +13,20 @@ class BreadboardGUI(wx.Frame):
 		
 		self.breadBoardPanel = BreadboardPanel(self,breadBoard)
 
-		self.partBrowserPanel = wx.TextCtrl(self, -1, 'Part Browser Panel!',
-							wx.DefaultPosition, wx.Size(400,120),
-							wx.NO_BORDER | wx.TE_MULTILINE)
+		self.partBrowserPanel = PartBrowserPanel(self)
 
-		text3 = SimulationPanel(self,size=(400,100))
+		text3 = SimulationPanel(self)
 
 		# add the panes to the manager
-		self._mgr.AddPane(self.breadBoardPanel, wx.CENTER) #main focused widget
-		self._mgr.AddPane(self.partBrowserPanel, wx.BOTTOM, 'Part Browser')
+
+		self._mgr.AddPane(self.breadBoardPanel,wx.CENTER) #main focused widget
+		self._mgr.AddPane(self.partBrowserPanel, wx.BOTTOM)
 		self._mgr.AddPane(text3, wx.RIGHT, 'Simulation Toolbar')
 
 		# tell the manager to 'commit' all the changes just made
+		self.Fit()
 		self._mgr.Update()
+		
 
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 	
@@ -61,7 +64,8 @@ class BreadboardGUI(wx.Frame):
 		self.Destroy()
 
 
+
 app = wx.App()
-frame = BreadboardGUI(None,Breadboard(),size=(900,400))
+frame = BreadboardGUI(None,Breadboard())
 frame.Show()
 app.MainLoop()
