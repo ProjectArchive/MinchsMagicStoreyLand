@@ -18,13 +18,18 @@ class BreadboardGUI(wx.Frame):
 		text3 = SimulationPanel(self)
 
 		# add the panes to the manager
-
-		self._mgr.AddPane(self.breadBoardPanel,wx.CENTER) #main focused widget
-		self._mgr.AddPane(self.partBrowserPanel, wx.BOTTOM)
-		self._mgr.AddPane(text3, wx.RIGHT, 'Simulation Toolbar')
+		
+		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
+		auiInfo.dock_proportion = 1
+		auiInf1 =  wx.aui.AuiPaneInfo().Center().CaptionVisible(False)
+		auiInf1.dock_proportion = 0
+		self._mgr.AddPane(self.breadBoardPanel,auiInf1) #main focused widget
+		self._mgr.AddPane(self.partBrowserPanel,auiInfo)
+		self._mgr.AddPane(text3, wx.RIGHT)
 
 		# tell the manager to 'commit' all the changes just made
 		self.Fit()
+		self.Layout()
 		self._mgr.Update()
 		
 

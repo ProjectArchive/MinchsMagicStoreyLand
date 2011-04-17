@@ -30,7 +30,9 @@ class BreadboardPanel(wx.Panel):
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
 		
 		print ('%d locations present') %len(self.bitmapToXY.values())
+		self.Bind(wx.EVT_SIZE, self.OnSize)
 		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
+		self.Layout()
 		#self.Sizer.Fit(parent)
 
 	def onMotion(self,event):
@@ -40,8 +42,17 @@ class BreadboardPanel(wx.Panel):
 		print event.GetEventObject().GetSize()
 		print self.breadBoard.getLocation(x,y)
 		#print "motion event:", event.m_x, event.m_y
+	def OnSize(self,event):
+		print 'onsize'
+		newXSize= self.GetSize().x/self.breadBoard.numColumns
+		newYSize= self.GetSize().y/self.breadBoard.numRows
+		for key in self.bitmapToXY:
+			key.SetSize((newXSize,newYSize))
+			key.Refresh()
+		self.Refresh(eraseBackground=True)
+		self.Layout()
 
-
+			
 class BreadboardComponentWrapper:
     def __init__(self, bmp,BreadboardComponent):
         self.bmp = bmp

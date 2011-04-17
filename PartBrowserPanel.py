@@ -23,22 +23,23 @@ class PartBrowserPanel(wx.Panel):
 		#button2 = wx.BitmapButton(self, id=-1, bitmap=self.nameToBitmap['capacitor'])
 		#self.bSizer.Add(button2)
 		self.SetSizerAndFit(self.bSizer)
+		self.Layout()
 		
 	def gatherCommonComponents(self):
 		#generate this common componentnamelistsomewhere...
 		self.commonComponentNameList = ['resistor','capacitor','wire']
 		for componentName in self.commonComponentNameList:
 			print str(componentName)
-			self.nameToBitmap[componentName] = wx.Image('res/' + str(componentName) + '_image.png').Rescale(70,70,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+			self.nameToBitmap[componentName] = wx.Image('res/' + str(componentName) + '_image.png').Rescale(60,60,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 
 	def createButtons(self):
 		self.buttonGroup = ButtonGroup(self)
 		for name in self.nameToBitmap.keys():
 			print name
-			button1 = wx.BitmapButton(self, id=-1, bitmap=self.nameToBitmap[name])
+			button1 = wx.BitmapButton(self, id=wx.ID_ANY, bitmap=self.nameToBitmap[name],style=wx.BU_EXACTFIT)
 			button1.typeName = name
 			self.buttonGroup.addButton(button1,name)
-			self.bSizer.Add(button1,0,wx.ALL,5)
+			self.bSizer.Add(button1,0,wx.BOTTOM,300)
 			
 	def onMotion(self,event):
 		"""A generic onMotion event, TODO:look at hierachy, which event is invoked first?		"""
@@ -67,7 +68,10 @@ class Example(wx.Frame):
 	"""Dummy frame"""
 	def __init__(self, parent, title):
 		wx.Frame.__init__(self, parent,title=title)
-		PartBrowserPanel(self)
+		self.Sizer = wx.BoxSizer(wx.VERTICAL)
+		self.Sizer.Add(PartBrowserPanel(self),1,wx.ALL)
+		self.Sizer.Add(wx.Button(self,label='hello'),1,wx.ALL)
+		self.SetSizer(self.Sizer)
 		self.Fit()
 		self.Show()
 
