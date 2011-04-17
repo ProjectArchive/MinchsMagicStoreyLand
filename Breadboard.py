@@ -51,8 +51,18 @@ class Breadboard(object):
 		return self.locMatrix.__repr__() 
 
 	def setNodeVoltage(self,x,y,voltage):
-		"""makes a node have a nonezero voltage"""
+		"""makes a node have a nonzero voltage."""
 		self.locMatrix.matrix[x][y].Node.voltage = voltage
+		return True
+	
+	def subtractNodeVoltage(self,x,y,voltage):
+		"""Reduces a node's voltage reduced by a certain amount.
+		This exists in order to allow for multiple power sources on same node.
+		Maybe not that useful, but totally doable by a user."""
+		
+		newVoltage = self.locMatrix.matrix[x][y].Node.voltage.volts - voltage.volts
+		print newVoltage
+		self.setNodeVoltage(x,y,newVoltage)
 		return True
 
 	def getLocation(self,x,y):
@@ -60,6 +70,9 @@ class Breadboard(object):
 
 	def isFilled(self,x,y):
 		return self.getLocation(x,y).isFilled
+	
+	def getNodeVoltage(self,x,y):
+		return self.getLocation(x,y).Node.voltage
 
 	def setFilled(self,x,y):
 		"""fills a pin"""
@@ -103,7 +116,7 @@ class Breadboard(object):
 		"""Tests whether or not a component can be placed at the
 		reference (absolute) x,y coordinate by checking each pin
 		specified by the pinList of aComponent"""
-		flag=True		
+		flag=True
 		for i in range(0,len(pinPositions),2):
 			x = pinPositions[i]
 			y = pinPositions[i+1]
@@ -121,7 +134,7 @@ class Breadboard(object):
 
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down.Give it a reference pin for a regular component.
-		Give it x1,y1,x2,y2 for a variable size component. """	
+		Give it x1,y1,x2,y2 for a variable size component, or x,y for an input device. """	
 		
 		if self.canPutComponent(aComponent,args):
 			self.componentList.append(aComponent)
@@ -130,20 +143,27 @@ class Breadboard(object):
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
 				return True
-			else:
+			elif isinstance(aComponent,VariableBreadboardComponent):
 				count=0
 				for i in range(0,len(args),2):
 					aComponent.pinList[count] = self.locMatrix.getItem(args[i],args[i+1])
 					self.setFilled(args[i],args[i+1])
 					count+=1
 				return True
+			elif isinstance(aComponent,InputDevice):
+				self.setAllFilled(aComponent.pinList)
+				self.setNodeVoltage(args[0],args[1],aComponent.voltage)
 		return False
+	
+
 
 	def removeComponent(self,aComponent):
 		"""removes a component from the breadboard. unfills all the holes and pops it from the breadboard component list.
 		then deletes the component from memory"""		
 		self.setAllUnfilled(aComponent.pinList)
 		self.componentList.remove(aComponent)
+		if isinstance(aComponent,InputDevice):
+			self.subtractNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc,aComponent.voltage)
 		for val in globals():  #actually kills the global variable aComponent refers to
 			if globals()[val]==aComponent:
 				del globals()[val]
@@ -190,6 +210,7 @@ class Breadboard(object):
 	
 	@staticmethod
 	def openBreadboard(openFileName):
+		"""Opens a pickled breadboard text file"""
 		f1 = open(openFileName)
 		s = ''
 		for line in f1:
@@ -202,8 +223,14 @@ class Breadboard(object):
 
 if __name__=='__main__':
 	bb = Breadboard()
-	r = Resistor(100)
-	bb.putComponent(r,3,3,3,4)
+	r = InputDevice(10,'DC')
+	b = Resistor(10)
+	bb.putComponent(r,3,3)
+	print bb.getNodeVoltage(3,3)
+	#~ bb.putComponent(b,3,4)
+	#~ print bb.componentList
+	bb.removeComponent(r)
+	print bb.getNodeVoltage(3,3)
 	bb.saveBreadboard('cool_beans4')
 	cc = Breadboard.openBreadboard('cool_beans4.txt')
-	print cc.componentList[0].pinList
+	print cc.componentList
