@@ -48,3 +48,5 @@ class RelativeLocation(Location):
 		if self.xLoc == 0 and self.yLoc == 0 and self.referenceLocation==None:
 			return "REF"
 		return Location.__repr__(self) + " From REF"
+		
+

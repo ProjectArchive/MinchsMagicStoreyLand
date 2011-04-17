@@ -1,12 +1,15 @@
 from Matrix import *
 from Location import *
 from BreadboardComponent import *
+import os
+import pickle
+
 
 class Breadboard(object):
 	"""represents a breadboard.
 	By default, is powered like a DAQ powers a breadboard,
 	going (bottom to top) ground,2.5V,2.5V,5V"""
-
+	
 	def __init__(self): #maybe this should take on voltage rail
 		self.numRows = 18
 		self.numColumns = 63
@@ -20,12 +23,21 @@ class Breadboard(object):
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
 				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
-				if y==2 or y==8 or y==9 or y==15: #fills pins between rows
+				if y==2: #fills pins between rows
 					self.setFilled(x,y)
-					self.setDisplayType(x,y,Location.BLUE_LINE)
+					self.setDisplayFlag(x,y,Location.BLUE_LINE)
+				if y==15:
+					self.setFilled(x,y)
+					self.setDisplayFlag(x,y,Location.RED_LINE)
+				if y==8:
+					self.setFilled(x,y)
+					self.setDisplayFlag(x,y,Location.CENTER_BOTTOM)
+				if y==9:
+					self.setFilled(x,y)
+					self.setDisplayFlag(x,y,Location.CENTER_TOP)
 				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
-					self.setDisplayType(x,y,Location.BLUE_LINE)
+					self.setDisplayFlag(x,y,Location.BLANK)
 				if x==0:	
 					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail
 				if x==1:
@@ -53,7 +65,7 @@ class Breadboard(object):
 		"""fills a pin"""
 		self.getLocation(x,y).isFilled = True
 	
-	def setDisplayType(self,x,y,displayFlag):
+	def setDisplayFlag(self,x,y,displayFlag):
 		self.getLocation(x,y).setDisplayFlag(displayFlag)
 
 	def setUnfilled(self,x,y):
@@ -146,9 +158,12 @@ class Breadboard(object):
 			self.removeComponent(component)
 
 	def unplugComponent(self,aComponent): 
+		"""removes a breadboard component from the bb by unfilling its pins
+		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
 		aComponent.pinList = aComponent.standardPinList
 		return True
+
 
 	def checkDistance(self,x,y,aComponent):
 		"""Makes sure we aren't stretching a component
@@ -156,3 +171,39 @@ class Breadboard(object):
 		if isinstance(aComponent,FixedBreadboardComponent):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
+		
+	def saveBreadboard(self,savedFileName):
+		"""checks if the filetype is a .txt first.
+		pickles the object to a string and saves it to the
+		working directory"""
+		if savedFileName[-4:] != '.txt':
+			savedFileName = savedFileName + '.txt'
+		os.system('touch ' + savedFileName)
+		s = pickle.dumps(self)	
+		try:
+			fin = open(savedFileName,'w')
+			fin.write(s)
+			fin.close()
+			return True
+		except:
+			return False
+	
+	@staticmethod
+	def openBreadboard(openFileName):
+		f1 = open(openFileName)
+		s = ''
+		for line in f1:
+			s = s + line
+		try:
+			bb = pickle.loads(s)
+			return bb
+		except:
+			return None
+
+if __name__=='__main__':
+	bb = Breadboard()
+	r = Resistor(100)
+	bb.putComponent(r,3,3,3,4)
+	bb.saveBreadboard('cool_beans4')
+	cc = Breadboard.openBreadboard('cool_beans4.txt')
+	print cc.componentList[0].pinList
