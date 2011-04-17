@@ -9,21 +9,27 @@ from Breadboard import *
 
 class SimulationPanel(wx.Panel):
     def __init__(self, parent, *args, **kwargs):
- 		wx.Panel.__init__(self, parent=parent,*args,**kwargs)
-		self.bHorizontalSizer = wx.BoxSizer(wx.HORIZONTAL)
+ 		wx.Panel.__init__(self, parent,*args,**kwargs)
+ 		self.parent = parent
+ 		
+ 		
 		self.bVerticalSizer = wx.BoxSizer(wx.VERTICAL)
+		
 		image = wx.Image('res/simulate_image.png')
 		image.Rescale(50,50,wx.IMAGE_QUALITY_HIGH)
 		self.startSimulationButton = wx.BitmapButton(self, -1, wx.BitmapFromImage(image))
-		self.bHorizontalSizer.Add(self.startSimulationButton,wx.ALIGN_CENTER)
-		self.bVerticalSizer.Add(self.bHorizontalSizer)
-		self.SetSizer(self.bVerticalSizer)
+		self.sstartSimulationButton = wx.BitmapButton(self, -1, wx.BitmapFromImage(image))
+
+		self.bVerticalSizer.Add(self.startSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
+		self.bVerticalSizer.Add(self.sstartSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
+		self.SetSizerAndFit(self.bVerticalSizer)
 		
 class Example(wx.Frame):
 	"""Dummy frame"""
 	def __init__(self, parent, title):
-		super(Example, self).__init__(parent, title=title,size=(500,500))
-		sPanel = SimulationPanel(parent=self,size=(25,25))
+		wx.Frame.__init__(self,parent, title=title)
+		sPanel = SimulationPanel(parent=self)
+		self.Fit()
 		self.Show()
 
 if __name__ == '__main__':
