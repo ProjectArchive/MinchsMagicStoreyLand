@@ -96,7 +96,7 @@ class OpAmp(FixedBreadboardComponent):
 	"""An eight-pin op amp. doesnt have any attributes.
 	We start counting pins at 1, like in the real world"""
 	
-	def __init__(self,technicalName,spiceName):
+	def __init__(self,technicalName):
 		"""reference is location of bottom left pin
 		8 pins. bottom left is reference pin"""		
 		referencePin = RelativeLocation()
@@ -110,4 +110,57 @@ class OpAmp(FixedBreadboardComponent):
 		pinList = [referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8]
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default
+		spiceName = 'e'			#Noam
 		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
+
+class QuadChip(FixedBreadboardComponent):
+	"""A 14 pin op amp.
+	We start counting pins at 1, like in the real world"""
+	
+	def __init__(self,technicalName):
+		"""reference is location of bottom left pin
+		14 pins. bottom left is reference pin"""		
+		referencePin = RelativeLocation()
+		pin2 = RelativeLocation(1,0)
+		pin3 = RelativeLocation(2,0)
+		pin4 = RelativeLocation(3,0)
+		pin5 = RelativeLocation(4,0)
+		pin6 = RelativeLocation(5,0)
+		pin7 = RelativeLocation(6,0)
+		pin8 = RelativeLocation(6,3)
+		pin9 = RelativeLocation(5,3)
+		pin10 = RelativeLocation(4,3)
+		pin11 = RelativeLocation(3,3)
+		pin12 = RelativeLocation(2,3)
+		pin13 = RelativeLocation(1,3)
+		pin14 = RelativeLocation(0,3)
+	
+		pinList = [referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14]
+		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
+		displayName = 'QuadChip' #default
+		spiceName = 'e' #?maybe...
+		
+		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
+
+class InputDevice(BreadboardComponent):
+	"""An input device.  Is capable of outputting AC or DC
+	Takes in voltage as an integer.
+	Only one pin, as the other one is usually grounded. MAYBE?"""
+	
+	def __init__(self,voltage,voltageType,frequency=None):
+		if frequency==None:
+			frequency=0
+			
+		referencePin = RelativeLocation(0,0)
+		self.voltage = Voltage(voltage)
+		self.voltageType = voltageType
+		self.frequency = frequency
+		pinList = [referencePin]
+		attributes=[]
+		displayName = 'Input Device'
+		technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+		spiceName = '%g%s%g'
+		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
+
+	def __repr__(self):
+		return '%s at %s' % (self.displayName,self.technicalName)

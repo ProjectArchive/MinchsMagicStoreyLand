@@ -15,15 +15,51 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.railZero = Voltage(2.5) 
-		self.railOne = Voltage(5) 
-		self.railTwo = Voltage(5)
-		self.railThree = Voltage(0)
+		self.railZero = 2.5
+		self.railOne = 5
+		self.railTwo = 5
+		self.railThree = 0
+		self.makeLocations()
+		self.addDisplayFlagsAndFiller()
 		
+	def makeLocations(self):
+		"""creates location objects for a given spot and does node logic"""
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
-				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
-				if y==2: #fills pins between rows
+				node=Node((x,y))
+				if y==0:
+					self.addNodeHoriz(x,y,node)
+				if y==1:
+					self.addNodeHoriz(x,y,node)
+				if y==16:
+					self.addNodeHoriz(x,y,node)	
+				if y==17:
+					self.addNodeHoriz(x,y,node)
+
+	def addNodeHoriz(self,x,y,node):
+		"""adds a node to a location, using the previous row's value as a base"""
+		if not isinstance(self.locMatrix.getItem(x,y),Location):
+			self.locMatrix.setItem(x,y,Location(x,y,node))
+		else:
+			print 'woot'
+			self.locMatrix.setItem(x,y,self.locMatrix.getItem(x-1,y).Node) 
+		return True
+	
+	def addNodeVert(self,x,y,node):
+		if not isinstance(self.locMatrix.getItem(x,y),Location):
+			self.locMatrix.setItem(x,y,Location(x,y,node))
+		else:
+			self.locMatrix.setItem(x,y,self.locMatrix.getItem(x,y).Node) 
+		
+	
+
+	def addDisplayFlagsAndFiller(self):
+		"""adds in the display flags for each location
+		and fills the holes betwixt actual holes"""
+		for x in range(self.numColumns):
+			for y in range(self.numRows):
+				#creation of node logic should be added here.
+				if y==2: #fills holes between rows
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLUE_LINE)
 				if y==15:
@@ -38,22 +74,24 @@ class Breadboard(object):
 				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
-				if x==0:	
-					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail
-				if x==1:
-					self.setNodeVoltage(x,y,self.railOne)	#sets power at second from top rail
-				if x==16:
-					self.setNodeVoltage(x,y,self.railTwo)	#sets power at third from top rail
-				if x==17:
-					self.setNodeVoltage(x,y,self.railThree)	#sets power at fourth from top rail
-					
+
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
 
-	def setNodeVoltage(self,x,y,voltage):
-		"""makes a node have a nonezero voltage"""
-		self.locMatrix.matrix[x][y].Node.voltage = voltage
+	def setNodeVoltage(self,x,y,voltage,voltageType='DC',frequency=0):
+		"""makes a node have a nonzero voltage,
+		or whatever voltage you want."""
+		self.getLocation(x,y).Node.voltage = Voltage(voltage,voltageType,frequency)
 		return True
+	
+	def clearNodeVoltage(self,x,y):
+		"""sets a voltage to zero."""
+		self.setNodeVoltage(x,y,0)
+		return True
+	
+	def getNodeVoltage(self,x,y):
+		"""returns voltage at a location"""
+		return self.getLocation(x,y).Node.voltage
 
 	def getLocation(self,x,y):
 		return self.locMatrix.getItem(x,y)
@@ -103,7 +141,7 @@ class Breadboard(object):
 		"""Tests whether or not a component can be placed at the
 		reference (absolute) x,y coordinate by checking each pin
 		specified by the pinList of aComponent"""
-		flag=True		
+		flag=True
 		for i in range(0,len(pinPositions),2):
 			x = pinPositions[i]
 			y = pinPositions[i+1]
@@ -121,7 +159,7 @@ class Breadboard(object):
 
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down.Give it a reference pin for a regular component.
-		Give it x1,y1,x2,y2 for a variable size component. """	
+		Give it x1,y1,x2,y2 for a variable size component, or x,y for an input device. """	
 		
 		if self.canPutComponent(aComponent,args):
 			self.componentList.append(aComponent)
@@ -130,20 +168,27 @@ class Breadboard(object):
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
 				return True
-			else:
+			elif isinstance(aComponent,VariableBreadboardComponent):
 				count=0
 				for i in range(0,len(args),2):
 					aComponent.pinList[count] = self.locMatrix.getItem(args[i],args[i+1])
 					self.setFilled(args[i],args[i+1])
 					count+=1
 				return True
+			elif isinstance(aComponent,InputDevice):
+				self.setAllFilled(aComponent.pinList)
+				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 		return False
+	
+
 
 	def removeComponent(self,aComponent):
 		"""removes a component from the breadboard. unfills all the holes and pops it from the breadboard component list.
 		then deletes the component from memory"""		
 		self.setAllUnfilled(aComponent.pinList)
 		self.componentList.remove(aComponent)
+		if isinstance(aComponent,InputDevice):
+			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
 		for val in globals():  #actually kills the global variable aComponent refers to
 			if globals()[val]==aComponent:
 				del globals()[val]
@@ -162,6 +207,8 @@ class Breadboard(object):
 		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
 		aComponent.pinList = aComponent.standardPinList
+		if isinstance(aComponent,InputDevice):
+			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
 		return True
 
 
@@ -190,6 +237,7 @@ class Breadboard(object):
 	
 	@staticmethod
 	def openBreadboard(openFileName):
+		"""Opens a pickled breadboard text file"""
 		f1 = open(openFileName)
 		s = ''
 		for line in f1:
@@ -202,8 +250,10 @@ class Breadboard(object):
 
 if __name__=='__main__':
 	bb = Breadboard()
-	r = Resistor(100)
-	bb.putComponent(r,3,3,3,4)
-	bb.saveBreadboard('cool_beans4')
-	cc = Breadboard.openBreadboard('cool_beans4.txt')
-	print cc.componentList[0].pinList
+	r = InputDevice(10,'AC',10)
+	bb.putComponent(r,3,3)
+	bb.getNodeVoltage(3,3)
+	bb.removeComponent(r)
+	#~ bb.saveBreadboard('cool_beans4')
+	#~ cc = Breadboard.openBreadboard('cool_beans4.txt')
+	print bb.getNodeVoltage(3,3)
