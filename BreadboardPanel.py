@@ -97,10 +97,10 @@ class BreadboardPanel(wx.Panel):
 		# Ignore mouse movement if we're not dragging.
 		pos = self.ScreenToClient(wx.GetMousePosition())
 		if self.buttonManager.currentButton == None:
-			print 'nothing pressed'
+			return
 		else:
 			if self.currentMovableImage == None:
-				self.tempBitmap = wx.Image('res/simulate_image.png').ConvertToBitmap()
+				self.tempBitmap = wx.Image('res/components/8pinopamp.png').ConvertToBitmap()
 				self.currentMovableImage = wx.StaticBitmap(self,wx.ID_ANY,self.tempBitmap,pos=pos)
 				self.currentMovableImage.initialPos = pos
 				print pos
@@ -115,16 +115,17 @@ class BreadboardPanel(wx.Panel):
 		for y in range(self.breadBoard.numRows):	
 			for x in range(self.breadBoard.numColumns):
 				isFilled = self.breadBoard.getLocation(x,y).isFilled
+				if not isFilled:
+					print 'notfilled'
 				if isFilled: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(20,20),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
 				else:
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(20,20),style = wx.NO_BORDER)
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
 				bmp.Bind(wx.EVT_MOTION, self.OnMotion,id=wx.ID_ANY) #bind generic onMotion event,
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
-
-
-
+			if y >=2 :
+				return
 
 class BreadboardComponentWrapper:
     def __init__(self, bmp,BreadboardComponent):
