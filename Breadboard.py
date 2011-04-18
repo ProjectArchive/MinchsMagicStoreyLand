@@ -35,17 +35,17 @@ class Breadboard(object):
 		"""assigns nodes based on the previous nodes
 		for a horizontal node, like rails"""
 		if self.getLocation(x-1,y).Node.number !=-1:
-			self.locMatrix.setItem(x,y,self.getLocation(x-1,y))
+			self.locMatrix.getItem(x,y).Node = self.locMatrix.getItem(x-1,y).Node
 		else:
-			self.locMatrix.setItem(x,y,Location(x,y,Node(number)))
+			self.locMatrix.getItem(x,y).Node = Node(number)
 	
 	def assignNodeVert(self,x,y,number):
 		"""assigns nodes based on the previous nodes
 		for a vertical node, like the columns"""
 		if self.getLocation(x,y-1).Node.number !=-1:
-			self.locMatrix.setItem(x,y,self.getLocation(x,y-1))
+			self.locMatrix.getItem(x,y).Node = self.locMatrix.getItem(x,y-1).Node
 		else:
-			self.locMatrix.setItem(x,y,Location(x,y,Node(number)))
+			self.locMatrix.getItem(x,y).Node=Node(number)
 			
 	def nodeCreation(self):
 		"""goes through each position on the bb and assigns
@@ -189,7 +189,9 @@ class Breadboard(object):
 			elif isinstance(aComponent,VariableBreadboardComponent):
 				count=0
 				for i in range(0,len(args),2):
+					print self.locMatrix.getItem(1,1)
 					aComponent.pinList[count] = self.locMatrix.getItem(args[i],args[i+1])
+					#~ print aComponent.pinList[count]
 					self.setFilled(args[i],args[i+1])
 					count+=1
 				return True
@@ -277,12 +279,12 @@ class Breadboard(object):
 
 if __name__ == "__main__":
 	bb = Breadboard()		
-	a = OpAmp('OPA551')
+	a = QuadChip('OPA551')
 	c = Resistor(100)
 	d = Capacitor(40)
 	bb.putComponent(c,2,10,2,11)
 	print bb.putComponent(d,3,10,3,11)
-	print bb.putComponent(a,1,7)
-	print bb.componentList
+	print bb.putComponent(a,8,7)
+	print bb.componentList[2].pinList
 
 
