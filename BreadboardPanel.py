@@ -58,7 +58,7 @@ class BreadboardPanel(wx.Panel):
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
-		print evt.GetEventObject().size()
+		print evt.GetEventObject().Size()
 
 
 	# Left mouse button up.
@@ -104,6 +104,7 @@ class BreadboardPanel(wx.Panel):
 					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(20,20),style = wx.NO_BORDER)
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
 				bmp.Bind(wx.EVT_MOTION, self.OnMotion,id=wx.ID_ANY) #bind generic onMotion event,
+				bmp.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
 
 
