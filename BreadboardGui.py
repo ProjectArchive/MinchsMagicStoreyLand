@@ -10,15 +10,10 @@ class BreadboardGUI(wx.Frame):
 		self._mgr = wx.aui.AuiManager(self)
 		# create menu
 		self.createMenu()
-		
-		self.breadBoardPanel = BreadboardPanel(self,breadBoard)
-
 		self.partBrowserPanel = PartBrowserPanel(self)
-
+		self.breadBoardPanel = BreadboardPanel(self,breadBoard,self.partBrowserPanel.buttonGroup)
 		text3 = SimulationPanel(self)
-
 		# add the panes to the manager
-		
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
 		auiInfo.dock_proportion = 1
 		auiInf1 =  wx.aui.AuiPaneInfo().Center().CaptionVisible(False)
