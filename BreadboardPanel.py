@@ -58,30 +58,12 @@ class BreadboardPanel(wx.Panel):
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
-		# Did the mouse go down on one of our shapes?
-		shape = self.FindShape(evt.GetPosition())
-		# If a shape was 'hit', then set that as the shape we're going to
-		# drag around. Get our start position. Dragging has not yet started.
-		# That will happen once the mouse moves, OR the mouse is released.
-		if shape:
-			self.dragShape = shape
-			self.dragStartPos = evt.GetPosition()
+		print evt.GetEventObject().size()
+
 
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
-		if not self.dragImage or not self.dragShape:
-			self.dragImage = None
-			self.dragShape = None
-			return
-
-		# Hide the image, end dragging, and nuke out the drag image.
-		self.dragImage.Hide()
-		self.dragImage.EndDrag()
-
-		self.dragImage = None
-		if self.hiliteShape:
-			self.RefreshRect(self.hiliteShape.GetRect())
-			self.hiliteShape = None
+		print evt.GetEvent
 		
 	def OnSize(self,event):
 		print 'onsize'
@@ -96,11 +78,12 @@ class BreadboardPanel(wx.Panel):
 	def OnMotion(self, evt):
 		# Ignore mouse movement if we're not dragging.
 		pos = self.ScreenToClient(wx.GetMousePosition())
+		print pos
 		if self.buttonManager.currentButton == None:
-			print 'nothing pressed'
+			return
 		else:
 			if self.currentMovableImage == None:
-				self.tempBitmap = wx.Image('res/simulate_image.png').ConvertToBitmap()
+				self.tempBitmap = wx.Image('res/components/8pinopamp.png').ConvertToBitmap()
 				self.currentMovableImage = wx.StaticBitmap(self,wx.ID_ANY,self.tempBitmap,pos=pos)
 				self.currentMovableImage.initialPos = pos
 				print pos
@@ -111,19 +94,17 @@ class BreadboardPanel(wx.Panel):
 	def drawBreadboard(self):
 		##this needs to be updated... add dynamic dictionary to deal with redrawing
 		self.emptyBitMap = wx.Image('res/blank_slot.png').ConvertToBitmap()
-		self.openBitMap = wx.Image('res/open_slot.png').ConvertToBitmap()
+		self.openBitMap = wx.Image('res/open_slot2.png').ConvertToBitmap()
 		for y in range(self.breadBoard.numRows):	
 			for x in range(self.breadBoard.numColumns):
 				isFilled = self.breadBoard.getLocation(x,y).isFilled
 				if isFilled: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(20,20),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
 				else:
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(20,20),style = wx.NO_BORDER)
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
 				bmp.Bind(wx.EVT_MOTION, self.OnMotion,id=wx.ID_ANY) #bind generic onMotion event,
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
-
-
 
 
 class BreadboardComponentWrapper:
