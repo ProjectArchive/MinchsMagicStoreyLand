@@ -66,8 +66,9 @@ class Breadboard(object):
 				self.assignNodeVert(x,y,4*x+1)
 	
 	def detailLocations(self):
-		"""assigns display flags
-		and voltage at the rails"""
+		"""assigns display flags.
+		Fills the gaps.
+		adds voltage at the rails"""
 				
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
@@ -185,6 +186,8 @@ class Breadboard(object):
 			if isinstance(aComponent,FixedBreadboardComponent):
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
+				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
+				self.setAllFilled(aComponent.deadPins)
 				return True
 			elif isinstance(aComponent,VariableBreadboardComponent):
 				count=0
@@ -199,6 +202,7 @@ class Breadboard(object):
 				self.setAllFilled(aComponent.pinList)
 				aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc=args[0],args[1]
 				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
+				return True
 		return False
 	
 
@@ -207,6 +211,7 @@ class Breadboard(object):
 		"""removes a component from the breadboard. unfills all the holes and pops it from the breadboard component list.
 		then deletes the component from memory"""		
 		self.setAllUnfilled(aComponent.pinList)
+		self.setAllUnfilled(aComponent.deadPins)
 		self.componentList.remove(aComponent)
 		if isinstance(aComponent,InputDevice):
 			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
@@ -227,6 +232,7 @@ class Breadboard(object):
 		"""removes a breadboard component from the bb by unfilling its pins
 		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
+		self.setAllUnfilled(aComponent.deadPins)
 		if isinstance(aComponent,InputDevice):
 			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
 		aComponent.pinList = aComponent.standardPinList
@@ -270,7 +276,8 @@ class Breadboard(object):
 			return None
 	
 	def flipComponent(self,aComponent):
-		"""Flips a variable bbc horizontally"""
+		"""Flips a variable bbc horizontally.
+		Does not work. Not all that important though."""
 		aComponent.pinList[:len(aComponent.pinList)/2].reverse()
 		print aComponent.pinList
 		aComponent.pinList[len(aComponent.pinList)/2:].reverse()
@@ -278,13 +285,10 @@ class Breadboard(object):
 		return True
 
 if __name__ == "__main__":
-	bb = Breadboard()		
-	a = QuadChip('OPA551')
-	c = Resistor(100)
-	d = Capacitor(40)
-	bb.putComponent(c,2,10,2,11)
-	print bb.putComponent(d,3,10,3,11)
-	print bb.putComponent(a,8,7)
-	print bb.componentList[2].pinList
+	bb = Breadboard()
+	a = OpAmp('hello')
+	print bb.putComponent(a,3,7)
+	for i in range(bb.numRows):
+		print bb.isFilled(5,i)
 
 
