@@ -10,56 +10,68 @@ class Breadboard(object):
 	By default, is powered like a DAQ powers a breadboard,
 	going (bottom to top) ground,2.5V,2.5V,5V"""
 	
-	def __init__(self): #maybe this should take on voltage rail
+	def __init__(self): 
 		self.numRows = 18
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.railZero = 2.5
-		self.railOne = 5
-		self.railTwo = 5
-		self.railThree = 0
-		self.makeLocations()
-		self.addDisplayFlagsAndFiller()
+		self.rails= [2.5 , 5 , 5 , 0] #voltage rails
+		self.initializeLocations()
+		self.nodeCreation()
+		self.detailLocations()
 		
-	def makeLocations(self):
-		"""creates location objects for a given spot and does node logic"""
+	def initializeLocations(self):
+		"""creates locations at every spot.
+		doesnt deal with nodes, voltages, or flags"""
+				
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
-				node=Node((x,y))
-				if y==0:
-					self.addNodeHoriz(x,y,node)
-				if y==1:
-					self.addNodeHoriz(x,y,node)
-				if y==16:
-					self.addNodeHoriz(x,y,node)	
-				if y==17:
-					self.addNodeHoriz(x,y,node)
-
-	def addNodeHoriz(self,x,y,node):
-		"""adds a node to a location, using the previous row's value as a base"""
-		if not isinstance(self.locMatrix.getItem(x,y),Location):
-			self.locMatrix.setItem(x,y,Location(x,y,node))
-		else:
-			print 'woot'
-			self.locMatrix.setItem(x,y,self.locMatrix.getItem(x-1,y).Node) 
-		return True
+				self.locMatrix.setItem(x,y,Location(x,y))
 	
-	def addNodeVert(self,x,y,node):
-		if not isinstance(self.locMatrix.getItem(x,y),Location):
-			self.locMatrix.setItem(x,y,Location(x,y,node))
-		else:
-			self.locMatrix.setItem(x,y,self.locMatrix.getItem(x,y).Node) 
+	def getLocation(self,x,y):
+		return self.locMatrix.getItem(x,y)
 		
+	def assignNodeHoriz(self,x,y,number):
+		"""assigns nodes based on the previous nodes
+		for a horizontal node, like rails"""
+		if self.getLocation(x-1,y).Node.number !=-1:
+			self.locMatrix.setItem(x,y,self.getLocation(x-1,y))
+		else:
+			self.locMatrix.setItem(x,y,Location(x,y,Node(number)))
 	
-
-	def addDisplayFlagsAndFiller(self):
-		"""adds in the display flags for each location
-		and fills the holes betwixt actual holes"""
+	def assignNodeVert(self,x,y,number):
+		"""assigns nodes based on the previous nodes
+		for a vertical node, like the columns"""
+		if self.getLocation(x,y-1).Node.number !=-1:
+			self.locMatrix.setItem(x,y,self.getLocation(x,y-1))
+		else:
+			self.locMatrix.setItem(x,y,Location(x,y,Node(number)))
+			
+	def nodeCreation(self):
+		"""goes through each position on the bb and assigns
+		nodes to the locations. nodes are 0,1,2,3 for GND, power 1,
+		power 2, and power 3"""
+		
+		width = 63
+		for i in range(width):
+			self.assignNodeHoriz(i,0,1) #5 Volts
+			self.assignNodeHoriz(i,1,2) # 2.5V
+			self.assignNodeHoriz(i,16,3) # 2.5V
+			self.assignNodeHoriz(i,17,0) # 0 is ground
+		for y in range(3,8):
+			for x in range(width):
+				self.assignNodeVert(x,y,4*x)
+		for y in range(10,15):
+			for x in range(width):
+				self.assignNodeVert(x,y,4*x+1)
+	
+	def detailLocations(self):
+		"""assigns display flags
+		and voltage at the rails"""
+				
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
-				#creation of node logic should be added here.
-				if y==2: #fills holes between rows
+				if y==2: #fills pins between rows
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLUE_LINE)
 				if y==15:
@@ -74,15 +86,24 @@ class Breadboard(object):
 				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
-
+				if y==0:	
+					self.setNodeVoltage(x,y,self.rails[0])	#sets power at top rail
+				if y==1:
+					self.setNodeVoltage(x,y,self.rails[1])	#sets power at second from top rail
+				if y==16:
+					self.setNodeVoltage(x,y,self.rails[2])	#sets power at third from top rail
+				if y==17:
+					self.setNodeVoltage(x,y,self.rails[3])	#sets power at fourth from top rail
+					
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
-
+		
 	def setNodeVoltage(self,x,y,voltage,voltageType='DC',frequency=0):
 		"""makes a node have a nonzero voltage,
 		or whatever voltage you want."""
 		self.getLocation(x,y).Node.voltage = Voltage(voltage,voltageType,frequency)
 		return True
+			
 	
 	def clearNodeVoltage(self,x,y):
 		"""sets a voltage to zero."""
@@ -92,9 +113,6 @@ class Breadboard(object):
 	def getNodeVoltage(self,x,y):
 		"""returns voltage at a location"""
 		return self.getLocation(x,y).Node.voltage
-
-	def getLocation(self,x,y):
-		return self.locMatrix.getItem(x,y)
 
 	def isFilled(self,x,y):
 		return self.getLocation(x,y).isFilled
@@ -177,6 +195,7 @@ class Breadboard(object):
 				return True
 			elif isinstance(aComponent,InputDevice):
 				self.setAllFilled(aComponent.pinList)
+				aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc=args[0],args[1]
 				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 		return False
 	
@@ -206,9 +225,9 @@ class Breadboard(object):
 		"""removes a breadboard component from the bb by unfilling its pins
 		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
-		aComponent.pinList = aComponent.standardPinList
 		if isinstance(aComponent,InputDevice):
 			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
+		aComponent.pinList = aComponent.standardPinList
 		return True
 
 
@@ -247,13 +266,3 @@ class Breadboard(object):
 			return bb
 		except:
 			return None
-
-if __name__=='__main__':
-	bb = Breadboard()
-	r = InputDevice(10,'AC',10)
-	bb.putComponent(r,3,3)
-	bb.getNodeVoltage(3,3)
-	bb.removeComponent(r)
-	#~ bb.saveBreadboard('cool_beans4')
-	#~ cc = Breadboard.openBreadboard('cool_beans4.txt')
-	print bb.getNodeVoltage(3,3)
