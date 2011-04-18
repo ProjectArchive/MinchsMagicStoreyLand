@@ -266,3 +266,21 @@ class Breadboard(object):
 			return bb
 		except:
 			return None
+	
+	def flipComponent(self,aComponent):
+		"""Flips a variable bbc horizontally"""
+		aComponent.pinList[:len(aComponent.pinList)/2].reverse()
+		print aComponent.pinList
+		aComponent.pinList[len(aComponent.pinList)/2:].reverse()
+		print aComponent.pinList
+		return True
+
+if __name__ == "__main__":
+	bb = Breadboard()		
+	a = OpAmp('OPA551')
+	c = Resistor(100)
+	print bb.putComponent(a,1,7)
+	print bb.putComponent(c,4,4,4,3)
+	print bb.componentList
+
+
