@@ -9,7 +9,7 @@ from Breadboard import *
 from PIL import Image
 
 class BreadboardPanel(wx.Panel):
-	def __init__(self, parent,breadBoard,buttonManager, *args, **kwargs):
+	def __init__(self, parent,breadBoard,buttonManager=None, *args, **kwargs):
  		wx.Panel.__init__(self, parent,*args,**kwargs)
  		self.parent = parent
 		self.breadBoard = breadBoard
@@ -78,8 +78,8 @@ class BreadboardPanel(wx.Panel):
 		# Hide the image, end dragging, and nuke out the drag image.
 		self.dragImage.Hide()
 		self.dragImage.EndDrag()
-		self.dragImage = None
 
+		self.dragImage = None
 		if self.hiliteShape:
 			self.RefreshRect(self.hiliteShape.GetRect())
 			self.hiliteShape = None
@@ -96,9 +96,7 @@ class BreadboardPanel(wx.Panel):
 	
 	def OnMotion(self, evt):
 		# Ignore mouse movement if we're not dragging.
-		pos = evt.GetPosition()
-		print pos
-		return
+		pos = self.ScreenToClient(wx.GetMousePosition())
 		if self.buttonManager.currentButton == None:
 			print 'nothing pressed'
 		else:
