@@ -95,7 +95,7 @@ class B2Spice(object):
 					voltageNode = 0
 					return voltagePower,voltageNode
 		
-	def getRailandAnalysisDC(self):
+	def sourceDC(self,t=0,numPts=20):
 		"""builds the line that describes
 		the source voltage of the breadboard
 		(probably from the rail). In addition, this method
@@ -107,19 +107,26 @@ class B2Spice(object):
 		groundNode =  '0'
 		powerNode = str(vNode)
 		power = str(vPower)
-		sourceLine = sourceName + ' ' + groundNode + ' ' + powerNode + ' dc ' + power
-		analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
+		sourceLine = sourceName + ' ' + powerNode + ' ' + groundNode + ' dc ' + power
+		if t = 0:
+			analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
+		else:
+			tstep = float(t)/float(numPts)
+			analysisLine = '.tran ' + str(tstep) + ' ' + str(t) + ' uic'
 		return sourceLine,analysisLine
 		
-	def buildNetListDC(self,analysisFlag):
+	def sourceAC(self,waveform='sin',amp=5
+		
+	def buildNetList(self,analysisFlag):
 		"""This is the demi-motherlode. This
 		builds a string that describes the circuit and 
 		type of analysis. Only handles DC circuits right now
 		"""
+		#TODO
 		board = self.board
 		netList = self.cirName + '\n'
 		if analysisFlag = 'DC':
-			sourceLine,analysisLine = self.getRailandAnalysisDC()
+			sourceLine,analysisLine = self.sourceDC()
 			netList += sourceLine + '\n'
 			compList = board.componentList
 			for components in compList:
