@@ -36,21 +36,19 @@ class BreadboardPanel(wx.Panel):
 		#self.Sizer.Fit(parent)
 
 	def onMotion(self,event):
-		print self.GetSize()
+		#print self.GetSize()
 		"""A generic onMotion event, TODO:look at hierachy, which event is invoked first?		"""
 		x,y= self.bitmapToXY.get(event.GetEventObject())
-		print event.GetEventObject().GetSize()
-		print self.breadBoard.getLocation(x,y)
+		#print event.GetEventObject().GetSize()
+		#print self.breadBoard.getLocation(x,y)
 		#print "motion event:", event.m_x, event.m_y
 	def OnSize(self,event):
 		print 'onsize'
 		newXSize= self.GetSize().x/self.breadBoard.numColumns
 		newYSize= self.GetSize().y/self.breadBoard.numRows
-		for key in self.bitmapToXY:
-			key.SetSize((newXSize,newYSize))
-			key.Refresh()
-		self.Refresh(eraseBackground=True)
-		self.Layout()
+		if newXSize >15:
+			self.openBitMap = self.emptyBitMap
+		event.Skip()
 
 			
 class BreadboardComponentWrapper:

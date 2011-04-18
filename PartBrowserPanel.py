@@ -5,23 +5,17 @@
 #
 #       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 import wx
+from wx.lib.buttons import GenBitmapToggleButton
 from Breadboard import *
 from PIL import Image
 
 class PartBrowserPanel(wx.Panel):
 	def __init__(self, parent, *args, **kwargs):
 		wx.Panel.__init__(self, parent,*args,**kwargs)
-		self.SetBackgroundColour((11, 11, 11))
-#		imageFile = "res/resistor_image.png"
-#		image1 = wx.Image(imageFile, wx.BITMAP_TYPE_ANY).Rescale(70,70,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 		self.bSizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.nameToBitmap = {}
 		self.gatherCommonComponents()
 		self.createButtons()
-		#button1 = wx.BitmapButton(self, id=-1, bitmap=self.nameToBitmap['resistor'])
-		#self.bSizer.Add(button1)
-		#button2 = wx.BitmapButton(self, id=-1, bitmap=self.nameToBitmap['capacitor'])
-		#self.bSizer.Add(button2)
 		self.SetSizerAndFit(self.bSizer)
 		self.Layout()
 		
@@ -33,36 +27,40 @@ class PartBrowserPanel(wx.Panel):
 			self.nameToBitmap[componentName] = wx.Image('res/' + str(componentName) + '_image.png').Rescale(60,60,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 
 	def createButtons(self):
-		self.buttonGroup = ButtonGroup(self)
+		self.buttonGroup = ButtonGroup()
+		flag = True
 		for name in self.nameToBitmap.keys():
 			print name
-			button1 = wx.BitmapButton(self, id=wx.ID_ANY, bitmap=self.nameToBitmap[name],style=wx.BU_EXACTFIT)
+			button1 = GenBitmapToggleButton(self, id=wx.ID_ANY, bitmap=self.nameToBitmap[name],style=wx.BU_EXACTFIT)
 			button1.typeName = name
 			self.buttonGroup.addButton(button1,name)
-			self.bSizer.Add(button1,0,wx.BOTTOM,300)
-			
-	def onMotion(self,event):
-		"""A generic onMotion event, TODO:look at hierachy, which event is invoked first?		"""
-		x,y= self.bitmapToXY.get(event.GetEventObject())
-		print event.GetEventObject().GetSize()
-		print self.breadBoard.getLocation(x,y)
-		#print "motion event:", event.m_x, event.m_y
-
+			self.bSizer.Add(button1,0,wx.ALL,5)
 
 
 class ButtonGroup(object):
+	"""encapsulate radio button features using a manager of a number of bitmaptogglebuttons. This should be built into wxpython, but is not B/C of native operations, I believe"""
 	
-	def __init__(self,parent):
-		self.parent = parent
+	def __init__(self):
+		""" """
 		self.currentName = None
 		self.currentButton = None
 	
 	def addButton(self,button,label):
 		button.Bind(wx.EVT_BUTTON,self.buttonPressed)
-	
+		
 	def buttonPressed(self,event):
-		if self.currentButton == event.GetEventObject():
-			self.currentButton.set
+		if self.currentButton == None:
+			self.currentButton = event.GetEventObject()
+			self.currentName = self.currentButton.typeName
+			return
+		sameAsLast = self.currentButton == event.GetEventObject()
+		if sameAsLast:
+			self.currentButton = None
+			self.currentName = None
+		else:
+			self.currentButton.SetValue(False) #lower our last one...
+			self.currentButton = event.GetEventObject()
+			self.currentName = self.currentButton.typeName
 
 class Example(wx.Frame):
 	"""Dummy frame"""
