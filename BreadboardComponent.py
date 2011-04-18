@@ -25,7 +25,7 @@ class FixedBreadboardComponent(BreadboardComponent):
 	components that have a fixed size, like an op-amp.  Has attributes
 	that are user defined. """
 	
-	def __init__(self,width,height,pinList,attributes,displayName,spiceName,technicalName,referencePin):
+	def __init__(self,width,height,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins):
 		""" width is number columns, height is the
 		number of rows, pinlist is locations where the pins are, 
 		attributes are qualities (like resistance), location based
@@ -34,6 +34,8 @@ class FixedBreadboardComponent(BreadboardComponent):
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 		self.width = width
 		self.height = height
+		self.deadPins = deadPins
+
 
 	#~ def __repr__(self):
 		#~ return '%s of size %dx%d attributes %s and %g pins at ref pin %g,%g' % (self.displayName,self.width, self.height,str(self.attributes), len(self.pinList),self.pinList[0].xLoc,self.pinList[0].yLoc)
@@ -108,10 +110,21 @@ class OpAmp(FixedBreadboardComponent):
 		pin7 = RelativeLocation(1,3)
 		pin8 = RelativeLocation(0,3)
 		pinList = [referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8]
+		
+		deadPin0 = RelativeLocation(0,1)
+		deadPin1 = RelativeLocation(1,1)
+		deadPin2 = RelativeLocation(2,1)
+		deadPin3 = RelativeLocation(3,1)
+		deadPin4 = RelativeLocation(0,2)
+		deadPin5 = RelativeLocation(1,2)
+		deadPin6 = RelativeLocation(2,2)
+		deadPin7 = RelativeLocation(3,2)
+		deadPins = [deadPin0,deadPin1,deadPin2,deadPin3,deadPin4,deadPin5,deadPin6,deadPin7]
+
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default
 		spiceName = 'e'			#Noam
-		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
+		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
 
 class QuadChip(FixedBreadboardComponent):
 	"""A 14 pin op amp.
@@ -135,22 +148,35 @@ class QuadChip(FixedBreadboardComponent):
 		pin13 = RelativeLocation(1,3)
 		pin14 = RelativeLocation(0,3)
 	
+		deadPin0 = RelativeLocation(0,1)
+		deadPin1 = RelativeLocation(1,1)
+		deadPin2 = RelativeLocation(2,1)
+		deadPin3 = RelativeLocation(3,1)
+		deadPin4 = RelativeLocation(4,1)
+		deadPin5 = RelativeLocation(5,1)
+		deadPin6 = RelativeLocation(6,1)
+		deadPin7 = RelativeLocation(0,2)
+		deadPin8 = RelativeLocation(1,2)
+		deadPin9 = RelativeLocation(2,2)
+		deadPin10 = RelativeLocation(3,2)
+		deadPin11 = RelativeLocation(4,2)
+		deadPin12 = RelativeLocation(5,2)
+		deadPin13 = RelativeLocation(6,2)
+		deadPins = [deadPin0,deadPin1,deadPin2,deadPin3,deadPin4,deadPin5,deadPin6,deadPin7,deadPin8,deadPin9,deadPin10,deadPin11,deadPin12,deadPin13]
+	
 		pinList = [referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14]
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'QuadChip' #default
 		spiceName = 'e' #?maybe...
 		
-		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin)
+		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
 
 class InputDevice(BreadboardComponent):
 	"""An input device.  Is capable of outputting AC or DC
 	Takes in voltage as an integer.
 	Only one pin, as the other one is usually grounded. MAYBE?"""
 	
-	def __init__(self,voltage,voltageType,frequency=None):
-		if frequency==None:
-			frequency=0
-			
+	def __init__(self,voltage,voltageType,frequency=0):
 		referencePin = RelativeLocation(0,0)
 		self.voltage = Voltage(voltage)
 		self.voltageType = voltageType
