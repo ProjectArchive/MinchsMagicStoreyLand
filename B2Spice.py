@@ -49,8 +49,8 @@ class B2Spice(object):
 		attrKey = attrKey[0] + str(id(component))
 		return str(attrKey),str(attrVal)
 		
-	def getOpAmpModel(self,component):
-		
+	#~ def getOpAmpModel(self,component):
+		#TODO
 		
 		
 	def buildText(self,component):
@@ -59,12 +59,13 @@ class B2Spice(object):
 		takes Resistors, Wires, and Capacitors 
 		right now. Also sets initial conditions
 		for Capacitors."""
+		##NEED TO FINISH THIS TODO
 		if isinstance(component,Capacitor):
 			suffix = ' ic=0'
 		else:
 			suffix = ''
-		if isinstance(component,OpAmp):
-			return getOpAmpModel
+		#~ if isinstance(component,OpAmp):
+			#~ return getOpAmpModel
 		nodes = self.getNodes(component)
 		attr = self.getAttr(component)
 		ans = attr[0] + nodes + attr[1] + suffix
@@ -94,7 +95,7 @@ class B2Spice(object):
 					voltageNode = 0
 					return voltagePower,voltageNode
 		
-	def getRailandAnalysis(self):
+	def getRailandAnalysisDC(self):
 		"""builds the line that describes
 		the source voltage of the breadboard
 		(probably from the rail). In addition, this method
@@ -110,28 +111,30 @@ class B2Spice(object):
 		analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
 		return sourceLine,analysisLine
 		
-	def buildNetList(self):
+	def buildNetListDC(self,analysisFlag):
 		"""This is the demi-motherlode. This
 		builds a string that describes the circuit and 
 		type of analysis. Only handles DC circuits right now
 		"""
 		board = self.board
 		netList = self.cirName + '\n'
-		sourceLine,analysisLine = self.getRailandAnalysis()
-		netList += sourceLine + '\n'
-		compList = board.componentList
-		for components in compList:
-			netList += self.buildText(components) + '\n'
-		netList += analysisLine + '\n'
-		vAtNodeLine = '.print dc'
-		for node in self.nodeList:
-			if int(node) < 1:
-				vAtNodeLine += ''
-			else:
-				vAtNodeLine += ' v(%s)' % node
-		vAtNodeLine += ' \n'
-		netList += vAtNodeLine
-		netList += '.end'
+		if analysisFlag = 'DC':
+			sourceLine,analysisLine = self.getRailandAnalysisDC()
+			netList += sourceLine + '\n'
+			compList = board.componentList
+			for components in compList:
+				netList += self.buildText(components) + '\n'
+			netList += analysisLine + '\n'
+			vAtNodeLine = '.print dc'
+			for node in self.nodeList:
+				if int(node) < 1:
+					vAtNodeLine += ''
+				else:
+					vAtNodeLine += ' v(%s)' % node
+			vAtNodeLine += ' \n'
+			netList += vAtNodeLine
+			netList += '.end'
+		elif analysisFlag = 'AC':
 		return netList
 	
 	#~ def parse(self,textFile):
@@ -165,19 +168,18 @@ class B2Spice(object):
 		b=[]
 		for line in textFile:
 			b.append(line)
-		for i in range(len(b)-1):
+		for i in range(len(b)-1):)
 			if 'Index' in b[i]:
 				print b[i],b[i+1],b[i+2]
 		return True
 			
 		
-	def loadBb(self):
+	def loadBb(self:
 		"""Creates the temporary files and directories
 		necessary for circuit analysis. Initializes ngspice, feeds
 		the netlist to it, and parses the output. Deletes all the files
 		and directories after analysis. Cory's really into anal.
 		"""
-		board = self.board
 		fileName = self.cirName + '.cir'
 		resFileName = 'res.txt'
 		netList = self.netList
