@@ -17,18 +17,22 @@ class SimulationPanel(wx.Panel):
 		
 		image = wx.Image('res/simulate_image.png')
 		image.Rescale(50,50,wx.IMAGE_QUALITY_HIGH)
-		self.startSimulationButton = wx.BitmapButton(self, -1, wx.BitmapFromImage(image))
-		self.sstartSimulationButton = wx.BitmapButton(self, -1, wx.BitmapFromImage(image))
+		self.startSimulationButton = wx.BitmapButton(self, -wx.ID_ANY, wx.BitmapFromImage(image))
+		self.sstartSimulationButton = wx.BitmapButton(self, wx.ID_ANY, wx.BitmapFromImage(image))
 
 		self.bVerticalSizer.Add(self.startSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
 		self.bVerticalSizer.Add(self.sstartSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
 		self.SetSizerAndFit(self.bVerticalSizer)
+		self.Layout()
 		
 class Example(wx.Frame):
 	"""Dummy frame"""
 	def __init__(self, parent, title):
 		wx.Frame.__init__(self,parent, title=title)
-		sPanel = SimulationPanel(parent=self)
+		self.Sizer = wx.BoxSizer(wx.VERTICAL)
+		self.Sizer.Add(SimulationPanel(self),0,wx.ALL)
+		self.Sizer.Add(wx.Button(self,label='hello'),1,wx.ALL)
+		self.SetSizer(self.Sizer)
 		self.Fit()
 		self.Show()
 

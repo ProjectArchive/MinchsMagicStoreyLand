@@ -6,40 +6,124 @@
 #       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 import wx
 from Breadboard import *
-from PIL import Image
 
 class BreadboardPanel(wx.Panel):
-	def __init__(self, parent,breadBoard,*args, **kwargs):
+	def __init__(self, parent,breadBoard,buttonManager=None, *args, **kwargs):
  		wx.Panel.__init__(self, parent,*args,**kwargs)
  		self.parent = parent
 		self.breadBoard = breadBoard
+		self.buttonManager = buttonManager
 		self.gs = wx.GridSizer(self.breadBoard.numRows, self.breadBoard.numColumns, 0, 0) #gridsizer with numRows rows and numCols col, 1 px padding
 		self.bitmapToXY = {} #.Rescale(20,20,wx.IMAGE_QUALITY_HIGH)
+		self.drawBreadboard()
+		self.shapes = []
+		self.dragImage = None
+		self.dragShape = None
+		self.hiliteShape = None
+
+		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
+		self.currentMovableImage = None
+		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
+		self.Layout()
+		self.Bind(wx.EVT_SIZE, self.OnSize)
+		self.Bind(wx.EVT_PAINT, self.OnPaint)
+		self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+		self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
+		self.Bind(wx.EVT_MOTION, self.OnMotion)
+		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
+
+	def OnLeaveWindow(self, evt):
+		pass
+
+	# Go through our list of shapes and draw them in whatever place they are.
+	def DrawShapes(self, dc):
+		for shape in self.shapes:
+			if shape.shown:
+				shape.Draw(dc)
+
+	# This is actually a sophisticated 'hit test', but in this
+	# case we're also determining which shape, if any, was 'hit'.
+	def FindShape(self, pt):
+		for shape in self.shapes:
+			if shape.HitTest(pt):
+				return shape
+		return None
+
+	# Fired whenever a paint event occurs
+	def OnPaint(self, evt):
+		print 'print invoked'
+		dc = wx.PaintDC(self)
+		self.PrepareDC(dc)
+		self.DrawShapes(dc)
+
+	# Left mouse button is down.
+	def OnLeftDown(self, evt):
+		# Did the mouse go down on one of our shapes?
+		shape = self.FindShape(evt.GetPosition())
+		# If a shape was 'hit', then set that as the shape we're going to
+		# drag around. Get our start position. Dragging has not yet started.
+		# That will happen once the mouse moves, OR the mouse is released.
+		if shape:
+			self.dragShape = shape
+			self.dragStartPos = evt.GetPosition()
+
+	# Left mouse button up.
+	def OnLeftUp(self, evt):
+		if not self.dragImage or not self.dragShape:
+			self.dragImage = None
+			self.dragShape = None
+			return
+
+		# Hide the image, end dragging, and nuke out the drag image.
+		self.dragImage.Hide()
+		self.dragImage.EndDrag()
+
+		self.dragImage = None
+		if self.hiliteShape:
+			self.RefreshRect(self.hiliteShape.GetRect())
+			self.hiliteShape = None
+		
+	def OnSize(self,event):
+		print 'onsize'
+		newXSize= self.GetSize().x/self.breadBoard.numColumns
+		newYSize= self.GetSize().y/self.breadBoard.numRows
+		if newXSize >15:
+			self.openBitMap = self.emptyBitMap
+		event.Skip()
+
+	# The mouse is moving
+	
+	def OnMotion(self, evt):
+		# Ignore mouse movement if we're not dragging.
+		pos = self.ScreenToClient(wx.GetMousePosition())
+		if self.buttonManager.currentButton == None:
+			print 'nothing pressed'
+		else:
+			if self.currentMovableImage == None:
+				self.tempBitmap = wx.Image('res/simulate_image.png').ConvertToBitmap()
+				self.currentMovableImage = wx.StaticBitmap(self,wx.ID_ANY,self.tempBitmap,pos=pos)
+				self.currentMovableImage.initialPos = pos
+				print pos
+			else:
+				self.currentMovableImage.Move(pos)
+				print pos
+
+	def drawBreadboard(self):
+		##this needs to be updated... add dynamic dictionary to deal with redrawing
 		self.emptyBitMap = wx.Image('res/blank_slot.png').ConvertToBitmap()
 		self.openBitMap = wx.Image('res/open_slot.png').ConvertToBitmap()
-		
 		for y in range(self.breadBoard.numRows):	
 			for x in range(self.breadBoard.numColumns):
-				isFilled = breadBoard.getLocation(x,y).isFilled
+				isFilled = self.breadBoard.getLocation(x,y).isFilled
 				if isFilled: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					bmp =wx.StaticBitmap(self, -1, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
 				else:
-					bmp =wx.StaticBitmap(self, -1, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
-				bmp.Bind(wx.EVT_MOTION, self.onMotion,id=-1) #bind generic onMotion event,
+				bmp.Bind(wx.EVT_MOTION, self.OnMotion,id=wx.ID_ANY) #bind generic onMotion event,
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
-		
-		print ('%d locations present') %len(self.bitmapToXY.values())
-		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
-		#self.Sizer.Fit(parent)
 
-	def onMotion(self,event):
-		print self.GetSize()
-		"""A generic onMotion event, TODO:look at hierachy, which event is invoked first?		"""
-		x,y= self.bitmapToXY.get(event.GetEventObject())
-		print event.GetEventObject().GetSize()
-		print self.breadBoard.getLocation(x,y)
-		#print "motion event:", event.m_x, event.m_y
+
 
 
 class BreadboardComponentWrapper:
@@ -79,6 +163,36 @@ class Example(wx.Frame):
 		BreadboardPanel(self,Breadboard())
 		self.Fit()
 		self.Show()
+
+
+class DragShape:
+	def __init__(self, bmp):
+		self.bmp = bmp
+		self.pos = (0,0)
+		self.shown = True
+		self.text = None
+		self.fullscreen = False
+
+	def HitTest(self, pt):
+		rect = self.GetRect()
+		return rect.InsideXY(pt.x, pt.y)
+
+	def GetRect(self):
+		return wx.Rect(self.pos[0], self.pos[1],
+					  self.bmp.GetWidth(), self.bmp.GetHeight())
+
+	def Draw(self, dc, op = wx.COPY):
+		if self.bmp.Ok():
+			memDC = wx.MemoryDC()
+			memDC.SelectObject(self.bmp)
+
+			dc.Blit(self.pos[0], self.pos[1],
+					self.bmp.GetWidth(), self.bmp.GetHeight(),
+					memDC, 0, 0, op, True)
+
+			return True
+		else:
+			return False
 
 
 if __name__ == '__main__':
