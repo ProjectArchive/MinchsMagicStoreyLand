@@ -19,11 +19,47 @@ class Breadboard(object):
 		self.railOne = 5
 		self.railTwo = 5
 		self.railThree = 0
+		self.makeLocations()
+		self.addDisplayFlagsAndFiller()
 		
+	def makeLocations(self):
+		"""creates location objects for a given spot and does node logic"""
 		for x in range(self.numColumns):
 			for y in range(self.numRows):
-				self.locMatrix.setItem(x,y,Location(x,y)) #some node logic needs to occur here
-				if y==2: #fills pins between rows
+				node=Node((x,y))
+				if y==0:
+					self.addNodeHoriz(x,y,node)
+				if y==1:
+					self.addNodeHoriz(x,y,node)
+				if y==16:
+					self.addNodeHoriz(x,y,node)	
+				if y==17:
+					self.addNodeHoriz(x,y,node)
+
+	def addNodeHoriz(self,x,y,node):
+		"""adds a node to a location, using the previous row's value as a base"""
+		if not isinstance(self.locMatrix.getItem(x,y),Location):
+			self.locMatrix.setItem(x,y,Location(x,y,node))
+		else:
+			print 'woot'
+			self.locMatrix.setItem(x,y,self.locMatrix.getItem(x-1,y).Node) 
+		return True
+	
+	def addNodeVert(self,x,y,node):
+		if not isinstance(self.locMatrix.getItem(x,y),Location):
+			self.locMatrix.setItem(x,y,Location(x,y,node))
+		else:
+			self.locMatrix.setItem(x,y,self.locMatrix.getItem(x,y).Node) 
+		
+	
+
+	def addDisplayFlagsAndFiller(self):
+		"""adds in the display flags for each location
+		and fills the holes betwixt actual holes"""
+		for x in range(self.numColumns):
+			for y in range(self.numRows):
+				#creation of node logic should be added here.
+				if y==2: #fills holes between rows
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLUE_LINE)
 				if y==15:
@@ -38,22 +74,14 @@ class Breadboard(object):
 				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
-				if x==0:	
-					self.setNodeVoltage(x,y,self.railZero)	#sets power at top rail
-				if x==1:
-					self.setNodeVoltage(x,y,self.railOne)	#sets power at second from top rail
-				if x==16:
-					self.setNodeVoltage(x,y,self.railTwo)	#sets power at third from top rail
-				if x==17:
-					self.setNodeVoltage(x,y,self.railThree)	#sets power at fourth from top rail
-					
+
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
 
 	def setNodeVoltage(self,x,y,voltage,voltageType='DC',frequency=0):
 		"""makes a node have a nonzero voltage,
 		or whatever voltage you want."""
-		self.locMatrix.matrix[x][y].Node.voltage = Voltage(voltage,voltageType,frequency)
+		self.getLocation(x,y).Node.voltage = Voltage(voltage,voltageType,frequency)
 		return True
 	
 	def clearNodeVoltage(self,x,y):

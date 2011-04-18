@@ -7,7 +7,7 @@ class Voltage(object):
 		Standard is 0VDC"""
 		self.volts = volts
 		self.currentType = currentType
-		self.frequency = None
+		self.frequency = frequency
 		
 	def __add__(self,other):
 		return self.volts + other.volts

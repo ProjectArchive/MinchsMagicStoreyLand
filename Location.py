@@ -13,7 +13,7 @@ class Location(object):
 	CENTER_BOTTOM = 5
 	BLANK = 6
 	
-	def __init__(self,xIn,yIn,displayFlag=OPENSLOT):
+	def __init__(self,xIn,yIn,node=Node(-1),displayFlag=OPENSLOT):
 		"""init Location, this location is at xIn,yIn with a display flag
 		 defaulted to an open slot, an empty location with no special
 		 display characteristics. 
@@ -21,13 +21,14 @@ class Location(object):
 		self.xLoc = xIn
 		self.yLoc = yIn
 		self.isFilled = False
-		self.Node = Node((xIn,yIn))  #Node takes a tuple of x and y
+		self.Node = node  
 		self.displayFlag = displayFlag
 	
 	def __repr__(self):
 		"""returns an informal representation of this Location """
 		suffix = '-Filled' if self.isFilled else '-Empty'
 		return str((self.xLoc, self.yLoc)) + suffix
+		
 	
 	def setDisplayFlag(self,displayFlag):
 		"""Set display flag, determines the bitmap used to represent this
