@@ -49,6 +49,10 @@ class B2Spice(object):
 		attrKey = attrKey[0] + str(id(component))
 		return str(attrKey),str(attrVal)
 		
+	def getOpAmpModel(self,component):
+		
+		
+		
 	def buildText(self,component):
 		"""builds the line of text that SPICE
 		uses to describe the component. Only 
@@ -59,6 +63,8 @@ class B2Spice(object):
 			suffix = ' ic=0'
 		else:
 			suffix = ''
+		if isinstance(component,OpAmp):
+			return getOpAmpModel
 		nodes = self.getNodes(component)
 		attr = self.getAttr(component)
 		ans = attr[0] + nodes + attr[1] + suffix
