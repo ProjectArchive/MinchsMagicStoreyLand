@@ -163,6 +163,7 @@ class Breadboard(object):
 		for i in range(0,len(pinPositions),2):
 			x = pinPositions[i]
 			y = pinPositions[i+1]
+			print x,y
 			refLocTest = self.getLocation(x,y) #the loc to test at
 			#first test if the reference location is available
 			if refLocTest == None or refLocTest.isFilled:
@@ -279,8 +280,10 @@ if __name__ == "__main__":
 	bb = Breadboard()		
 	a = OpAmp('OPA551')
 	c = Resistor(100)
+	d = Capacitor(40)
+	print bb.putComponent(c,2,10)
+	#print bb.putComponent(d,1,7)
 	print bb.putComponent(a,1,7)
-	print bb.putComponent(c,4,4,4,3)
 	print bb.componentList
 
 
