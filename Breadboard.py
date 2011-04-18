@@ -94,7 +94,7 @@ class Breadboard(object):
 				if y==16:
 					self.setNodeVoltage(x,y,self.rails[2])	#sets power at third from top rail
 				if y==17:
-					self.setNodeVoltage(x,y,self.rails[3])	#sets power at fourth from top rail
+					self.setNodeVoltage(x,y,self.rails[3])	#sets power at bottom rail
 					
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
@@ -183,22 +183,23 @@ class Breadboard(object):
 		if self.canPutComponent(aComponent,args):
 			self.componentList.append(aComponent)
 			aComponent.referencePin = self.getLocation(args[0],args[1])
-			if isinstance(aComponent,FixedBreadboardComponent):
+			
+			if isinstance(aComponent,FixedBreadboardComponent): #opamps
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
 				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.deadPins)
 				return True
-			elif isinstance(aComponent,VariableBreadboardComponent):
+				
+			elif isinstance(aComponent,VariableBreadboardComponent):	#resistors
 				count=0
 				for i in range(0,len(args),2):
-					print self.locMatrix.getItem(1,1)
 					aComponent.pinList[count] = self.locMatrix.getItem(args[i],args[i+1])
-					#~ print aComponent.pinList[count]
 					self.setFilled(args[i],args[i+1])
 					count+=1
 				return True
-			elif isinstance(aComponent,InputDevice):
+				
+			elif isinstance(aComponent,InputDevice):	#input devices
 				self.setAllFilled(aComponent.pinList)
 				aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc=args[0],args[1]
 				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
@@ -287,8 +288,14 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	print bb.putComponent(a,3,7)
-	for i in range(bb.numRows):
-		print bb.isFilled(5,i)
+	bb.putComponent(a,3,7)
+	c = Resistor(10)
+	d = Capacitor(5)
+	r = InputDevice(10)
+	
+	bb.putComponent(c,4,4,4,5)
+	bb.putComponent(d,5,4,5,5)
+	bb.putComponent(r,3,3)
+	
 
 
