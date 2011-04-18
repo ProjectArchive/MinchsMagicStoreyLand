@@ -195,6 +195,7 @@ class Breadboard(object):
 				return True
 			elif isinstance(aComponent,InputDevice):
 				self.setAllFilled(aComponent.pinList)
+				aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc=args[0],args[1]
 				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 		return False
 	
@@ -224,9 +225,9 @@ class Breadboard(object):
 		"""removes a breadboard component from the bb by unfilling its pins
 		and then switching all locations to rel locs"""
 		self.setAllUnfilled(aComponent.pinList)
-		aComponent.pinList = aComponent.standardPinList
 		if isinstance(aComponent,InputDevice):
 			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
+		aComponent.pinList = aComponent.standardPinList
 		return True
 
 
@@ -265,12 +266,3 @@ class Breadboard(object):
 			return bb
 		except:
 			return None
-
-if __name__=='__main__':
-	bb = Breadboard()
-	r = InputDevice(10,'AC',10)
-	bb.putComponent(r,3,3)
-	print bb.getNodeVoltage(48,0)
-	print bb.getNodeVoltage(4,3)
-	#bb.removeComponent(r)
-	print bb.getNodeVoltage(3,3)
