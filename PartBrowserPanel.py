@@ -7,7 +7,6 @@
 import wx
 from wx.lib.buttons import GenBitmapToggleButton
 from Breadboard import *
-from PIL import Image
 
 class PartBrowserPanel(wx.Panel):
 	def __init__(self, parent, *args, **kwargs):

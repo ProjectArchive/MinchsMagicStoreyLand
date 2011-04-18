@@ -6,7 +6,6 @@
 #       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 import wx
 from Breadboard import *
-from PIL import Image
 
 class BreadboardPanel(wx.Panel):
 	def __init__(self, parent,breadBoard,buttonManager=None, *args, **kwargs):
