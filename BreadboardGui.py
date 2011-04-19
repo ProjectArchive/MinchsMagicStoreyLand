@@ -6,7 +6,7 @@ from PartBrowserPanel import *
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadBoard, *args, **kwargs):
-		wx.Frame.__init__(self, parent,*args,**kwargs)
+		wx.Frame.__init__(self, parent,size=(1200,400),pos=wx.DefaultPosition,*args,**kwargs)
 		self._mgr = wx.aui.AuiManager(self)
 		# create menu
 		self.createMenu()
@@ -15,7 +15,7 @@ class BreadboardGUI(wx.Frame):
 		text3 = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
-		auiInfo.dock_proportion = 1
+		auiInfo.dock_proportion = 0
 		auiInf1 =  wx.aui.AuiPaneInfo().Center().CaptionVisible(False)
 		auiInf1.dock_proportion = 0
 		self._mgr.AddPane(self.breadBoardPanel,auiInf1) #main focused widget
@@ -23,7 +23,7 @@ class BreadboardGUI(wx.Frame):
 		self._mgr.AddPane(text3, wx.RIGHT)
 
 		# tell the manager to 'commit' all the changes just made
-		self.Fit()
+		#self.Fit()
 		self.Layout()
 		self._mgr.Update()
 		

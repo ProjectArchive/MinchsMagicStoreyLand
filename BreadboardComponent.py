@@ -176,7 +176,7 @@ class InputDevice(BreadboardComponent):
 	Takes in voltage as an integer.
 	Only one pin, as the other one is usually grounded. MAYBE?"""
 	
-	def __init__(self,voltage,voltageType,frequency=0):
+	def __init__(self,voltage,voltageType='DC',frequency=0):
 		referencePin = RelativeLocation(0,0)
 		self.voltage = Voltage(voltage)
 		self.voltageType = voltageType
