@@ -34,7 +34,11 @@ class Location(object):
 		"""Set display flag, determines the bitmap used to represent this
 		 locatio on the breadboard """
 		self.displayFlag = displayFlag
-		
+	
+	def getLocationTuple(self):
+		"""simple helper to give location as a tuple for use in GUI"""
+		return (self.xLoc,self.yLoc)
+			
 class RelativeLocation(Location):
 	"""An abstraction of a relative location, used for fitting items on
 	the bread board, using a reference pin.
