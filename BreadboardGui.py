@@ -11,8 +11,8 @@ class BreadboardGUI(wx.Frame):
 		# create menu
 		self.createMenu()
 		self.partBrowserPanel = PartBrowserPanel(self)
-		self.breadBoardPanel = BreadboardPanel(self,breadBoard,self.partBrowserPanel.buttonGroup,size=(940,270))
-		#text3 = SimulationPanel(self)
+		self.breadBoardPanel = BreadboardPanel(self,breadBoard,self.partBrowserPanel.buttonGroup)
+		text3 = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
 		auiInfo.dock_proportion = 0
@@ -20,7 +20,7 @@ class BreadboardGUI(wx.Frame):
 		auiInf1.dock_proportion = 0
 		self._mgr.AddPane(self.breadBoardPanel,auiInf1) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel,auiInfo)
-		#self._mgr.AddPane(text3, wx.RIGHT)
+		self._mgr.AddPane(text3, wx.RIGHT)
 
 		# tell the manager to 'commit' all the changes just made
 		#self.Fit()

@@ -11,36 +11,40 @@ import copy
 
 class BreadboardPanel(wx.Panel):
 	def __init__(self, parent,breadBoard,buttonManager=None, *args, **kwargs):
- 		wx.Panel.__init__(self, parent,*args,**kwargs)
+ 		wx.Panel.__init__(self, parent,size=(945,270),*args,**kwargs)
  		self.parent = parent
 		self.breadBoard = breadBoard
 		self.buttonManager = buttonManager
-		self.gs = wx.GridSizer(self.breadBoard.numRows, self.breadBoard.numColumns, 0, 0) #gridsizer with numRows rows and numCols col, 1 px padding
-		self.bitmapToXY = {} #.Rescale(20,20,wx.IMAGE_QUALITY_HIGH)
-		self.drawBreadboard()
+
+
 		self.shapes = []
+		self.emptyImage = wx.Image('res/blank_slot.png')
+		self.openImage = wx.Image('res/open_slot.png')
+		self.bmpW,self.bmpH= self.getBitmapSize(self.Size) #initialize bitmapsizeparameter
+		self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
+		self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
+		self.tempBitmap = None
 		self.dragImage = None
 		self.dragShape = None
 		self.hiliteShape = None
+		self.lastSize = self.GetClientSize()
+
 
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
-		self.currentMovableImage = None
+		self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 		self.Bind(wx.EVT_SIZE, self.OnSize)
 		self.Bind(wx.EVT_PAINT, self.OnPaint)
 		self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
 		self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
-		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
-		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
-		self.Layout()
+		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
+
 		print self.Size
 
 
-	def OnLeaveWindow(self, evt):
-		pass
-
 	# Go through our list of shapes and draw them in whatever place they are.
 	def DrawShapes(self, dc):
+		return ###change this eventually
 		for shape in self.shapes:
 			if shape.shown:
 				shape.Draw(dc)
@@ -55,24 +59,33 @@ class BreadboardPanel(wx.Panel):
 
 	# Fired whenever a paint event occurs
 	def OnPaint(self, evt):
+		op = wx.COPY
 		print 'paint invoked'
 		dc = wx.PaintDC(self)
 		self.PrepareDC(dc)
-		evt.Skip()
+		if self.tempBitmap != None:			
+			if self.tempBitmap.Ok():
+				memDC = wx.MemoryDC()
+				memDC.SelectObject(self.tempBitmap)
+				dc.Blit(self.tempBitmap.pos[0], self.tempBitmap.pos[1],self.tempBitmap.GetWidth(), self.tempBitmap.GetHeight(),memDC, 0, 0, op, True)
+			
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
-		print self.bitmapToXY[evt.GetEventObject()]
-		
+		posx,posy = evt.GetPosition()
+		xLoc = posx//self.bmpW
+		yLoc = posy//self.bmpH
+		print (xLoc,yLoc)
 		
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
-		print evt.GetEvent
+		pass
+		
 		
 	def OnSize(self,event):
 		#event.Skip()
 		print 'onsize',self.Size
-		
+		self.Refresh()
 
 	# The mouse is moving
 	
@@ -80,40 +93,24 @@ class BreadboardPanel(wx.Panel):
 		# Ignore mouse movement if we're not dragging.
 		pos = self.ScreenToClient(wx.GetMousePosition())
 		#print pos
-		
+			
 		if self.buttonManager == None:
 			return
 		if self.buttonManager.currentButton == None:
 			return
 		else:
-			if self.currentMovableImage == None:
+			if self.tempBitmap == None:
 				self.tempBitmap = wx.Image('res/components/8pinopamp.png').ConvertToBitmap()
-				self.currentMovableImage = wx.StaticBitmap(self,wx.ID_ANY,self.tempBitmap,pos=pos)
-				self.currentMovableImage.initialPos = pos
-				print pos
+				self.tempBitmap.pos = pos				
 			else:
-				self.currentMovableImage.Move(pos)
-				print pos
-
-	def drawBreadboard(self):
-		##this needs to be updated... add dynamic dictionary to deal with redrawing
-		self.emptyImage = wx.Image('res/blank_slot.png')
-		self.openImage = wx.Image('res/open_slot.png')
-		self.emptyBitMap = copy.copy(self.emptyImage.Rescale(15,15)).ConvertToBitmap() #leave our original copy!
-		self.openBitMap = copy.copy(self.openImage.Rescale(15,15)).ConvertToBitmap() #leave our original copy!
-		for y in range(self.breadBoard.numRows):	
-			for x in range(self.breadBoard.numColumns):
-				isFilled = self.breadBoard.getLocation(x,y).isFilled
-				if isFilled: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
-				else:
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
-				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
-				bmp.Bind(wx.EVT_MOTION, self.OnMotion,id=wx.ID_ANY) #bind generic onMotion event,
-				bmp.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
-				self.gs.Add(bmp,0) #add to the grid sizer, with no id
+				self.tempBitmap.pos = pos
+			self.Refresh()
+			self.Update()
 
 
+	def getBitmapSize(self,size):
+		return (size[0]//self.breadBoard.numColumns,size[1]//self.breadBoard.numRows)
+	
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
 		if not dc:
@@ -121,6 +118,40 @@ class BreadboardPanel(wx.Panel):
 			rect = self.GetUpdateRegion().GetBox()
 			dc.SetClippingRect(rect)
 		self.PaintBackground(dc)
+	
+	def PaintBackground(self,dc):
+		if self.lastSize != self.GetClientSize():
+			self.bmpW,self.bmpH= self.getBitmapSize(self.Size)
+			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
+			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
+			self.lastSize = self.GetClientSize()
+		
+		for y in range(self.breadBoard.numRows):	
+			for x in range(self.breadBoard.numColumns):
+				isBlank = self.breadBoard.getLocation(x,y).displayFlag != Location.OPENSLOT
+				if isBlank: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
+					dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
+				else:
+					dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
+				
+	def OnEraseBackground(self, evt):
+		dc = evt.GetDC()
+		if not dc:
+			dc = wx.ClientDC(self)
+			rect = self.GetUpdateRegion().GetBox()
+			dc.SetClippingRect(rect)
+		self.PaintBackground(dc)
+
+
+
+
+
+
+
+
+
+
+
 
 class BreadboardComponentWrapper:
     def __init__(self, bmp,BreadboardComponent):
