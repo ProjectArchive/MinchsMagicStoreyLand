@@ -15,7 +15,7 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.rails= [2.5 , 5 , 5 , 0] #voltage rails
+		self.rails= [0 , 5 , 5 , 2.5] #voltage rails
 		self.initializeLocations()
 		self.nodeCreation()
 		self.detailLocations()
@@ -88,13 +88,13 @@ class Breadboard(object):
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
 				if y==0:	
-					self.setNodeVoltage(x,y,self.rails[0])	#sets power at top rail
+					self.setNodeVoltage(x,y,self.rails[3])	#sets power at top rail
 				if y==1:
-					self.setNodeVoltage(x,y,self.rails[1])	#sets power at second from top rail
+					self.setNodeVoltage(x,y,self.rails[2])	#sets power at second from top rail
 				if y==16:
-					self.setNodeVoltage(x,y,self.rails[2])	#sets power at third from top rail
+					self.setNodeVoltage(x,y,self.rails[1])	#sets power at third from top rail
 				if y==17:
-					self.setNodeVoltage(x,y,self.rails[3])	#sets power at bottom rail
+					self.setNodeVoltage(x,y,self.rails[0])	#sets power at bottom rail
 					
 	def __repr__(self):
 		return self.locMatrix.__repr__() 
@@ -296,6 +296,7 @@ if __name__ == "__main__":
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
+	print bb.componentList
 	
 
 
