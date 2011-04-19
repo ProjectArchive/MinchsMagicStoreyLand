@@ -12,6 +12,7 @@ class B2Spice(object):
 	options and the interface with SPICE"""
 	def __init__(self,board):
 		self.board = board
+		self.clearEmptyNodes()
 		self.cirName = 'CIRCUIT'+str(id(self))
 		self.nodeList = self.makeNodeList()
 		self.netList = self.buildNetList()
@@ -23,16 +24,21 @@ class B2Spice(object):
 	
 	def clearEmptyNodes(self):
 		"""notes how many times a node appears in a circuit.
-		if it's only one, then we take action"""
+		if it's only one, and not power, then we take action and remove it"""
 		d={}
-		for component in board.componentList:
-			d[component]=d.get(component,0)+1
+		for component in self.board.componentList:
+			if not isinstance(component,FixedBreadboardComponent):
+				for pin in component.pinList:
+					d[pin.Node.number]=d.get(pin.Node.number,0)+1
 		for val in d:
-			if d[val]==1 and (val!=1 or val!=2 or val!=3 or val!=0):
-				for component in board.componentList:
-					if component==val:
-						del component
-		return True
+			if d[val]==1 and (val!=1 and val!=2 and val!=3 and val!=0):
+				count=-1
+				for component in self.board.componentList:
+					count+=1
+					for pin in component.pinList:
+						if pin.Node.number == val:
+							del self.board.componentList[count]
+		return d
 			
 	
 	def makeNodeList(self):
@@ -232,5 +238,6 @@ if __name__ == "__main__":
 	bb.putComponent(w1,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
+	b.clearEmptyNodes()
 	print b.buildNetList()
 	print b.loadBb()
