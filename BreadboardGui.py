@@ -15,8 +15,8 @@ class BreadboardGUI(wx.Frame):
 		text3 = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
-		auiInfo.dock_proportion = 1
-		auiInf1 =  wx.aui.AuiPaneInfo().Center().CaptionVisible(False)
+		auiInfo.dock_proportion = 0
+		auiInf1 =  wx.aui.AuiPaneInfo().BestSize(self.breadBoardPanel.Size).Center().CaptionVisible(False)
 		auiInf1.dock_proportion = 0
 		self._mgr.AddPane(self.breadBoardPanel,auiInf1) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel,auiInfo)

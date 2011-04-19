@@ -23,14 +23,16 @@ class BreadboardPanel(wx.Panel):
 
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 		self.currentMovableImage = None
-		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
-		self.Layout()
 		self.Bind(wx.EVT_SIZE, self.OnSize)
 		self.Bind(wx.EVT_PAINT, self.OnPaint)
 		self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
 		self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
+		self.SetSizerAndFit(self.gs) #set this panel's sizer as the grid sizer
+		self.Layout()
+		print self.Size
+
 
 	def OnLeaveWindow(self, evt):
 		pass
@@ -58,7 +60,7 @@ class BreadboardPanel(wx.Panel):
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
-		print evt.GetEventObject().Size()
+		print evt.GetEventObject().Size
 
 
 	# Left mouse button up.
@@ -66,11 +68,7 @@ class BreadboardPanel(wx.Panel):
 		print evt.GetEvent
 		
 	def OnSize(self,event):
-		print 'onsize'
-		newXSize= self.GetSize().x/self.breadBoard.numColumns
-		newYSize= self.GetSize().y/self.breadBoard.numRows
-		if newXSize >15:
-			self.openBitMap = self.emptyBitMap
+		print 'onsize',self.Size
 		event.Skip()
 
 	# The mouse is moving
@@ -78,7 +76,7 @@ class BreadboardPanel(wx.Panel):
 	def OnMotion(self, evt):
 		# Ignore mouse movement if we're not dragging.
 		pos = self.ScreenToClient(wx.GetMousePosition())
-		print pos
+		#print pos
 		if self.buttonManager.currentButton == None:
 			return
 		else:
@@ -99,9 +97,9 @@ class BreadboardPanel(wx.Panel):
 			for x in range(self.breadBoard.numColumns):
 				isFilled = self.breadBoard.getLocation(x,y).isFilled
 				if isFilled: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(20,20),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.emptyBitMap,size=(15,15),style = wx.NO_BORDER) #-1 = no id, no border overrides default 3d bevel
 				else:
-					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(20,20),style = wx.NO_BORDER)
+					bmp =wx.StaticBitmap(self, wx.ID_ANY, bitmap=self.openBitMap,size=(15,15),style = wx.NO_BORDER)
 				self.bitmapToXY[bmp] = (x,y) #map this staticbitmap to a tuple of  x,y, location
 				bmp.Bind(wx.EVT_MOTION, self.OnMotion,id=wx.ID_ANY) #bind generic onMotion event,
 				bmp.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
