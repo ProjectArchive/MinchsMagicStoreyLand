@@ -6,6 +6,8 @@
 #       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 import wx
 from Breadboard import *
+import copy
+
 
 class BreadboardPanel(wx.Panel):
 	def __init__(self, parent,breadBoard,buttonManager=None, *args, **kwargs):
@@ -53,23 +55,24 @@ class BreadboardPanel(wx.Panel):
 
 	# Fired whenever a paint event occurs
 	def OnPaint(self, evt):
-		print 'print invoked'
+		print 'paint invoked'
 		dc = wx.PaintDC(self)
 		self.PrepareDC(dc)
-		self.DrawShapes(dc)
+		evt.Skip()
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
-		print evt.GetEventObject().Size
-
-
+		print self.bitmapToXY[evt.GetEventObject()]
+		
+		
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
 		print evt.GetEvent
 		
 	def OnSize(self,event):
+		#event.Skip()
 		print 'onsize',self.Size
-		event.Skip()
+		
 
 	# The mouse is moving
 	
@@ -77,6 +80,9 @@ class BreadboardPanel(wx.Panel):
 		# Ignore mouse movement if we're not dragging.
 		pos = self.ScreenToClient(wx.GetMousePosition())
 		#print pos
+		
+		if self.buttonManager == None:
+			return
 		if self.buttonManager.currentButton == None:
 			return
 		else:
@@ -91,8 +97,10 @@ class BreadboardPanel(wx.Panel):
 
 	def drawBreadboard(self):
 		##this needs to be updated... add dynamic dictionary to deal with redrawing
-		self.emptyBitMap = wx.Image('res/blank_slot.png').ConvertToBitmap()
-		self.openBitMap = wx.Image('res/open_slot2.png').ConvertToBitmap()
+		self.emptyImage = wx.Image('res/blank_slot.png')
+		self.openImage = wx.Image('res/open_slot.png')
+		self.emptyBitMap = copy.copy(self.emptyImage.Rescale(15,15)).ConvertToBitmap() #leave our original copy!
+		self.openBitMap = copy.copy(self.openImage.Rescale(15,15)).ConvertToBitmap() #leave our original copy!
 		for y in range(self.breadBoard.numRows):	
 			for x in range(self.breadBoard.numColumns):
 				isFilled = self.breadBoard.getLocation(x,y).isFilled
@@ -105,6 +113,14 @@ class BreadboardPanel(wx.Panel):
 				bmp.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
 				self.gs.Add(bmp,0) #add to the grid sizer, with no id
 
+
+	def OnEraseBackground(self, evt):
+		dc = evt.GetDC()
+		if not dc:
+			dc = wx.ClientDC(self)
+			rect = self.GetUpdateRegion().GetBox()
+			dc.SetClippingRect(rect)
+		self.PaintBackground(dc)
 
 class BreadboardComponentWrapper:
     def __init__(self, bmp,BreadboardComponent):
@@ -126,9 +142,7 @@ class BreadboardComponentWrapper:
             memDC = wx.MemoryDC()
             memDC.SelectObject(self.bmp)
 
-            dc.Blit(self.pos[0], self.pos[1],
-                    self.bmp.GetWidth(), self.bmp.GetHeight(),
-                    memDC, 0, 0, op, True)
+            dc.Blit(self.pos[0], self.pos[1],self.bmp.GetWidth(), self.bmp.GetHeight(),memDC, 0, 0, op, True)
 
             return True
         else:
@@ -158,8 +172,7 @@ class DragShape:
 		return rect.InsideXY(pt.x, pt.y)
 
 	def GetRect(self):
-		return wx.Rect(self.pos[0], self.pos[1],
-					  self.bmp.GetWidth(), self.bmp.GetHeight())
+		return wx.Rect(self.pos[0], self.pos[1],self.bmp.GetWidth(), self.bmp.GetHeight())
 
 	def Draw(self, dc, op = wx.COPY):
 		if self.bmp.Ok():
@@ -167,8 +180,7 @@ class DragShape:
 			memDC.SelectObject(self.bmp)
 
 			dc.Blit(self.pos[0], self.pos[1],
-					self.bmp.GetWidth(), self.bmp.GetHeight(),
-					memDC, 0, 0, op, True)
+					self.bmp.GetWidth(), self.bmp.GetHeight(),memDC, 0, 0, op, True)
 
 			return True
 		else:
