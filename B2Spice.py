@@ -21,6 +21,20 @@ class B2Spice(object):
 		except:
 			pass
 	
+	def clearEmptyNodes(self):
+		"""notes how many times a node appears in a circuit.
+		if it's only one, then we take action"""
+		d={}
+		for component in board.componentList:
+			d[component]=d.get(component,0)+1
+		for val in d:
+			if d[val]==1 and (val!=1 or val!=2 or val!=3 or val!=0):
+				for component in board.componentList:
+					if component==val:
+						del component
+		return True
+			
+	
 	def makeNodeList(self):
 		"""Creates a list of all 
 		occupied nodes on a breadboard"""
@@ -28,15 +42,16 @@ class B2Spice(object):
 		nodeList = []
 		for comp in board.componentList:
 			for pin in comp.pinList:
-				nodeList.append(pin.Node.node)
+				nodeList.append(pin.Node.number)
 		return nodeList
 	
 	def getNodes(self,component):
 		"""returns a string that contains
-		the nodes of a component, separated by spaces"""
+		the nodes of a component, separated by spaces.
+		"""
 		nodeStr = ' '
 		for pins in component.pinList:
-			nodeStr += str(pins.Node.node) + ' '
+			nodeStr += str(pins.Node.number) + ' '
 		return nodeStr
 		
 	def getAttr(self,component):
@@ -72,16 +87,16 @@ class B2Spice(object):
 		compList = board.componentList
 		for comp in compList:
 			for pin in comp.pinList:
-				if pin.Node.node < 4 and pin.Node.node >0:
-					if pin.Node.node ==1:
+				if pin.Node.number < 4 and pin.Node.number >0:
+					if pin.Node.number ==1:
 						voltagePower = 2.5
-					elif pin.Node.node ==2:
+					elif pin.Node.number ==2:
 						voltagePower = 2.5
-					elif pin.Node.node ==3:
+					elif pin.Node.number ==3:
 						voltagePower = 5
 					else:
 						voltagePower = 0
-					voltageNode = pin.Node.node
+					voltageNode = pin.Node.number
 					return voltagePower,voltageNode
 				else:
 					voltagePower = 0
@@ -127,6 +142,8 @@ class B2Spice(object):
 		netList += vAtNodeLine
 		netList += '.end'
 		return netList
+	
+		
 	
 	#~ def parse(self,textFile):
 		#~ key=[]
@@ -205,16 +222,15 @@ if __name__ == "__main__":
 	w2 = Wire()
 	r3 = Resistor(2000)
 	c1 = Capacitor(.000001)
-	r4 = Resistor(100000)
+	r4 = Resistor(1000)
 	r5 = Resistor(200)
 	w1 = Wire()
 	bb.putComponent(r1,18,1,18,7)
 	bb.putComponent(w2,18,6,11,17)
-	#~ bb.putComponent(r3,18,5,11,17)
-	#~ bb.putComponent(c1,22,6,22,17)
-	#~ bb.putComponent(w1,11,5,11,17)
+	bb.putComponent(r3,18,5,11,17)
+	bb.putComponent(c1,22,6,22,17)
+	bb.putComponent(w1,11,5,11,17)
 	r1.pinList[0].Node.voltage = Voltage(-5)
 	b = B2Spice(bb)
-	print b.buildNetList()
 	print b.buildNetList()
 	print b.loadBb()
