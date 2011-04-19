@@ -115,8 +115,6 @@ class B2Spice(object):
 			analysisLine = '.tran ' + str(tstep) + ' ' + str(t) + ' uic'
 		return sourceLine,analysisLine
 		
-	def sourceAC(self,waveform='sin',amp=5
-		
 	def buildNetList(self,analysisFlag):
 		"""This is the demi-motherlode. This
 		builds a string that describes the circuit and 
