@@ -123,7 +123,10 @@ class OpAmp(FixedBreadboardComponent):
 
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default
-		spiceName = 'e'			#Noam
+		if technicalName=='OPA551':
+			spiceName = 'e'			#Noam
+		else:
+			spiceName = 'e'
 		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
 
 class QuadChip(FixedBreadboardComponent):
@@ -178,14 +181,14 @@ class InputDevice(BreadboardComponent):
 	
 	def __init__(self,voltage,voltageType='DC',frequency=0):
 		referencePin = RelativeLocation(0,0)
-		self.voltage = Voltage(voltage)
+		self.voltage = Voltage(voltage,voltageType,frequency)
 		self.voltageType = voltageType
 		self.frequency = frequency
 		pinList = [referencePin]
-		attributes=[]
+		attributes={}
 		displayName = 'Input Device'
 		technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
-		spiceName = '%g%s%g'
+		spiceName = 'V'
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 
 	def __repr__(self):

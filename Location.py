@@ -44,9 +44,10 @@ class RelativeLocation(Location):
 	the bread board, using a reference pin.
 	"""
 	
-	def __init__(self,xIn=0,yIn=0,referenceLocation=None):
+	def __init__(self,xIn=0,yIn=0,referenceLocation=None,label=''):
 		""" Defaults create a REF RelativeLocation, no special display characteristics"""
 		self.referenceLocation = referenceLocation
+		self.label = label
 		Location.__init__(self,xIn,yIn)
 		
 	def __repr__(self):
