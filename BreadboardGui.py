@@ -11,7 +11,8 @@ class BreadboardGUI(wx.Frame):
 		# create menu
 		self.createMenu()
 		self.partBrowserPanel = PartBrowserPanel(self)
-		self.breadBoardPanel = BreadboardPanel(self,breadBoard,self.partBrowserPanel.buttonGroup)
+		self.breadBoard = breadBoard
+		self.breadBoardPanel = BreadboardPanel(self,self.breadBoard,self.partBrowserPanel.buttonGroup)
 		text3 = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
@@ -56,6 +57,7 @@ class BreadboardGUI(wx.Frame):
 		
 	def OnAbout(self,event):
 		print "Something about me..."
+		print self.breadBoard.componentList
 
 	def OnClose(self, event):
 		# deinitialize the frame manager
@@ -64,8 +66,12 @@ class BreadboardGUI(wx.Frame):
 		self.Destroy()
 
 
+if __name__=="__main__":
 
-app = wx.App()
-frame = BreadboardGUI(None,Breadboard())
-frame.Show()
-app.MainLoop()
+		bb = Breadboard()		
+		a = OpAmp('hello')
+		bb.putComponent(a,3,7)
+		app = wx.App()
+		frame = BreadboardGUI(None,bb)
+		frame.Show()
+		app.MainLoop()
