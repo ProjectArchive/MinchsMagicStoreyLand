@@ -129,14 +129,14 @@ class B2Spice(object):
 		powerNode = str(vNode)
 		power = str(vPower)
 		sourceLine = sourceName + ' ' + powerNode + ' ' + groundNode + ' dc ' + power
-		if t = 0:
+		if t == 0:
 			analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
 		else:
 			tstep = float(t)/float(numPts)
 			analysisLine = '.tran ' + str(tstep) + ' ' + str(t) + ' uic'
 		return sourceLine,analysisLine
 		
-	def buildNetList(self,analysisFlag):
+	def buildNetList(self,analysisFlag='DC'):
 		"""This is the demi-motherlode. This
 		builds a string that describes the circuit and 
 		type of analysis. Only handles DC circuits right now
@@ -144,7 +144,7 @@ class B2Spice(object):
 		#TODO
 		board = self.board
 		netList = self.cirName + '\n'
-		if analysisFlag = 'DC':
+		if analysisFlag == 'DC':
 			sourceLine,analysisLine = self.sourceDC()
 			netList += sourceLine + '\n'
 			compList = board.componentList
@@ -160,8 +160,8 @@ class B2Spice(object):
 			vAtNodeLine += ' \n'
 			netList += vAtNodeLine
 			netList += '.end'
-		elif analysisFlag = 'AC':
-		return netList
+		elif analysisFlag == 'AC':
+			return netList
 	
 		
 	
@@ -196,13 +196,13 @@ class B2Spice(object):
 		b=[]
 		for line in textFile:
 			b.append(line)
-		for i in range(len(b)-1):)
+		for i in range(len(b)-1):
 			if 'Index' in b[i]:
 				print b[i],b[i+1],b[i+2]
 		return True
 			
 		
-	def loadBb(self:
+	def loadBb(self):
 		"""Creates the temporary files and directories
 		necessary for circuit analysis. Initializes ngspice, feeds
 		the netlist to it, and parses the output. Deletes all the files
