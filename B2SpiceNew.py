@@ -70,6 +70,24 @@ class B2SpiceNew(object):
 		printLine = 'print ac v(%g) \n' % node
 		return acLine + printLine
 	
+	def clearEmptyNodes(self):
+		"""notes how many times a node appears in a circuit.
+		if it's only one, and not power, then we take action and remove it"""
+		d={}
+		for component in self.board.componentList:
+			if not isinstance(component,FixedBreadboardComponent):
+				for pin in component.pinList:
+					d[pin.Node.number]=d.get(pin.Node.number,0)+1
+		for val in d:
+			if d[val]==1 and val!=1 and val!=2 and val!=3 and val!=0:
+				count=-1
+				for component in self.board.componentList:
+					count+=1
+					for pin in component.pinList:
+						if pin.Node.number == val:
+							del self.board.componentList[count]
+		return d
+	
 		
 	def getNodeList(self,board):
 		"""Creates a list of all 
@@ -79,6 +97,14 @@ class B2SpiceNew(object):
 			for pin in comp.pinList:
 				nodeList.append(pin.Node.node)
 		self.nodeList = nodeList
+		
+	def getNodes(self,component):
+		"""returns a string that contains
+		the nodes of a component, separated by spaces"""
+		nodeStr = ' '
+		for pins in component.pinList:
+			nodeStr += str(pins.Node.node) + ' '
+		return nodeStr
 				
 		
 if __name__ == '__main__':
