@@ -121,6 +121,8 @@ class BreadboardPanel(wx.Panel):
 		self.PaintBackground(dc)
 	
 	def PaintBackground(self,dc):
+
+
 		if self.lastSize != self.GetClientSize():
 			self.bmpW,self.bmpH= self.getBitmapSize(self.Size)
 			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
@@ -134,8 +136,9 @@ class BreadboardPanel(wx.Panel):
 				else:
 					dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
 		self.PaintBreadBoardComponents(dc)
-		
+				
 	def PaintBreadBoardComponents(self,dc):
+		print "paint bbc comps"
 		for component in self.breadBoard.componentList:
 			typeName= type(component).__name__
 			if not typeName in self.typeToImage:
@@ -145,8 +148,8 @@ class BreadboardPanel(wx.Panel):
 			x*=self.bmpW
 			y*=self.bmpH
 			print x,y
-			dc.DrawBitmap(self.typeToBitmap[typeName], x*self.bmpW, y*self.bmpH)
-
+			dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
+			
 
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
@@ -159,7 +162,7 @@ class BreadboardPanel(wx.Panel):
 	def loadTypeImage(self,typeName):
 		temp =wx.Image('res/components/' + typeName+'.png')
 		self.typeToImage[typeName] = copy.copy(temp)
-		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*8,self.bmpH*8).ConvertToBitmap())
+		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*4,self.bmpH*4).ConvertToBitmap())
 
 class BreadboardComponentWrapper:
     def __init__(self, bmp,BreadboardComponent):
