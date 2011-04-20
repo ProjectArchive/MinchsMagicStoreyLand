@@ -64,8 +64,12 @@ class BreadboardGUI(wx.Frame):
 		self.Destroy()
 
 
+if __name__=="__main__":
 
-app = wx.App()
-frame = BreadboardGUI(None,Breadboard())
-frame.Show()
-app.MainLoop()
+		bb = Breadboard()		
+		a = OpAmp('hello')
+		bb.putComponent(a,3,7)
+		app = wx.App()
+		frame = BreadboardGUI(None,bb)
+		frame.Show()
+		app.MainLoop()

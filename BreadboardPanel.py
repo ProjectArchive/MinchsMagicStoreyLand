@@ -36,15 +36,6 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
-		print self.Size
-
-
-	# Go through our list of shapes and draw them in whatever place they are.
-	def DrawShapes(self, dc):
-		return ###change this eventually
-		for shape in self.shapes:
-			if shape.shown:
-				shape.Draw(dc)
 
 	# This is actually a sophisticated 'hit test', but in this
 	# case we're also determining which shape, if any, was 'hit'.
@@ -60,12 +51,8 @@ class BreadboardPanel(wx.Panel):
 		print 'paint invoked'
 		dc = wx.PaintDC(self)
 		self.PrepareDC(dc)
-		#if self.tempBitmap != None:			
-		#	if self.tempBitmap.Ok():
-		#		memDC = wx.MemoryDC()
-		#		memDC.SelectObject(self.tempBitmap)
-		#		dc.Blit(self.tempBitmap.pos[0], self.tempBitmap.pos[1],self.tempBitmap.GetWidth(), self.tempBitmap.GetHeight(),memDC, 0, 0, op, True)
-		
+		if self.currentComponent != None:
+			self.currentComponent.Draw(dc)
 
 			
 		
@@ -100,14 +87,16 @@ class BreadboardPanel(wx.Panel):
 		if self.buttonManager == None or self.buttonManager.currentButton == None:
 			return
 		else:
-			if self.tempBitmap == None:
-				self.tempBitmap = wx.Image('res/components/8pinopamp.png').Rescale(4*self.bmpW,4*self.bmpH).ConvertToBitmap()
-				self.tempBitmap.pos = pos				
-			else:
-				self.tempBitmap.pos = pos
+			if self.currentComponent == None:
+				if not self.buttonManager.currentName in self.typeToBitmap:
+					self.loadTypeImage(self.buttonManager.currentName)
+				self.currentComponent = BreadboardComponentWrapper(self.typeToBitmap[self.buttonManager.currentName],OpAmp('MINCH'))
+			
+			self.currentComponent.pos = pos
+			self.currentComponent.shown = False
+	#		self.RefreshRect(self.currentComponent.GetRect(), True)
 			self.Refresh()
 			self.Update()
-
 
 	def getBitmapSize(self,size):
 		return (size[0]//self.breadBoard.numColumns,size[1]//self.breadBoard.numRows)
@@ -121,9 +110,9 @@ class BreadboardPanel(wx.Panel):
 		self.PaintBackground(dc)
 	
 	def PaintBackground(self,dc):
-
-
+		rescale = False
 		if self.lastSize != self.GetClientSize():
+			rescale = True
 			self.bmpW,self.bmpH= self.getBitmapSize(self.Size)
 			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
 			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
@@ -135,15 +124,17 @@ class BreadboardPanel(wx.Panel):
 					dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
 				else:
 					dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
-		self.PaintBreadBoardComponents(dc)
+		self.PaintBreadBoardComponents(dc,rescale)
 				
-	def PaintBreadBoardComponents(self,dc):
-		print "paint bbc comps"
+	def PaintBreadBoardComponents(self,dc,rescale):
+
 		for component in self.breadBoard.componentList:
 			typeName= type(component).__name__
 			if not typeName in self.typeToImage:
 				self.loadTypeImage(typeName)
-				print 'loaded:' + typeName
+			if rescale:
+				print rescale
+				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(component.width*self.bmpW,component.height*self.bmpH).ConvertToBitmap() #wow, long line...
 			x,y = component.pinList[0].getLocationTuple()
 			x*=self.bmpW
 			y*=self.bmpH
@@ -160,7 +151,8 @@ class BreadboardPanel(wx.Panel):
 		self.PaintBackground(dc)
 
 	def loadTypeImage(self,typeName):
-		temp =wx.Image('res/components/' + typeName+'.png')
+		##TODO:fix for non fixed and not opamp
+		temp =wx.Image('res/components/' + typeName+'_image.png')
 		self.typeToImage[typeName] = copy.copy(temp)
 		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*4,self.bmpH*4).ConvertToBitmap())
 
@@ -183,7 +175,6 @@ class BreadboardComponentWrapper:
         if self.bmp.Ok():
             memDC = wx.MemoryDC()
             memDC.SelectObject(self.bmp)
-
             dc.Blit(self.pos[0], self.pos[1],self.bmp.GetWidth(), self.bmp.GetHeight(),memDC, 0, 0, op, True)
 
             return True
