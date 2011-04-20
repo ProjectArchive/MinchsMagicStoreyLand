@@ -25,7 +25,7 @@ class BreadboardPanel(wx.Panel):
 		self.typeToBitmap = {} #associate types with bitmaps for drawing purposes
 		self.currentComponent = None
 		self.lastSize = self.GetClientSize()
-
+		self.tempBitmap = None
 
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
 		self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -36,6 +36,15 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 
+		print self.Size
+
+
+	# Go through our list of shapes and draw them in whatever place they are.
+	def DrawShapes(self, dc):
+		return ###change this eventually
+		for shape in self.shapes:
+			if shape.shown:
+				shape.Draw(dc)
 
 	# This is actually a sophisticated 'hit test', but in this
 	# case we're also determining which shape, if any, was 'hit'.
@@ -51,10 +60,12 @@ class BreadboardPanel(wx.Panel):
 		print 'paint invoked'
 		dc = wx.PaintDC(self)
 		self.PrepareDC(dc)
-		if self.currentComponent != None:
-			self.currentComponent.Draw(dc)
+		if self.tempBitmap != None:			
+			if self.tempBitmap.Ok():
+				memDC = wx.MemoryDC()
+				memDC.SelectObject(self.tempBitmap)
+				dc.Blit(self.tempBitmap.pos[0], self.tempBitmap.pos[1],self.tempBitmap.GetWidth(), self.tempBitmap.GetHeight(),memDC, 0, 0, op, True)
 
-			
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
 		if self.buttonManager == None or self.buttonManager.currentButton == None:
@@ -62,13 +73,10 @@ class BreadboardPanel(wx.Panel):
 		posx,posy = evt.GetPosition()
 		xLoc = posx//self.bmpW
 		yLoc = posy//self.bmpH
-		print (xLoc,yLoc)
-		if self.currentComponent != None:
-			success =self.breadBoard.putComponent(self.currentComponent.breadBoardComponent,xLoc,yLoc)
-			if success:
-				del self.currentComponent
-				self.currentComponent = None
-			print success
+		if self.tempBitmap!= None:
+			print (xLoc,yLoc)
+			print self.breadBoard.putComponent(OpAmp('MINCH'),xLoc,yLoc)
+		
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
 		pass
@@ -76,6 +84,7 @@ class BreadboardPanel(wx.Panel):
 		
 	def OnSize(self,event):
 		#event.Skip()
+		print 'onsize',self.Size
 		self.Refresh()
 
 	# The mouse is moving
@@ -86,19 +95,16 @@ class BreadboardPanel(wx.Panel):
 		#print pos
 
 		if self.buttonManager == None or self.buttonManager.currentButton == None:
-			if self.currentComponent != None:
-				self.currentComponent = None # make sure it is nullified
 			return
 		else:
-			if self.currentComponent == None:
-				if not self.buttonManager.currentName in self.typeToBitmap:
-					self.loadTypeImage(self.buttonManager.currentName)
-				self.currentComponent = BreadboardComponentWrapper(self.typeToBitmap[self.buttonManager.currentName],OpAmp('MINCH'))
-			
-			self.currentComponent.pos = pos
-			self.currentComponent.shown = False
+			if self.tempBitmap == None:
+				self.tempBitmap = wx.Image('res/components/OpAmp_image.png').Rescale(4*self.bmpW,4*self.bmpH).ConvertToBitmap()
+				self.tempBitmap.pos = pos				
+			else:
+				self.tempBitmap.pos = pos
 			self.Refresh()
 			self.Update()
+
 
 	def getBitmapSize(self,size):
 		return (size[0]//self.breadBoard.numColumns,size[1]//self.breadBoard.numRows)
@@ -109,13 +115,12 @@ class BreadboardPanel(wx.Panel):
 			dc = wx.ClientDC(self)
 			rect = self.GetUpdateRegion().GetBox()
 			dc.SetClippingRect(rect)
-			
 		self.PaintBackground(dc)
 	
 	def PaintBackground(self,dc):
-		rescale = False
+
+
 		if self.lastSize != self.GetClientSize():
-			rescale = True
 			self.bmpW,self.bmpH= self.getBitmapSize(self.Size)
 			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
 			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
@@ -123,23 +128,23 @@ class BreadboardPanel(wx.Panel):
 		for y in range(self.breadBoard.numRows):	
 			for x in range(self.breadBoard.numColumns):
 				isBlank = self.breadBoard.getLocation(x,y).displayFlag != Location.OPENSLOT
-				if isBlank: pass #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					#dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
-				else: pass
-					#dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
-		self.PaintBreadBoardComponents(dc,rescale)
+				if isBlank: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
+					dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
+				else:
+					dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
+		self.PaintBreadBoardComponents(dc)
 				
-	def PaintBreadBoardComponents(self,dc,rescale):
-
+	def PaintBreadBoardComponents(self,dc):
+		print "paint bbc comps"
 		for component in self.breadBoard.componentList:
 			typeName= type(component).__name__
 			if not typeName in self.typeToImage:
 				self.loadTypeImage(typeName)
-			if rescale:
-				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(component.width*self.bmpW,component.height*self.bmpH).ConvertToBitmap() #wow, long line...
+				print 'loaded:' + typeName
 			x,y = component.pinList[0].getLocationTuple()
 			x*=self.bmpW
 			y*=self.bmpH
+			print x,y
 			dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
 			
 
@@ -152,18 +157,16 @@ class BreadboardPanel(wx.Panel):
 		self.PaintBackground(dc)
 
 	def loadTypeImage(self,typeName):
-		##TODO:fix for non fixed and not opamp
 		temp =wx.Image('res/components/' + typeName+'_image.png')
 		self.typeToImage[typeName] = copy.copy(temp)
 		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*4,self.bmpH*4).ConvertToBitmap())
 
 class BreadboardComponentWrapper:
-    def __init__(self, bmp,breadboardComponent):
+    def __init__(self, bmp,BreadboardComponent):
         self.bmp = bmp
         self.pos = (0,0)
         self.shown = True
         self.fullscreen = False
-        self.breadBoardComponent = breadboardComponent
 
     def HitTest(self, pt):
         rect = self.GetRect()
@@ -177,6 +180,7 @@ class BreadboardComponentWrapper:
         if self.bmp.Ok():
             memDC = wx.MemoryDC()
             memDC.SelectObject(self.bmp)
+
             dc.Blit(self.pos[0], self.pos[1],self.bmp.GetWidth(), self.bmp.GetHeight(),memDC, 0, 0, op, True)
 
             return True
