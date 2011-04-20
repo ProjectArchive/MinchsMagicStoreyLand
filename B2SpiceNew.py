@@ -62,13 +62,35 @@ class B2SpiceNew(object):
 			raise NameError("I don't know how to analyze this!")
 		if analysisType == 'ac':
 			return self.makeACCards(board,scopedNode,stepType,numSteps,startFreq,endFreq)
-		#~ elif analysisType == 'dc':
-			#~ return self.makeDCCards(
+		elif analysisType == 'dc':
+			return self.makeDCCards(board,scopedNode,vMin,vMax,stepSize)
+		else:
+			return self.makeTranCards(board,scopedNode,tstep,ttotal)
 		
 	def makeACCards(self,board,node,stepType,numSteps,startFreq,endFreq):
+		if len(InputDeviceList) <1:
+			raise NameError('There are no input devices...')
 		acLine = '.ac %s %g %g %g \n' % stepType,numSteps,startFreq,endFreq
-		printLine = 'print ac v(%g) \n' % node
+		printLine = '.print ac v(%g) \n' % node
 		return acLine + printLine
+	
+	def makeDCCards(self,board,scopedNode,vMin,vMax,stepSize):
+		dcInputDeviceList = []
+		for item in self.inputDeviceList:
+			if item.voltageType == 'DC':
+				dcInputDeviceList.append(item)
+		self.dcInputDeviceList = dcInputDeviceList
+		if len(dcInputDeviceList) or len(InputDeviceList) <1:
+			raise NameError("There's nothing for me to analyze!")
+		inp = dcInputDeviceList[0]
+		dcLine = '.dc V(%g) %g %g %g \n' % id(inp),vMin,vMax,stepSize
+		printLine = '.print dc v(%g) \n' % scopedNode 
+		return acLine+printLine
+	
+	def makeTranCards(board,scopedNode,tstep,ttotal):
+		tranLine = '.tran %g %g \n' tstep,ttotal
+		printLine = '.print tran v(%g) \n' % scopedNode
+		return tranLine+printLine
 	
 	def clearEmptyNodes(self):
 		"""notes how many times a node appears in a circuit.
@@ -114,5 +136,4 @@ if __name__ == '__main__':
 	bb.putComponent(Vsource,30,5)
 	bb.putComponent(V2,30,5)
 	b = B2SpiceNew(bb)
-	print b.makeInputDeviceCards(bb)
-	print b.makeRailCards(bb.rails)	
+
