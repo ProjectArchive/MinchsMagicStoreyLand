@@ -281,10 +281,8 @@ class Breadboard(object):
 		"""Flips a fixed bbc horizontally."""
 		firstHalf = aComponent.pinList[:len(aComponent.pinList)/2]
 		secondHalf = aComponent.pinList[len(aComponent.pinList)/2:]
-		#~ print firstHalf,secondHalf
 		firstHalf.reverse()
 		secondHalf.reverse()
-		#~ print firstHalf,secondHalf
 		firstHalf.append(secondHalf)
 		aComponent.pinList = firstHalf
 		return True
