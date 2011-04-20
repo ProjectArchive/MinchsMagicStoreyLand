@@ -172,7 +172,7 @@ class QuadChip(FixedBreadboardComponent):
 		displayName = 'QuadChip' #default
 		spiceName = 'e' #?maybe...
 		
-		FixedBreadboardComponent.__init__(self,4,4,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
+		FixedBreadboardComponent.__init__(self,7,4,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
 
 class InputDevice(BreadboardComponent):
 	"""An input device.  Is capable of outputting AC or DC
