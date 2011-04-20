@@ -55,8 +55,6 @@ class BreadboardPanel(wx.Panel):
 			self.currentComponent.Draw(dc)
 
 			
-		
-
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
 		if self.buttonManager == None or self.buttonManager.currentButton == None:
@@ -65,8 +63,12 @@ class BreadboardPanel(wx.Panel):
 		xLoc = posx//self.bmpW
 		yLoc = posy//self.bmpH
 		print (xLoc,yLoc)
-		
-		
+		if self.currentComponent != None:
+			success =self.breadBoard.putComponent(self.currentComponent.breadBoardComponent,xLoc,yLoc)
+			if success:
+				del self.currentComponent
+				self.currentComponent = None
+			print success
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
 		pass
@@ -74,7 +76,6 @@ class BreadboardPanel(wx.Panel):
 		
 	def OnSize(self,event):
 		#event.Skip()
-		print 'onsize',self.Size
 		self.Refresh()
 
 	# The mouse is moving
@@ -85,6 +86,8 @@ class BreadboardPanel(wx.Panel):
 		#print pos
 
 		if self.buttonManager == None or self.buttonManager.currentButton == None:
+			if self.currentComponent != None:
+				self.currentComponent = None # make sure it is nullified
 			return
 		else:
 			if self.currentComponent == None:
@@ -133,12 +136,10 @@ class BreadboardPanel(wx.Panel):
 			if not typeName in self.typeToImage:
 				self.loadTypeImage(typeName)
 			if rescale:
-				print rescale
 				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(component.width*self.bmpW,component.height*self.bmpH).ConvertToBitmap() #wow, long line...
 			x,y = component.pinList[0].getLocationTuple()
 			x*=self.bmpW
 			y*=self.bmpH
-			print x,y
 			dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
 			
 
@@ -157,11 +158,12 @@ class BreadboardPanel(wx.Panel):
 		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*4,self.bmpH*4).ConvertToBitmap())
 
 class BreadboardComponentWrapper:
-    def __init__(self, bmp,BreadboardComponent):
+    def __init__(self, bmp,breadboardComponent):
         self.bmp = bmp
         self.pos = (0,0)
         self.shown = True
         self.fullscreen = False
+        self.breadBoardComponent = breadboardComponent
 
     def HitTest(self, pt):
         rect = self.GetRect()
