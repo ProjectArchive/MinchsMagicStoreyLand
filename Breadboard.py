@@ -248,16 +248,16 @@ class Breadboard(object):
 			return (x**2 + y**2)**.5 > aComponent.maxLength
 		return True
 		
-	def saveBreadboard(self,savedFileName):
+	def saveBreadboard(self,saveFileName):
 		"""checks if the filetype is a .txt first.
 		pickles the object to a string and saves it to the
 		working directory"""
-		if savedFileName[-4:] != '.txt':
-			savedFileName = savedFileName + '.txt'
-		os.system('touch ' + savedFileName)
+		if saveFileName[-4:] != '.txt':
+			saveFileName = saveFileName + '.txt'
+		os.system('touch ' + saveFileName)
 		s = pickle.dumps(self)	
 		try:
-			fin = open(savedFileName,'w')
+			fin = open(saveFileName,'w')
 			fin.write(s)
 			fin.close()
 			return True
@@ -278,12 +278,15 @@ class Breadboard(object):
 			return None
 	
 	def flipComponent(self,aComponent):
-		"""Flips a variable bbc horizontally.
-		Does not work. Not all that important though."""
-		aComponent.pinList[:len(aComponent.pinList)/2].reverse()
-		print aComponent.pinList
-		aComponent.pinList[len(aComponent.pinList)/2:].reverse()
-		print aComponent.pinList
+		"""Flips a fixed bbc horizontally."""
+		firstHalf = aComponent.pinList[:len(aComponent.pinList)/2]
+		secondHalf = aComponent.pinList[len(aComponent.pinList)/2:]
+		#~ print firstHalf,secondHalf
+		firstHalf.reverse()
+		secondHalf.reverse()
+		#~ print firstHalf,secondHalf
+		firstHalf.append(secondHalf)
+		aComponent.pinList = firstHalf
 		return True
 
 if __name__ == "__main__":
@@ -295,9 +298,11 @@ if __name__ == "__main__":
 	r = InputDevice(10)
 	
 	bb.putComponent(c,4,4,4,5)
-	print bb.putComponent(d,5,4,5,50)
+	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print bb.componentList
+	print a.pinList
+	bb.flipComponent(a)
+	print a.pinList
 	
 
 
