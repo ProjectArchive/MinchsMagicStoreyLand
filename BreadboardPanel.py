@@ -97,7 +97,6 @@ class BreadboardPanel(wx.Panel):
 			
 			self.currentComponent.pos = pos
 			self.currentComponent.shown = False
-	#		self.RefreshRect(self.currentComponent.GetRect(), True)
 			self.Refresh()
 			self.Update()
 
@@ -110,6 +109,7 @@ class BreadboardPanel(wx.Panel):
 			dc = wx.ClientDC(self)
 			rect = self.GetUpdateRegion().GetBox()
 			dc.SetClippingRect(rect)
+			
 		self.PaintBackground(dc)
 	
 	def PaintBackground(self,dc):
@@ -123,10 +123,10 @@ class BreadboardPanel(wx.Panel):
 		for y in range(self.breadBoard.numRows):	
 			for x in range(self.breadBoard.numColumns):
 				isBlank = self.breadBoard.getLocation(x,y).displayFlag != Location.OPENSLOT
-				if isBlank: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
-					dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
-				else:
-					dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
+				if isBlank: pass #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
+					#dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
+				else: pass
+					#dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
 		self.PaintBreadBoardComponents(dc,rescale)
 				
 	def PaintBreadBoardComponents(self,dc,rescale):
