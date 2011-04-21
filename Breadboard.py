@@ -189,7 +189,7 @@ class Breadboard(object):
 			if isinstance(aComponent,FixedBreadboardComponent): #opamps
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
-				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
+				aComponent.deadPins = self.translateAllLocations(aComponent.deadPins[0],aComponent.deadPins)
 				self.setAllFilled(aComponent.deadPins)
 				return True
 				
@@ -286,6 +286,14 @@ class Breadboard(object):
 		firstHalf.append(secondHalf)
 		aComponent.pinList = firstHalf
 		return True
+	
+	def getComponentAtLocation(self,x,y):
+		"""gets component at an x,y location"""
+		for component in self.componentList:
+			for pin in component.pinList:
+				if pin.xLoc==x and pin.yLoc==y:
+					return component
+		return None
 
 if __name__ == "__main__":
 	bb = Breadboard()
@@ -298,9 +306,5 @@ if __name__ == "__main__":
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print a.pinList
-	bb.flipComponent(a)
-	print a.pinList
-	
 
 
