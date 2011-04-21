@@ -306,6 +306,7 @@ if __name__ == "__main__":
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print bb.getComponentAtLocation(4,4)
+	print bb.componentList
+	print bb.getComponentAtLocation(4,4).displayName
 
 
