@@ -189,7 +189,7 @@ class Breadboard(object):
 			if isinstance(aComponent,FixedBreadboardComponent): #opamps
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
-				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
+				aComponent.deadPins = self.translateAllLocations(aComponent.deadPins[0],aComponent.deadPins)
 				self.setAllFilled(aComponent.deadPins)
 				return True
 				
@@ -306,7 +306,5 @@ if __name__ == "__main__":
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print bb.componentList
-	print bb.getComponentAtLocation(4,4).displayName
 
 
