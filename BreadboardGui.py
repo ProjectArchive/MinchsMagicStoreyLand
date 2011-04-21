@@ -3,6 +3,7 @@ import wx.aui
 from BreadboardPanel import *
 from SimulationPanel import *
 from PartBrowserPanel import *
+import os
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadBoard, *args, **kwargs):
@@ -11,7 +12,8 @@ class BreadboardGUI(wx.Frame):
 		# create menu
 		self.createMenu()
 		self.partBrowserPanel = PartBrowserPanel(self)
-		self.breadBoardPanel = BreadboardPanel(self,breadBoard,self.partBrowserPanel.buttonGroup)
+		self.breadBoard = breadBoard
+		self.breadBoardPanel = BreadboardPanel(self,self.breadBoard,self.partBrowserPanel.buttonGroup)
 		text3 = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
@@ -35,14 +37,14 @@ class BreadboardGUI(wx.Frame):
 		
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open","Generic open")
 		self.Bind(wx.EVT_MENU, self.OnOpen, menuOpen)
-		
+		menuSave = filemenu.Append(wx.ID_SAVE, "&Save","Generic save")
+		self.Bind(wx.EVT_MENU, self.OnSave, menuSave)
 		menuAbout= filemenu.Append(wx.ID_ABOUT, "&About","Generic Information about this program")
 		self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
-				
-		menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Get Minched")
+		menuExit = filemenu.Append(wx.ID_EXIT,"&Exit"," Get Minched")
 		self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
 
-        # Creating the menubar.
+		# Creating the menubar.
 		menuBar = wx.MenuBar()
 		menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBar
 		self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
@@ -52,10 +54,31 @@ class BreadboardGUI(wx.Frame):
 		self.OnClose(event) #for now, terminate frame
 	
 	def OnOpen(self,event):
-		print "on open event....we should do something"
+		dlg = wx.FileDialog(self, "Choose a file", os.getcwd(), "", "*.*", wx.OPEN)
+		if dlg.ShowModal() == wx.ID_OK:
+			self.filename = dlg.GetFilename()
+			self.dirname = dlg.GetDirectory()
+			f = os.path.join(self.dirname, self.filename), 'r'
+			Breadboard.openBreadboard(f)
+		dlg.Destroy()
+		self.breadBoardPanel.Update()
+		
+	def OnSave(self,event):
+		dlg = wx.FileDialog(self, "Save this circuit", os.getcwd(), "", "*.*", wx.SAVE |wx.FD_OVERWRITE_PROMPT)
+		if dlg.ShowModal() == wx.ID_OK:
+			self.filename = dlg.GetFilename()
+			self.dirname = dlg.GetDirectory()
+			f = os.path.join(self.dirname, self.filename)
+			self.breadBoard.saveBreadboard(f)
+			if os.path.exists(f):
+				print "successfully saved"
+		dlg.Destroy()
 		
 	def OnAbout(self,event):
-		print "Something about me..."
+		# Create a message dialog box
+		dlg = wx.MessageDialog(self, " A sample editor \n in wxPython", "About Sample Editor", wx.OK)
+		dlg.ShowModal() # Shows it
+		dlg.Destroy() # finally destroy it when finished.
 
 	def OnClose(self, event):
 		# deinitialize the frame manager
