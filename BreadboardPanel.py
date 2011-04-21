@@ -43,10 +43,7 @@ class BreadboardPanel(wx.Panel):
 		dc = wx.PaintDC(self)
 		self.PrepareDC(dc)
 		if self.currentComponent != None:	
-			if self.currentComponent.bmp1.Ok():
-				memDC = wx.MemoryDC()
-				memDC.SelectObject(self.currentComponent.bmp1)
-				dc.Blit(self.currentComponent.pos[0], self.currentComponent.pos[1],self.currentComponent.bmp1.GetWidth(), self.currentComponent.bmp1.GetHeight(),memDC, 0, 0, op, True)
+			self.currentComponent.drawSelf(dc,op)
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
@@ -165,6 +162,11 @@ class BreadboardComponentWrapper:
 		self.pos = (0,0)
 		self.breadboardComponent = breadboardComponent
 	
+	def drawSelf(self,dc,op):
+		if self.bmp1.Ok():
+			memDC = wx.MemoryDC()
+			memDC.SelectObject(self.bmp1)
+			dc.Blit(self.pos[0], self.pos[1],self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
 
 class Example(wx.Frame):
 	"""Dummy frame"""
