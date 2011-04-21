@@ -286,6 +286,14 @@ class Breadboard(object):
 		firstHalf.append(secondHalf)
 		aComponent.pinList = firstHalf
 		return True
+	
+	def getComponentAtLocation(self,x,y):
+		"""gets component at an x,y location"""
+		for component in self.componentList:
+			for pin in component.pinList:
+				if pin.xLoc==x and pin.yLoc==y:
+					return component
+		return None
 
 if __name__ == "__main__":
 	bb = Breadboard()
