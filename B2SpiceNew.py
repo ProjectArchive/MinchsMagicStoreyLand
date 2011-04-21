@@ -10,71 +10,69 @@ class B2SpiceNew(object):
 		self.board = board
 		self.cirName = 'CIRCUIT'+str(id(self))
 		#~ getNodeList(self,board)
-		try:
-			os.system('cd /tmp')
-			try:
-				os.system('mkdir b2spice')
-			except:
-				os.system('cd b2spice')
-		except:
-			raise NameError("I can't find the temp folder!!")
-		self.getInputDevices(board)
-	#~ e	inputDevices = self.findSource(board)
-		#~ rails = self.getRails()	
+		os.system('mkdir b2spice')
+		os.system('cd b2spice')
+		self.clearEmptyNodes()
+		self.getInputDevices()
+		self.rails = self.getRails()
+		self.InputDeviceList = self.getInputDevices()
+		self.nodeList = self.getNodeList()
 		
-	def getRails(self,board):
+		
+	def getRails(self):
 		##The 0th value of the list is the bottom of the board
-		topRail = board.rails[0]
-		midTopRail = board.rails[1]
-		midBotRail = board.rails[2]
-		botRail = board.rails[3]
+		topRail = self.board.rails[0]
+		midTopRail = self.board.rails[1]
+		midBotRail = self.board.rails[2]
+		botRail = self.board.rails[3]
 		return (topRail,midTopRail,midBotRail,botRail)
 		
-	def makeRailCards(self,railList):
+	def makeRailCards(self):
 		railCount = 1;
 		railCards = ''
-		for item in railList:
+		for item in self.rails:
 			if item != 0:
-				railCards += 'V' + str(railCount) + ' 0 ' + str(railCount) + ' dc ' + str(item) + '\n'
+				railCards += 'V%g %g 0 dc %g \n' % railCount,railCount,item
+				#~ railCards += 'V' + str(railCount) + ' 0 ' + str(railCount) + ' dc ' + str(item) + '\n'
 				railCount += 1
 		return railCards
 		
-	def getInputDevices(self,board):
+	def getInputDevices(self):
 		inputDeviceList = []
-		for comp in board.componentList:
+		for comp in self.board.componentList:
 			if isinstance(comp,InputDevice):
 				inputDeviceList.append(comp)
-		self.inputDeviceList = inputDeviceList
 		return inputDeviceList
 	
-	def makeInputDeviceCards(self,board):
+	def makeInputDeviceCards(self):
 		inputDeviceCards = ''
-		inputDeviceList = self.inputDeviceList
-		for item in inputDeviceList:
+		for item in self.inputDeviceList:
 			if item.voltageType == 'AC':
-				inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'sin \n'
+				inputDeviceCards += 'V%g %g 0 sin \n' % id(item),item.pinList[0].Node.number
+				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'sin \n'
 			else:
-				inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
+				inputDeviceCards += 'V%g %g 0 dc %g \n' % id(item),item.pinList[0].Node.number,item.voltage.volts
+				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
 		return inputDeviceCards
 
-	def makeAnalysisCards(self,board,analysisType,scopedNode,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def makeAnalysisCards(self,analysisType,scopedNode,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
 		if analysisType != 'dc' or 'ac' or 'tran':
 			raise NameError("I don't know how to analyze this!")
 		if analysisType == 'ac':
-			return self.makeACCards(board,scopedNode,stepType,numSteps,startFreq,endFreq)
+			return self.makeACCards(scopedNode,stepType,numSteps,startFreq,endFreq)
 		elif analysisType == 'dc':
-			return self.makeDCCards(board,scopedNode,vMin,vMax,stepSize)
+			return self.makeDCCards(scopedNode,vMin,vMax,stepSize)
 		else:
-			return self.makeTranCards(board,scopedNode,tstep,ttotal)
+			return self.makeTranCards(scopedNode,tstep,ttotal)
 		
-	def makeACCards(self,board,node,stepType,numSteps,startFreq,endFreq):
+	def makeACCards(self,scopedNode,stepType,numSteps,startFreq,endFreq):
 		if len(InputDeviceList) <1:
 			raise NameError('There are no input devices...')
 		acLine = '.ac %s %g %g %g \n' % stepType,numSteps,startFreq,endFreq
-		printLine = '.print ac v(%g) \n' % node
+		printLine = '.print ac v(%g) \n' % scopedNode
 		return acLine + printLine
 	
-	def makeDCCards(self,board,scopedNode,vMin,vMax,stepSize):
+	def makeDCCards(self,scopedNode,vMin,vMax,stepSize):
 		dcInputDeviceList = []
 		for item in self.inputDeviceList:
 			if item.voltageType == 'DC':
@@ -87,8 +85,8 @@ class B2SpiceNew(object):
 		printLine = '.print dc v(%g) \n' % scopedNode 
 		return acLine+printLine
 	
-	def makeTranCards(board,scopedNode,tstep,ttotal):
-		tranLine = '.tran %g %g \n' tstep,ttotal
+	def makeTranCards(scopedNode,tstep,ttotal):
+		tranLine = '.tran %g %g \n' % tstep, ttotal
 		printLine = '.print tran v(%g) \n' % scopedNode
 		return tranLine+printLine
 	
@@ -111,21 +109,21 @@ class B2SpiceNew(object):
 		return d
 	
 		
-	def getNodeList(self,board):
+	def getNodeList(self):
 		"""Creates a list of all 
 		occupied nodes on a breadboard"""
 		nodeList = []
 		for comp in self.board.componentList:
 			for pin in comp.pinList:
-				nodeList.append(pin.Node.node)
-		self.nodeList = nodeList
+				nodeList.append(pin.Node.number)
+		return nodeList
 		
 	def getNodes(self,component):
 		"""returns a string that contains
 		the nodes of a component, separated by spaces"""
 		nodeStr = ' '
 		for pins in component.pinList:
-			nodeStr += str(pins.Node.node) + ' '
+			nodeStr += str(pins.Node.number) + ' '
 		return nodeStr
 				
 		
@@ -136,4 +134,5 @@ if __name__ == '__main__':
 	bb.putComponent(Vsource,30,5)
 	bb.putComponent(V2,30,5)
 	b = B2SpiceNew(bb)
+	
 
