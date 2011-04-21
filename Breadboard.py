@@ -306,9 +306,6 @@ if __name__ == "__main__":
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print a.pinList
-	bb.flipComponent(a)
-	print a.pinList
-	
+	print bb.getComponentAtLocation(4,4)
 
 
