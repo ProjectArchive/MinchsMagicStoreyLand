@@ -20,8 +20,8 @@ class BreadboardPanel(wx.Panel):
 		print self.emptyImage.__hash__()
 		self.openImage = wx.Image('res/open_slot.png')
 		self.bmpW,self.bmpH= self.getBitmapSize(self.Size) #initialize bitmapsizeparameter
-		self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
-		self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
+		self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
+		self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
 		self.typeToImage = {} #associate types with images for rescaling purposes
 		self.typeToBitmap = {} #associate types with bitmaps for drawing purposes
 		self.lastSize = self.GetClientSize()			
@@ -43,10 +43,10 @@ class BreadboardPanel(wx.Panel):
 		dc = wx.PaintDC(self)
 		self.PrepareDC(dc)
 		if self.currentComponent != None:	
-			if self.currentComponent.bmp.Ok():
+			if self.currentComponent.bmp1.Ok():
 				memDC = wx.MemoryDC()
-				memDC.SelectObject(self.currentComponent.bmp)
-				dc.Blit(self.currentComponent.pos[0], self.currentComponent.pos[1],self.currentComponent.bmp.GetWidth(), self.currentComponent.bmp.GetHeight(),memDC, 0, 0, op, True)
+				memDC.SelectObject(self.currentComponent.bmp1)
+				dc.Blit(self.currentComponent.pos[0], self.currentComponent.pos[1],self.currentComponent.bmp1.GetWidth(), self.currentComponent.bmp1.GetHeight(),memDC, 0, 0, op, True)
 
 	# Left mouse button is down.
 	def OnLeftDown(self, evt):
@@ -81,7 +81,9 @@ class BreadboardPanel(wx.Panel):
 			return
 		else:
 			if self.currentComponent == None:
-				self.currentComponent = BreadboardComponentWrapper(wx.Image('res/components/OpAmp_image.png').Rescale(4*self.bmpW,4*self.bmpH).ConvertToBitmap(),OpAmp('MINCH'))
+				if self.buttonManager.currentName in self.typeToImage:
+					self.loadTypeImage(self.buttonManager.currentName)
+				self.currentComponent = BreadboardComponentWrapper(OpAmp('MINCH'),wx.Image('res/components/OpAmp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
 				self.currentComponent.pos = pos
 			else:
 				self.currentComponent.pos = pos
@@ -105,8 +107,8 @@ class BreadboardPanel(wx.Panel):
 		if self.lastSize != self.GetClientSize():
 			self.lastSize = self.GetClientSize()
 			self.bmpW,self.bmpH= self.getBitmapSize(self.lastSize)
-			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
-			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH).ConvertToBitmap() #leave our original copy!
+			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
+			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
 			
 			rescale = True
 			print self.emptyImage.__hash__()
@@ -126,7 +128,7 @@ class BreadboardPanel(wx.Panel):
 			if not typeName in self.typeToImage:
 				self.loadTypeImage(typeName)
 			if rescale:
-				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(self.bmpW*component.width,self.bmpH*component.height).ConvertToBitmap()
+				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(self.bmpW*component.width,self.bmpH*component.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 			if isinstance(component, FixedBreadboardComponent):
 				x,y = self.getXY(component.pinList[0].getLocationTuple())
 				dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
@@ -157,14 +159,13 @@ class BreadboardPanel(wx.Panel):
 
 class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of use."""
-	
-	def __init__(self, bmp,breadboardComponent):
-		self.bmp = bmp
+	def __init__(self,breadboardComponent,bmp1,bmp2=None):
+		self.bmp1 = bmp1
+		self.bmp2 = bmp2
 		self.pos = (0,0)
 		self.breadboardComponent = breadboardComponent
+	
 
-
-		
 class Example(wx.Frame):
 	"""Dummy frame"""
 	def __init__(self, parent, title):

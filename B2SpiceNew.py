@@ -134,5 +134,10 @@ if __name__ == '__main__':
 	bb.putComponent(Vsource,30,5)
 	bb.putComponent(V2,30,5)
 	b = B2SpiceNew(bb)
+	b.scope(node1,node
 	
+	
+	#what cory wants:
+	#scope between two nodes. Maybe DC? maybe AC?
+	#
 

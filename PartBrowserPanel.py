@@ -9,32 +9,30 @@ from wx.lib.buttons import GenBitmapToggleButton
 from Breadboard import *
 
 class PartBrowserPanel(wx.Panel):
+	"""Display common parts, and a part look up window, if and when we get to that stage"""
 	def __init__(self, parent, *args, **kwargs):
 		wx.Panel.__init__(self, parent,*args,**kwargs)
 		self.bSizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.nameToBitmap = {}
+		self.commonComponentNameList = {'OpAmp':False,'resistor':True,'capacitor':True,'wire':True} #common components and whether or not they are flexible
 		self.gatherCommonComponents()
 		self.createButtons()
 		self.SetSizerAndFit(self.bSizer)
 		self.Layout()
-		
+
 	def gatherCommonComponents(self):
-		#generate this common componentnamelistsomewhere...
-		self.commonComponentNameList = ['OpAmp','resistor','capacitor','wire']
-		for componentName in self.commonComponentNameList:
+		for componentName in self.commonComponentNameList.keys():
 			print str(componentName)
 			self.nameToBitmap[componentName] = wx.Image('res/components/' + str(componentName) + '_image.png').Rescale(60,60,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 
 	def createButtons(self):
 		self.buttonGroup = ButtonGroup()
-		flag = True
-		for name in self.nameToBitmap.keys():
-			print name
+		for name in self.commonComponentNameList.keys():
 			button1 = GenBitmapToggleButton(self, id=wx.ID_ANY, bitmap=self.nameToBitmap[name],style=wx.BU_EXACTFIT)
 			button1.typeName = name
+			button1.isFlexible = self.commonComponentNameList[name]
 			self.buttonGroup.addButton(button1,name)
 			self.bSizer.Add(button1,0,wx.ALL,5)
-
 
 class ButtonGroup(object):
 	"""encapsulate radio button features using a manager of a number of bitmaptogglebuttons. This should be built into wxpython, but is not B/C of native operations, I believe"""
@@ -43,17 +41,19 @@ class ButtonGroup(object):
 		""" """
 		self.currentName = None
 		self.currentButton = None
-	
+		self.isFlexible = False
+		
 	def addButton(self,button,label):
 		button.Bind(wx.EVT_BUTTON,self.buttonPressed)
 		
 	def buttonPressed(self,event):
-		if self.currentButton == None:
+		if self.currentButton == None: #no button is currently selected, store it locally then return quickly
 			self.currentButton = event.GetEventObject()
 			self.currentName = self.currentButton.typeName
-			return
-		sameAsLast = self.currentButton == event.GetEventObject()
-		if sameAsLast:
+			self.isFlexible = self.currentButton.isFlexible
+			return #return early, no other logic needed
+		sameAsLast = self.currentButton == event.GetEventObject() #if evt is the same as our current button, the same one was pressed, nullify current and set unpressed
+		if sameAsLast: #we need to set this deselected
 			self.currentButton = None
 			self.currentName = None
 		else:
