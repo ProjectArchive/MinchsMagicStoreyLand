@@ -6,21 +6,21 @@ from PartBrowserPanel import *
 import os
 
 class BreadboardGUI(wx.Frame):
-	def __init__(self, parent,breadBoard, *args, **kwargs):
+	def __init__(self, parent,breadboard, *args, **kwargs):
 		wx.Frame.__init__(self, parent,size=(1200,400),pos=wx.DefaultPosition,*args,**kwargs)
 		self._mgr = wx.aui.AuiManager(self)
 		# create menu
 		self.createMenu()
 		self.partBrowserPanel = PartBrowserPanel(self)
-		self.breadBoard = breadBoard
-		self.breadBoardPanel = BreadboardPanel(self,self.breadBoard,self.partBrowserPanel.buttonGroup)
+		self.breadboard = breadboard
+		self.breadboardPanel = BreadboardPanel(self,self.breadboard,self.partBrowserPanel.buttonGroup)
 		text3 = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
 		auiInfo.dock_proportion = 0
 		auiInf1 =  wx.aui.AuiPaneInfo().Center().CaptionVisible(False)
 		auiInf1.dock_proportion = 0
-		self._mgr.AddPane(self.breadBoardPanel,auiInf1) #main focused widget
+		self._mgr.AddPane(self.breadboardPanel,auiInf1) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel,auiInfo)
 		self._mgr.AddPane(text3, wx.RIGHT)
 
@@ -28,13 +28,10 @@ class BreadboardGUI(wx.Frame):
 		#self.Fit()
 		self.Layout()
 		self._mgr.Update()
-		
-
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 	
 	def createMenu(self):
 		filemenu= wx.Menu()
-		
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open","Generic open")
 		self.Bind(wx.EVT_MENU, self.OnOpen, menuOpen)
 		menuSave = filemenu.Append(wx.ID_SAVE, "&Save","Generic save")
@@ -61,7 +58,7 @@ class BreadboardGUI(wx.Frame):
 			f = os.path.join(self.dirname, self.filename), 'r'
 			Breadboard.openBreadboard(f)
 		dlg.Destroy()
-		self.breadBoardPanel.Update()
+		self.breadboardPanel.Update()
 		
 	def OnSave(self,event):
 		dlg = wx.FileDialog(self, "Save this circuit", os.getcwd(), "", "*.*", wx.SAVE |wx.FD_OVERWRITE_PROMPT)
@@ -69,14 +66,14 @@ class BreadboardGUI(wx.Frame):
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
 			f = os.path.join(self.dirname, self.filename)
-			self.breadBoard.saveBreadboard(f)
+			self.breadboard.saveBreadboard(f)
 			if os.path.exists(f):
 				print "successfully saved"
 		dlg.Destroy()
 		
 	def OnAbout(self,event):
 		# Create a message dialog box
-		dlg = wx.MessageDialog(self, " A sample editor \n in wxPython", "About Sample Editor", wx.OK)
+		dlg = wx.MessageDialog(self, str(self.breadboard.componentList), "About Sample Editor", wx.OK)
 		dlg.ShowModal() # Shows it
 		dlg.Destroy() # finally destroy it when finished.
 
@@ -91,6 +88,9 @@ if __name__=="__main__":
 
 		bb = Breadboard()		
 		a = OpAmp('hello')
+		c = Resistor(10)
+
+		bb.putComponent(c,4,4,4,5)
 		bb.putComponent(a,3,7)
 		app = wx.App()
 		frame = BreadboardGUI(None,bb)

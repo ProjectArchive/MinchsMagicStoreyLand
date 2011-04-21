@@ -6,14 +6,16 @@
 #       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 import wx
 from Breadboard import *
+import math
 import copy
 
 
 class BreadboardPanel(wx.Panel):
-	def __init__(self, parent,breadBoard,buttonManager=None, *args, **kwargs):
+	PLAINWIRE = "plainwire"
+	def __init__(self, parent,breadboard,buttonManager=None, *args, **kwargs):
  		wx.Panel.__init__(self, parent,size=(945,270),*args,**kwargs)
  		self.parent = parent
-		self.breadBoard = breadBoard
+		self.breadboard = breadboard
 		self.buttonManager = buttonManager
 
 		self.emptyImage = wx.Image('res/blank_slot.png')
@@ -45,7 +47,8 @@ class BreadboardPanel(wx.Panel):
 		if self.currentComponent != None:	
 			self.currentComponent.drawSelf(dc,op)
 
-	# Left mouse button is down.
+	
+	
 	def OnLeftDown(self, evt):
 		posx,posy = evt.GetPosition()
 		xLoc = posx//self.bmpW
@@ -53,7 +56,7 @@ class BreadboardPanel(wx.Panel):
 		if self.currentComponent!= None:
 			print (xLoc,yLoc)
 			print id(self.currentComponent.breadboardComponent)
-			print self.breadBoard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
+			print self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
 			self.currentComponent = None
 		
 		
@@ -61,8 +64,7 @@ class BreadboardPanel(wx.Panel):
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
 		pass
-		
-		
+
 	def OnSize(self,event):
 		#event.Skip(
 		self.Refresh()
@@ -80,7 +82,7 @@ class BreadboardPanel(wx.Panel):
 			if self.currentComponent == None:
 				if self.buttonManager.currentName in self.typeToImage:
 					self.loadTypeImage(self.buttonManager.currentName)
-				self.currentComponent = BreadboardComponentWrapper(OpAmp('MINCH'),wx.Image('res/components/OpAmp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
+				self.currentComponent = BreadboardComponentWrapper(OpAmp('MINCH'),wx.Image('res/components/opamp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
 				self.currentComponent.pos = pos
 			else:
 				self.currentComponent.pos = pos
@@ -89,7 +91,7 @@ class BreadboardPanel(wx.Panel):
 
 
 	def getBitmapSize(self,size):
-		return (size[0]//self.breadBoard.numColumns,size[1]//self.breadBoard.numRows)
+		return (size[0]//self.breadboard.numColumns,size[1]//self.breadboard.numRows)
 	
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
@@ -105,35 +107,48 @@ class BreadboardPanel(wx.Panel):
 			self.lastSize = self.GetClientSize()
 			self.bmpW,self.bmpH= self.getBitmapSize(self.lastSize)
 			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
-			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
-			
+			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!			
 			rescale = True
-			print self.emptyImage.__hash__()
 
-		for y in range(self.breadBoard.numRows):	
-			for x in range(self.breadBoard.numColumns):
-				isBlank = self.breadBoard.getLocation(x,y).displayFlag != Location.OPENSLOT
+		for y in range(self.breadboard.numRows):	
+			for x in range(self.breadboard.numColumns):
+				isBlank = self.breadboard.getLocation(x,y).displayFlag != Location.OPENSLOT
 				if isBlank: #different images. Should add support for flags, i.e. red, blue striples and always filled, etc.
 					dc.DrawBitmap(self.emptyBitMap, x*self.bmpW, y*self.bmpH)
 				else:
 					dc.DrawBitmap(self.openBitMap, x*self.bmpW, y*self.bmpH) 
-		self.PaintBreadBoardComponents(dc,rescale)
+		self.PaintBreadboardComponents(dc,rescale)
 				
-	def PaintBreadBoardComponents(self,dc,rescale):
-		for component in self.breadBoard.componentList:
+	def PaintBreadboardComponents(self,dc,rescale):
+		"""paint all components, pass in devic context and whether or not we have been scaled since last redraww"""
+		for component in self.breadboard.componentList:
+			if isinstance(component, FixedBreadboardComponent):
+				self.drawFixedComponent(dc,component,rescale)
+			else:
+				self.drawVariableComponent(dc,component,rescale)
+
+	def drawFixedComponent(self,dc,component,rescale):
 			typeName= type(component).__name__
 			if not typeName in self.typeToImage:
 				self.loadTypeImage(typeName)
 			if rescale:
 				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(self.bmpW*component.width,self.bmpH*component.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
-			if isinstance(component, FixedBreadboardComponent):
-				x,y = self.getXY(component.pinList[0].getLocationTuple())
-				dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
-			else:
-				print "this is a flexible component...Cory needs to get smaart"
-				x1,y1 = self.getXY(component.pinList[0].getLocationTuple())
-				x2,y2 = self.getXY(component.pinList[1].getLocationTuple())
-				dc.DrawLine(x1,y1,x2,y2)
+			x,y = self.getXY(component.pinList[0].getLocationTuple())
+			dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
+
+	def drawVariableComponent(self,dc,component,rescale):
+		typeName= type(component).__name__
+		if not typeName in self.typeToImage:
+			self.loadTypeImage(typeName)
+		if not BreadboardPanel.PLAINWIRE in self.typeToImage:
+			 self.loadTypeImage(BreadboardPanel.PLAINWIRE)
+		print "this is a flexible component...Cory needs to get smaart"
+		x1,y1 = self.getXY(component.pinList[0].getLocationTuple())
+		x2,y2 = self.getXY(component.pinList[1].getLocationTuple())
+		dx,dy = (x2-x1,y2-y1)
+		length = math.sqrt(dx**2+dy**2)
+		print length
+		dc.DrawLine(x1,y1,x2,y2)
 
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
@@ -144,7 +159,8 @@ class BreadboardPanel(wx.Panel):
 		self.PaintBackground(dc)
 
 	def loadTypeImage(self,typeName):
-		temp =wx.Image('res/components/' + typeName+'_image.png')
+		print "loading %s" %typeName
+		temp =wx.Image('res/components/' + typeName.lower()+'_image.png')
 		self.typeToImage[typeName] = copy.copy(temp)
 		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*4,self.bmpH*4).ConvertToBitmap())
 
