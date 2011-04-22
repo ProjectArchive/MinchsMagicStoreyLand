@@ -298,7 +298,7 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	print bb.putComponent(a,59,7)
+	print bb.putComponent(a,17,13)
 	print a.deadPins
 	print a.pinList
 	d = Capacitor(5)
