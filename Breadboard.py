@@ -86,7 +86,7 @@ class Breadboard(object):
 				if y==9:
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.CENTER_TOP)
-				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
+				if x%6==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
 				if y==0:	
@@ -298,13 +298,13 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	print bb.putComponent(a,17,13)
-	print a.deadPins
+	print bb.putComponent(a,2,13)
+	print bb.isFilled(2,17)
 	print a.pinList
+	print a.deadPins
 	d = Capacitor(5)
 	r = InputDevice(10)
 	c = Resistor(10)
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print a.referencePin
