@@ -20,7 +20,7 @@ class BreadboardPanel(wx.Panel):
 
 		self.emptyImage = wx.Image('res/blank_slot.png')
 		print self.emptyImage.__hash__()
-		self.openImage = wx.Image('res/open_slot.png')
+		self.openImage = wx.Image('res/openslot_2.png')
 		self.bmpW,self.bmpH= self.getBitmapSize(self.Size) #initialize bitmapsizeparameter
 		self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
 		self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
@@ -39,7 +39,7 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
-
+		
 
 	# Fired whenever a paint event occurs
 	def OnPaint(self, evt):
@@ -58,7 +58,6 @@ class BreadboardPanel(wx.Panel):
 		yLoc = posy//self.bmpH
 		if self.currentComponent!= None: #we are moving something
 			print (xLoc,yLoc)
-			print id(self.currentComponent.breadboardComponent)
 			print self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
 			self.currentComponent = None
 
@@ -75,6 +74,7 @@ class BreadboardPanel(wx.Panel):
 	def OnMotion(self, evt):
 		# Ignore mouse movement if we're not dragging.
 		pos = self.ScreenToClient(wx.GetMousePosition())
+		pos = (pos[0] -3,pos[1] +3)
 		#print pos
 
 		if self.buttonManager == None or self.buttonManager.currentButton == None:

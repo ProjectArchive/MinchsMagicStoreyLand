@@ -14,14 +14,11 @@ class SimulationPanel(wx.Panel):
  		
  		
 		self.bVerticalSizer = wx.BoxSizer(wx.VERTICAL)
-		
 		image = wx.Image('res/simulate_image.png')
 		image.Rescale(50,50,wx.IMAGE_QUALITY_HIGH)
-		self.startSimulationButton = wx.BitmapButton(self, -wx.ID_ANY, wx.BitmapFromImage(image))
-		self.sstartSimulationButton = wx.BitmapButton(self, wx.ID_ANY, wx.BitmapFromImage(image))
+		self.startSimulationButton = wx.BitmapButton(self, wx.ID_ANY, image.ConvertToBitmap())
 
 		self.bVerticalSizer.Add(self.startSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
-		self.bVerticalSizer.Add(self.sstartSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
 		self.SetSizerAndFit(self.bVerticalSizer)
 		self.Layout()
 		

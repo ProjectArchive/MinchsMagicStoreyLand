@@ -3,6 +3,7 @@ import wx.aui
 from BreadboardPanel import *
 from SimulationPanel import *
 from PartBrowserPanel import *
+from B2Spice import *
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadboard, *args, **kwargs):
@@ -13,7 +14,7 @@ class BreadboardGUI(wx.Frame):
 		self.partBrowserPanel = PartBrowserPanel(self)
 		self.breadboard = breadboard
 		self.breadboardPanel = BreadboardPanel(self,self.breadboard,self.partBrowserPanel.buttonGroup)
-		text3 = SimulationPanel(self)
+		self.simulationPanel = SimulationPanel(self)
 		# add the panes to the manager
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
 		auiInfo.dock_proportion = 0
@@ -21,23 +22,28 @@ class BreadboardGUI(wx.Frame):
 		auiInf1.dock_proportion = 0
 		self._mgr.AddPane(self.breadboardPanel,auiInf1) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel,auiInfo)
-		self._mgr.AddPane(text3, wx.RIGHT)
+		self._mgr.AddPane(self.simulationPanel, wx.RIGHT)
 
 		# tell the manager to 'commit' all the changes just made
 		#self.Fit()
 		self.Layout()
 		self._mgr.Update()
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
+		self.simulationPanel.Bind(wx.EVT_BUTTON,self.OnSimulateButtonPress)
 	
 	def createMenu(self):
 		filemenu= wx.Menu()
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open","Generic open")
 		self.Bind(wx.EVT_MENU, self.OnOpen, menuOpen)
 		
+		menuSave = filemenu.Append(wx.ID_SAVE, "&Save","Generic save")
+		self.Bind(wx.EVT_MENU, self.OnSave, menuSave)
+
+		
 		menuAbout= filemenu.Append(wx.ID_ABOUT, "&About","Generic Information about this program")
 		self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
 				
-		menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Get Minched")
+		menuExit = filemenu.Append(wx.ID_EXIT,"&Exit"," Get Minched")
 		self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
 
         # Creating the menubar.
@@ -81,6 +87,12 @@ class BreadboardGUI(wx.Frame):
 		self._mgr.UnInit()
 		# delete the frame
 		self.Destroy()
+		
+	def OnSimulateButtonPress(self,event):
+		b = B2Spice(self.breadboard)
+		b.clearEmptyNodes()
+		print b.buildNetList()
+		print b.loadBb()
 
 
 if __name__=="__main__":
