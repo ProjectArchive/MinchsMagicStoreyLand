@@ -90,7 +90,7 @@ if __name__=="__main__":
 		c = Resistor(10)
 
 		bb.putComponent(c,4,4,8,4)
-		bb.putComponent(a,3,7)
+		bb.putComponent(a,17,13)
 		app = wx.App()
 		frame = BreadboardGUI(None,bb)
 		frame.Show()
