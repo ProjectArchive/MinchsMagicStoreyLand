@@ -29,6 +29,8 @@ class Breadboard(object):
 				self.locMatrix.setItem(x,y,Location(x,y))
 	
 	def getLocation(self,x,y):
+		if x>self.numColumns or y>self.numRows:
+			return None
 		return self.locMatrix.getItem(x,y)
 		
 	def assignNodeHoriz(self,x,y,number):
@@ -164,8 +166,6 @@ class Breadboard(object):
 		for i in range(0,len(pinPositions),2):
 			x = pinPositions[i]
 			y = pinPositions[i+1]
-			if x>self.numColumns or y>self.numRows:
-				return False
 			refLocTest = self.getLocation(x,y) #the loc to test at
 			#first test if the reference location is available
 			if refLocTest == None or refLocTest.isFilled:
@@ -298,11 +298,11 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	print bb.putComponent(a,11,6)
+	print bb.putComponent(a,100,7)
 	d = Capacitor(5)
 	r = InputDevice(10)
 	c = Resistor(10)
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print a.pinList
+	print a.referencePin
