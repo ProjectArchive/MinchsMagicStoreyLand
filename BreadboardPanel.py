@@ -27,8 +27,8 @@ class BreadboardPanel(wx.Panel):
 		self.typeToImage = {} #associate types with images for rescaling purposes
 		self.typeToBitmap = {} #associate types with bitmaps for drawing purposes
 		###there is a better way to do this, likely it will involve rewritting this using the wrapper I use already, just throughout all...ffs.
-		self.variableToBitmap = {} #this is a sketchy and quick fix for the fact that variable breadboardcomponents need a sized bitmap...Instance
-		self.lastSize = self.GetClientSize()			
+		self.lastSize = self.GetClientSize()
+		self.wrappedComponents = {} #map from component to wrappedComponent
 		self.currentComponent = None
 
 		self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
@@ -123,37 +123,14 @@ class BreadboardPanel(wx.Panel):
 	def PaintBreadboardComponents(self,dc,rescale):
 		"""paint all components, pass in devic context and whether or not we have been scaled since last redraww"""
 		for component in self.breadboard.componentList:
-			if isinstance(component, FixedBreadboardComponent):
-				self.drawFixedComponent(dc,component,rescale)
-			else:
-				self.drawVariableComponent(dc,component,rescale)
-
-	def drawFixedComponent(self,dc,component,rescale):
-			typeName= type(component).__name__
-			if not typeName in self.typeToImage:
-				self.loadTypeImage(typeName)
-			if rescale or self.typeToBitmap[typeName] == None:
-				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(self.bmpW*component.width,self.bmpH*component.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
-			x,y = self.getXY(component.pinList[0].getLocationTuple())
-			dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
-
-	def drawVariableComponent(self,dc,component,rescale):
-		typeName= type(component).__name__
-		if not typeName in self.typeToImage:
-			self.loadTypeImage(typeName)
-		if not BreadboardPanel.PLAINWIRE in self.typeToImage:
-			 self.loadTypeImage(BreadboardPanel.PLAINWIRE)
-		x1,y1 = self.getXY(component.pinList[0].getLocationTuple())
-		x2,y2 = self.getXY(component.pinList[1].getLocationTuple())
-		dx,dy = (x2-x1,y2-y1)
-		disp = component.pinList[0].displacementTo(component.pinList[1])
-		#print disp
-		###really dirty, test....
-		#print "bitmapsizes"
-		rotPtY = self.typeToImage[BreadboardPanel.PLAINWIRE].GetHeight()/2 #half of the height...
-		
-		dc.DrawBitmap(self.typeToImage[BreadboardPanel.PLAINWIRE].Rotate(-2,(0,rotPtY)).ConvertToBitmap(),x1,y1)
-#		self.variableToBitmap[component] = 
+			if not component in self.wrappedComponents.keys():
+				if isinstance(component, FixedBreadboardComponent):
+					self.wrappedComponents[component] = FixedBreadboardComponentWrapper(self,component)
+				else:
+					self.wrappedComponents[component] = VariableBreadboardComponentWrapper(self,component)
+			self.wrappedComponents[component].drawSelf(dc,rescale)
+		if len(self.wrappedComponents.keys()) > len(self.breadboard.componentList):
+			print "something was deleted, dolphin you need to fix this"
 
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
@@ -163,23 +140,28 @@ class BreadboardPanel(wx.Panel):
 			dc.SetClippingRect(rect)
 		self.PaintBackground(dc)
 
-	def loadTypeImage(self,typeName):
+	def loadTypeImage(self,typeName,instance=None):
 		print "loading %s" %typeName
 		temp =wx.Image('res/components/' + typeName.lower()+'_image.png')
 		self.typeToImage[typeName] = copy.copy(temp)
-		self.typeToBitmap[typeName] = None
-
+		if instance != None: #we were passed an instance, and can create and size the bitmap
+			self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(instance.width*self.bmpW,instance.height*self.bmpH).ConvertToBitmap()
+		else:
+			self.typeToBitmap[typeName] = None #stop keyerrors
+			
 	def getLoc(self,xy):
 		return (xy[0]//self.bmpW,xy[1]//self.bmpH)
 		
 	def getXY(self,loc):
 		return (loc[0]*self.bmpW,loc[1]*self.bmpH)
+		
+	def getCenteredXY(self,loc):	
+		return ((loc[0]*self.bmpW) +(self.bmpW/2) ,(loc[1]*self.bmpH) + (self.bmpW/2)) #because we are drawing from top left, center is half of both down
 
 class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of use."""
 	def __init__(self,breadboardComponent,bmp1,bmp2=None):
 		self.bmp1 = bmp1
-		
 		self.bmp2 = bmp2
 		self.pos = (0,0)
 		self.breadboardComponent = breadboardComponent
@@ -189,6 +171,62 @@ class BreadboardComponentWrapper:
 			memDC = wx.MemoryDC()
 			memDC.SelectObject(self.bmp1)
 			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
+ 
+class VariableBreadboardComponentWrapper:
+	"""this needed to happen"""
+	def __init__(self,breadboardPanel,variableBreadboardComponent):
+		self.bbp = breadboardPanel
+		self.vbbc = variableBreadboardComponent
+		self.typeName= type(self.vbbc).__name__
+		#main image of this component's center
+		if not self.typeName in self.bbp.typeToImage.keys():
+			self.bbp.loadTypeImage(self.typeName)
+		#image of the wire....
+		if not BreadboardPanel.PLAINWIRE in self.bbp.typeToImage.keys():
+			self.bbp.loadTypeImage(BreadboardPanel.PLAINWIRE)
+		self.mainBMP = None #will be created on first draw
+		self.wireBMP = None #will be created on first draw
+		
+	def drawSelf(self,dc,rescale,xyopt1=None,xyopt2=None):
+		"""draw this vbbc. optionally, if xy1 and xy2 are non None, draw it between the two XY's,
+		 instead of the locations, which may not be absolute"""
+		if xyopt1 != None or xyopt2 != None:
+			print "Cory get yo shit together"
+		
+		x1,y1 = self.bbp.getCenteredXY(self.vbbc.pinList[0].getLocationTuple())
+		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
+		dx,dy = (x2-x1,y2-y1)
+		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
+		theta = -3.14/2#this needs an answer....
+		totalLength = math.sqrt(dx**2 + dy**2)	
+		if rescale or self.mainBMP == None or self.wireBMP == None:
+		#	self.mainBMP = copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta).Rescale(self.bbp.bmpW*2,self.bmpH).ConvertToBitmap()
+			tImage = copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE])
+			tImage.Rescale(totalLength,tImage.GetHeight())
+			self.wireBMP = tImage.Rotate(theta,(0,tImage.GetHeight()/2)).ConvertToBitmap()
+#		if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
+			#just draw the damn centerpiece!
+			
+			#there is a sin/cos term here, we need to shift by some amount...		
+		dc.DrawBitmap(self.wireBMP, x1, y1-(self.wireBMP.GetHeight()/2))
+		dc.SetPen( wx.Pen( wx.Color(255,0,0), 5 ))
+		dc.DrawLine(x1,y1,x2,y2)
+		
+class FixedBreadboardComponentWrapper:
+	def __init__(self,breadboardPanel,fixedBreadboardComponent):
+		self.bbp = breadboardPanel
+		self.fbbc = fixedBreadboardComponent
+		typeName= type(self.fbbc).__name__
+		if not typeName in self.bbp.typeToImage.keys():
+			self.bbp.loadTypeImage(typeName,instance=self.fbbc)
+
+	def drawSelf(self,dc,rescale):
+		if rescale or self.bbp.typeToBitmap[type(self.fbbc).__name__] == None:
+			self.bbp.typeToBitmap[type(self.fbbc).__name__] = copy.copy(self.bbp.typeToImage[type(self.fbbc).__name__]).Rescale(self.bbp.bmpW*self.fbbc.width,self.bbp.bmpH*self.fbbc.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+		x,y = self.bbp.getXY(self.fbbc.pinList[0].getLocationTuple())
+		y -= self.bbp.bmpH * (self.fbbc.height -1)
+		dc.DrawBitmap(self.bbp.typeToBitmap[type(self.fbbc).__name__], x, y)
+
 
 class Example(wx.Frame):
 	"""Dummy frame"""
@@ -197,8 +235,8 @@ class Example(wx.Frame):
 		bb = Breadboard()		
 		a = OpAmp('hello')
 		c = Resistor(10)
-		bb.putComponent(c,4,4,8,4)
-		bb.putComponent(a,3,7)	
+		print bb.putComponent(c,3,3,3,7)
+		print bb.putComponent(a,8,7)
 		BreadboardPanel(self,bb)
 		self.Fit()
 		self.Show()
