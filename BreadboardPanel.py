@@ -61,8 +61,6 @@ class BreadboardPanel(wx.Panel):
 			print id(self.currentComponent.breadboardComponent)
 			print self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
 			self.currentComponent = None
-		
-		
 
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
@@ -154,6 +152,7 @@ class BreadboardPanel(wx.Panel):
 		print "bitmapsizes"
 		rotPtY = self.typeToImage[BreadboardPanel.PLAINWIRE].GetHeight()/2 #half of the height...
 		
+		dc.DrawBitmap(self.typeToImage[BreadboardPanel.PLAINWIRE].Rotate(0,(0,rotPtY)).ConvertToBitmap(),x1,y1)
 #		self.variableToBitmap[component] = 
 
 		
