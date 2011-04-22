@@ -294,17 +294,21 @@ class Breadboard(object):
 				if pin.xLoc==x and pin.yLoc==y:
 					return component
 		return None
+	
+	def updateFlag(self):
+		i
 
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	bb.putComponent(a,3,7)
+	print bb.putComponent(a,11,10)
 	c = Resistor(10)
 	d = Capacitor(5)
 	r = InputDevice(10)
-	
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
+	
+	print a.referencePin
 
 
