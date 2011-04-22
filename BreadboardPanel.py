@@ -49,7 +49,7 @@ class BreadboardPanel(wx.Panel):
 		dc = wx.PaintDC(self) #grab device context
 		self.PrepareDC(dc) #prepare
 		if self.currentComponent != None: #if we have a component that is being put on the board by the user	
-			self.currentComponent.drawSelf(dc,op) #tell it to paint itself.
+			self.currentComponent.drawSelf(dc,op,self.bmpW,self.bmpH) #tell it to paint itself.
 	
 	def OnLeftDown(self, evt):
 		"""fired whenever left button is clicked"""
@@ -61,8 +61,6 @@ class BreadboardPanel(wx.Panel):
 			print id(self.currentComponent.breadboardComponent)
 			print self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
 			self.currentComponent = None
-		
-		
 
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
@@ -149,15 +147,13 @@ class BreadboardPanel(wx.Panel):
 		x2,y2 = self.getXY(component.pinList[1].getLocationTuple())
 		dx,dy = (x2-x1,y2-y1)
 		disp = component.pinList[0].displacementTo(component.pinList[1])
-		print disp
+		#print disp
 		###really dirty, test....
-		print "bitmapsizes"
+		#print "bitmapsizes"
 		rotPtY = self.typeToImage[BreadboardPanel.PLAINWIRE].GetHeight()/2 #half of the height...
 		
+		dc.DrawBitmap(self.typeToImage[BreadboardPanel.PLAINWIRE].Rotate(-2,(0,rotPtY)).ConvertToBitmap(),x1,y1)
 #		self.variableToBitmap[component] = 
-
-		
-		dc.DrawLine(x1,y1,x2,y2)
 
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
@@ -188,12 +184,11 @@ class BreadboardComponentWrapper:
 		self.pos = (0,0)
 		self.breadboardComponent = breadboardComponent
 	
-	def drawSelf(self,dc,op):
+	def drawSelf(self,dc,op,bmpW,bmpH):
 		if self.bmp1.Ok():
 			memDC = wx.MemoryDC()
 			memDC.SelectObject(self.bmp1)
-			print self.pos
-			dc.Blit(self.pos[0], self.pos[1],self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
+			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
 
 class Example(wx.Frame):
 	"""Dummy frame"""
