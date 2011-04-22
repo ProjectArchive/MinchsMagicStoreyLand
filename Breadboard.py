@@ -29,7 +29,7 @@ class Breadboard(object):
 				self.locMatrix.setItem(x,y,Location(x,y))
 	
 	def getLocation(self,x,y):
-		if x>self.numColumns or y>self.numRows:
+		if x>=self.numColumns or y>=self.numRows:
 			return None
 		return self.locMatrix.getItem(x,y)
 		
@@ -298,7 +298,7 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	print bb.putComponent(a,100,7)
+	print bb.putComponent(a,3,7)
 	d = Capacitor(5)
 	r = InputDevice(10)
 	c = Resistor(10)
