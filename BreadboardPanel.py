@@ -132,29 +132,6 @@ class BreadboardPanel(wx.Panel):
 		if len(self.wrappedComponents.keys()) > len(self.breadboard.componentList):
 			print "something was deleted, dolphin you need to fix this"
 
-
-	def drawVariableComponent(self,dc,component,rescale):
-		typeName= type(component).__name__
-		if not typeName in self.typeToImage:
-			self.loadTypeImage(typeName)
-		if not BreadboardPanel.PLAINWIRE in self.typeToImage:
-			 self.loadTypeImage(BreadboardPanel.PLAINWIRE)
-		x1,y1 = self.getXY(component.pinList[0].getLocationTuple())
-		x2,y2 = self.getXY(component.pinList[1].getLocationTuple())
-		
-		dx,dy = (x2-x1,y2-y1)
-		
-		disp = component.pinList[0].displacementTo(component.pinList[1])
-		#if math.sqrt(disp[0],disp[1]) <= 1:
-			
-		#print disp
-		###really dirty, test....
-		#print "bitmapsizes"
-		rotPtY = self.typeToImage[BreadboardPanel.PLAINWIRE].GetHeight()/2 #half of the height...
-		
-		dc.DrawBitmap(self.typeToImage[BreadboardPanel.PLAINWIRE].Rotate(-2,(0,rotPtY)).ConvertToBitmap(),x1,y1)
-#		self.variableToBitmap[component] = 
-
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
 		if not dc:
@@ -220,16 +197,20 @@ class VariableBreadboardComponentWrapper:
 		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
 		dx,dy = (x2-x1,y2-y1)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
-		theta = 3.14/4 #this needs an answer....
+		theta = -3.14/2#this needs an answer....
 		totalLength = math.sqrt(dx**2 + dy**2)	
 		if rescale or self.mainBMP == None or self.wireBMP == None:
 		#	self.mainBMP = copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta).Rescale(self.bbp.bmpW*2,self.bmpH).ConvertToBitmap()
 			tImage = copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE])
-			#.Rotate(theta,(0,tImage.GetHeight()/2))
-			self.wireBMP = tImage.Rescale(totalLength,tImage.GetHeight()).ConvertToBitmap()
+			tImage.Rescale(totalLength,tImage.GetHeight())
+			self.wireBMP = tImage.Rotate(theta,(0,tImage.GetHeight()/2)).ConvertToBitmap()
 #		if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
-			#just draw the damn centerpiece!		
+			#just draw the damn centerpiece!
+			
+			#there is a sin/cos term here, we need to shift by some amount...		
 		dc.DrawBitmap(self.wireBMP, x1, y1-(self.wireBMP.GetHeight()/2))
+		dc.SetPen( wx.Pen( wx.Color(255,0,0), 5 ))
+		dc.DrawLine(x1,y1,x2,y2)
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
