@@ -162,21 +162,21 @@ class Breadboard(object):
 		"""Tests whether or not a component can be placed at the
 		reference (absolute) x,y coordinate by checking each pin
 		specified by the pinList of aComponent"""
-		flag=True
+
 		for i in range(0,len(pinPositions),2):
 			x = pinPositions[i]
 			y = pinPositions[i+1]
 			refLocTest = self.getLocation(x,y) #the loc to test at
 			#first test if the reference location is available
 			if refLocTest == None or refLocTest.isFilled:
-				flag=False
+				return False
 			else:
 				#then check if every pin the component specifies is also
 				#available, if not, then we cannot place the component here
 				for relLoc in aComponent.pinList[1:]:#all but the zero'th pin in the pinlist
-					if self.translateLocation(refLocTest,relLoc).isFilled:
-						flag=False
-		return flag
+					if self.translateLocation(refLocTest,relLoc)==None or self.translateLocation(refLocTest,relLoc).isFilled:
+						return False
+		return True
 
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down. Give it a reference pin for a regular component.
@@ -298,7 +298,7 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	print bb.putComponent(a,3,7)
+	print bb.putComponent(a,59,7)
 	d = Capacitor(5)
 	r = InputDevice(10)
 	c = Resistor(10)
