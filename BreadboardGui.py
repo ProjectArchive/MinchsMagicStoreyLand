@@ -3,7 +3,6 @@ import wx.aui
 from BreadboardPanel import *
 from SimulationPanel import *
 from PartBrowserPanel import *
-import os
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadboard, *args, **kwargs):
@@ -34,14 +33,14 @@ class BreadboardGUI(wx.Frame):
 		filemenu= wx.Menu()
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open","Generic open")
 		self.Bind(wx.EVT_MENU, self.OnOpen, menuOpen)
-		menuSave = filemenu.Append(wx.ID_SAVE, "&Save","Generic save")
-		self.Bind(wx.EVT_MENU, self.OnSave, menuSave)
+		
 		menuAbout= filemenu.Append(wx.ID_ABOUT, "&About","Generic Information about this program")
 		self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
-		menuExit = filemenu.Append(wx.ID_EXIT,"&Exit"," Get Minched")
+				
+		menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Get Minched")
 		self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
 
-		# Creating the menubar.
+        # Creating the menubar.
 		menuBar = wx.MenuBar()
 		menuBar.Append(filemenu,"&File") # Adding the "filemenu" to the MenuBar
 		self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
