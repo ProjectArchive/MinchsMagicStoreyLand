@@ -1,4 +1,5 @@
 from Node import *
+import math
 
 class Location(object):
 	"""an abstraction of a pin/hole on a BreadBoard. These are 
@@ -38,7 +39,14 @@ class Location(object):
 	def getLocationTuple(self):
 		"""simple helper to give location as a tuple for use in GUI"""
 		return (self.xLoc,self.yLoc)
-			
+		
+	def displacementTo(self,otherLoc):
+		"""simple pythag. based distance function, useful for variablebreadboardcomponents"""
+		if type(self) != type(otherLoc):
+			return -1
+		return ((otherLoc.xLoc-self.xLoc), (otherLoc.yLoc-self.yLoc))
+
+
 class RelativeLocation(Location):
 	"""An abstraction of a relative location, used for fitting items on
 	the bread board, using a reference pin.
@@ -56,3 +64,7 @@ class RelativeLocation(Location):
 		return Location.__repr__(self) + " From REF"
 		
 
+if __name__=="__main__":
+	aLoc = Location(0,0)
+	bLoc = Location(5,5)
+	print aLoc.displacementTo(bLoc)
