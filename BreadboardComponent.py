@@ -17,7 +17,7 @@ class BreadboardComponent(object):
 		self.standardPinList = copy.copy(pinList) #saves initialized relativelocaiton list
 
 	def __repr__(self):
-		return '%s : %s' % (self.displayName,self.technicalName)
+		return '%s' % self.displayName
 
 
 class FixedBreadboardComponent(BreadboardComponent):

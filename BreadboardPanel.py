@@ -49,7 +49,7 @@ class BreadboardPanel(wx.Panel):
 		dc = wx.PaintDC(self) #grab device context
 		self.PrepareDC(dc) #prepare
 		if self.currentComponent != None: #if we have a component that is being put on the board by the user	
-			self.currentComponent.drawSelf(dc,op,self.bmpW,self.bmpH) #tell it to paint itself.
+			self.currentComponent.drawSelf(dc,op) #tell it to paint itself.
 	
 	def OnLeftDown(self, evt):
 		"""fired whenever left button is clicked"""
@@ -188,12 +188,12 @@ class BreadboardComponentWrapper:
 		self.pos = (0,0)
 		self.breadboardComponent = breadboardComponent
 	
-	def drawSelf(self,dc,op,bmpW,bmpH):
+	def drawSelf(self,dc,op):
 		if self.bmp1.Ok():
 			memDC = wx.MemoryDC()
 			memDC.SelectObject(self.bmp1)
 			print self.pos
-			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
+			dc.Blit(self.pos[0], self.pos[1],self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
 
 class Example(wx.Frame):
 	"""Dummy frame"""
