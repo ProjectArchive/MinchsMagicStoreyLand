@@ -36,7 +36,6 @@ class FixedBreadboardComponent(BreadboardComponent):
 		self.height = height
 		self.deadPins = deadPins
 
-
 	#~ def __repr__(self):
 		#~ return '%s of size %dx%d attributes %s and %g pins at ref pin %g,%g' % (self.displayName,self.width, self.height,str(self.attributes), len(self.pinList),self.pinList[0].xLoc,self.pinList[0].yLoc)
 
@@ -73,7 +72,7 @@ class Wire(Resistor):
 	"""A two pin wire"""
 	
 	def __init__(self):
-		"""its a wire"""
+		"""its a wire, but actually a pico-ohm resistor"""
 		Resistor.__init__(self,10**-9)
 	
 	def __repr__(self):
