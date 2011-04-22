@@ -26,6 +26,8 @@ class BreadboardPanel(wx.Panel):
 		self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
 		self.typeToImage = {} #associate types with images for rescaling purposes
 		self.typeToBitmap = {} #associate types with bitmaps for drawing purposes
+		###there is a better way to do this, likely it will involve rewritting this using the wrapper I use already, just throughout all...ffs.
+		self.variableToBitmap = {} #this is a sketchy and quick fix for the fact that variable breadboardcomponents need a sized bitmap...Instance
 		self.lastSize = self.GetClientSize()			
 		self.currentComponent = None
 
@@ -41,19 +43,20 @@ class BreadboardPanel(wx.Panel):
 
 	# Fired whenever a paint event occurs
 	def OnPaint(self, evt):
+		"""fired whenever a paint event occurs, i.e. Refresh() or Update"""
+		#does not need to paint background, only what has changed...
 		op = wx.COPY
-		dc = wx.PaintDC(self)
-		self.PrepareDC(dc)
-		if self.currentComponent != None:	
-			self.currentComponent.drawSelf(dc,op)
-
-	
+		dc = wx.PaintDC(self) #grab device context
+		self.PrepareDC(dc) #prepare
+		if self.currentComponent != None: #if we have a component that is being put on the board by the user	
+			self.currentComponent.drawSelf(dc,op,self.bmpW,self.bmpH) #tell it to paint itself.
 	
 	def OnLeftDown(self, evt):
+		"""fired whenever left button is clicked"""
 		posx,posy = evt.GetPosition()
 		xLoc = posx//self.bmpW
 		yLoc = posy//self.bmpH
-		if self.currentComponent!= None:
+		if self.currentComponent!= None: #we are moving something
 			print (xLoc,yLoc)
 			print id(self.currentComponent.breadboardComponent)
 			print self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
@@ -131,7 +134,7 @@ class BreadboardPanel(wx.Panel):
 			typeName= type(component).__name__
 			if not typeName in self.typeToImage:
 				self.loadTypeImage(typeName)
-			if rescale:
+			if rescale or self.typeToBitmap[typeName] == None:
 				self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(self.bmpW*component.width,self.bmpH*component.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 			x,y = self.getXY(component.pinList[0].getLocationTuple())
 			dc.DrawBitmap(self.typeToBitmap[typeName], x, y)
@@ -142,12 +145,18 @@ class BreadboardPanel(wx.Panel):
 			self.loadTypeImage(typeName)
 		if not BreadboardPanel.PLAINWIRE in self.typeToImage:
 			 self.loadTypeImage(BreadboardPanel.PLAINWIRE)
-		print "this is a flexible component...Cory needs to get smaart"
 		x1,y1 = self.getXY(component.pinList[0].getLocationTuple())
 		x2,y2 = self.getXY(component.pinList[1].getLocationTuple())
 		dx,dy = (x2-x1,y2-y1)
-		length = math.sqrt(dx**2+dy**2)
-		print length
+		disp = component.pinList[0].displacementTo(component.pinList[1])
+		print disp
+		###really dirty, test....
+		print "bitmapsizes"
+		rotPtY = self.typeToImage[BreadboardPanel.PLAINWIRE].GetHeight()/2 #half of the height...
+		
+#		self.variableToBitmap[component] = 
+
+		
 		dc.DrawLine(x1,y1,x2,y2)
 
 	def OnEraseBackground(self, evt):
@@ -162,7 +171,7 @@ class BreadboardPanel(wx.Panel):
 		print "loading %s" %typeName
 		temp =wx.Image('res/components/' + typeName.lower()+'_image.png')
 		self.typeToImage[typeName] = copy.copy(temp)
-		self.typeToBitmap[typeName] = copy.copy(temp.Rescale(self.bmpW*4,self.bmpH*4).ConvertToBitmap())
+		self.typeToBitmap[typeName] = None
 
 	def getLoc(self,xy):
 		return (xy[0]//self.bmpW,xy[1]//self.bmpH)
@@ -174,23 +183,26 @@ class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of use."""
 	def __init__(self,breadboardComponent,bmp1,bmp2=None):
 		self.bmp1 = bmp1
+		
 		self.bmp2 = bmp2
 		self.pos = (0,0)
 		self.breadboardComponent = breadboardComponent
 	
-	def drawSelf(self,dc,op):
+	def drawSelf(self,dc,op,bmpW,bmpH):
 		if self.bmp1.Ok():
 			memDC = wx.MemoryDC()
 			memDC.SelectObject(self.bmp1)
-			dc.Blit(self.pos[0], self.pos[1],self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
+			print self.pos
+			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
 
 class Example(wx.Frame):
 	"""Dummy frame"""
 	def __init__(self, parent, title):
 		wx.Frame.__init__(self,parent, title=title)
-		
 		bb = Breadboard()		
 		a = OpAmp('hello')
+		c = Resistor(10)
+		bb.putComponent(c,4,4,8,4)
 		bb.putComponent(a,3,7)	
 		BreadboardPanel(self,bb)
 		self.Fit()
