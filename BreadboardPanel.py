@@ -9,21 +9,20 @@ from Breadboard import *
 import math
 import copy
 
-
 class BreadboardPanel(wx.Panel):
 	PLAINWIRE = "plainwire"
 	def __init__(self, parent,breadboard,buttonManager=None, *args, **kwargs):
+		kwargs['style'] = kwargs.setdefault('style', wx.NO_FULL_REPAINT_ON_RESIZE) | wx.NO_FULL_REPAINT_ON_RESIZE
  		wx.Panel.__init__(self, parent,size=(945,270),*args,**kwargs)
  		self.parent = parent
 		self.breadboard = breadboard
 		self.buttonManager = buttonManager
 
-		self.emptyImage = wx.Image('res/blank_slot.png')
-		print self.emptyImage.__hash__()
-		self.openImage = wx.Image('res/openslot_2.png')
+		self.emptyImage = wx.Image('res/blank_slot.png',wx.BITMAP_TYPE_PNG)
+		self.openImage = wx.Image('res/openslot_2.png',wx.BITMAP_TYPE_PNG)
 		self.bmpW,self.bmpH= self.getBitmapSize(self.Size) #initialize bitmapsizeparameter
-		self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
-		self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
+		self.emptyBitMap = wx.BitmapFromImage(copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH)) #leave our original copy!
+		self.openBitMap = wx.BitmapFromImage(copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH)) #leave our original copy!
 		self.typeToImage = {} #associate types with images for rescaling purposes
 		self.typeToBitmap = {} #associate types with bitmaps for drawing purposes
 		###there is a better way to do this, likely it will involve rewritting this using the wrapper I use already, just throughout all...ffs.
@@ -50,6 +49,8 @@ class BreadboardPanel(wx.Panel):
 		self.PrepareDC(dc) #prepare
 		if self.currentComponent != None: #if we have a component that is being put on the board by the user	
 			self.currentComponent.drawSelf(dc,op,self.bmpW,self.bmpH) #tell it to paint itself.
+	
+	
 	
 	def OnLeftDown(self, evt):
 		"""fired whenever left button is clicked"""
@@ -109,8 +110,8 @@ class BreadboardPanel(wx.Panel):
 		if self.lastSize != self.GetClientSize():
 			self.lastSize = self.GetClientSize()
 			self.bmpW,self.bmpH= self.getBitmapSize(self.lastSize)
-			self.emptyBitMap = copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!
-			self.openBitMap = copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap() #leave our original copy!			
+			self.emptyBitMap = wx.BitmapFromImage(copy.copy(self.emptyImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH)) #leave our original copy!
+			self.openBitMap = wx.BitmapFromImage(copy.copy(self.openImage).Rescale(self.bmpW,self.bmpH,wx.IMAGE_QUALITY_HIGH)) #leave our original copy!			
 			rescale = True
 
 		for y in range(self.breadboard.numRows):	
@@ -144,10 +145,13 @@ class BreadboardPanel(wx.Panel):
 
 	def loadTypeImage(self,typeName,instance=None):
 		print "loading %s" %typeName
-		temp =wx.Image('res/components/' + typeName.lower()+'_image.png')
+		temp =wx.Image('res/components/' + typeName.lower()+'_image.png',wx.BITMAP_TYPE_PNG)
+		print "transparency", temp.HasAlpha()
+		temp.SaveFile(typeName  + ".png",wx.BITMAP_TYPE_PNG)
 		self.typeToImage[typeName] = copy.copy(temp)
 		if instance != None: #we were passed an instance, and can create and size the bitmap
-			self.typeToBitmap[typeName] = copy.copy(self.typeToImage[typeName]).Rescale(instance.width*self.bmpW,instance.height*self.bmpH).ConvertToBitmap()
+			self.typeToBitmap[typeName] = wx.BitmapFromImage(copy.copy(self.typeToImage[typeName]).Rescale(instance.width*self.bmpW,instance.height*self.bmpH))
+			self.typeToBitmap[typeName].SaveFile(typeName+".bmp", wx.BITMAP_TYPE_BMP)
 		else:
 			self.typeToBitmap[typeName] = None #stop keyerrors
 			
@@ -198,19 +202,24 @@ class VariableBreadboardComponentWrapper:
 		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
 		dx,dy = (x2-x1,y2-y1)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
-		theta = -3.14/2#this needs an answer....
-		totalLength = math.sqrt(dx**2 + dy**2)	
+		theta = 1.5#this needs an answer....
+		totalLength = math.sqrt(dx**2 + dy**2)
 		if rescale or self.mainBMP == None or self.wireBMP == None:
 		#	self.mainBMP = copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta).Rescale(self.bbp.bmpW*2,self.bmpH).ConvertToBitmap()
 			tImage = copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE])
-			tImage.Rescale(totalLength,tImage.GetHeight())
-			self.wireBMP = tImage.Rotate(theta,(0,tImage.GetHeight()/2)).ConvertToBitmap()
+			tImage.SaveFile("newImage.png", wx.BITMAP_TYPE_PNG)
+			tImage.Rescale(totalLength,self.bbp.bmpH/2)
+			tImage=tImage.Rotate(theta,(0,0),interpolating = True)
+			self.wireBMP = wx.BitmapFromImage(tImage)
+			self.wireBMP = self.removeTheBlacks(self.wireBMP)
+			self.wireBMP.SaveFile("newBMP.bmp", wx.BITMAP_TYPE_BMP)
 #		if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
 			#just draw the damn centerpiece!
 			#there is a sin/cos term here, we need to shift by some amount...		
-		dc.DrawBitmap(self.wireBMP, x1, y1-(self.wireBMP.GetHeight()/2))
+		dc.DrawBitmap(self.wireBMP, x1, y1)
 		dc.SetPen( wx.Pen( wx.Color(255,0,0), 5 ))
 		dc.DrawLine(x1,y1,x2,y2)
+	def removeTheBlacks(self,bmp):
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
@@ -224,8 +233,10 @@ class FixedBreadboardComponentWrapper:
 	def drawSelf(self,dc,rescale):
 		if rescale or self.bbp.typeToBitmap[self.typeName] == None:
 			self.bbp.typeToBitmap[self.typeName] = copy.copy(self.bbp.typeToImage[self.typeName]).Rescale(self.bbp.bmpW*self.fbbc.width,self.bbp.bmpH*self.fbbc.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+
 			if self.pos != None:
 				self.bmp = copy.copy(self.bbp.typeToBitmap[self.typeName]) #store a local copy for blitting
+				
 		if self.pos != None:
 			self.drawMovingSelf(dc)
 		x,y = self.bbp.getXY(self.fbbc.pinList[0].getLocationTuple())
@@ -239,8 +250,6 @@ class FixedBreadboardComponentWrapper:
 			memDC = wx.MemoryDC()
 			memDC.SelectObject(self.bmp1)
 			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
-	
-	
 
 class Example(wx.Frame):
 	"""Dummy frame"""
