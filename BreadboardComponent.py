@@ -176,15 +176,23 @@ class InputDevice(BreadboardComponent):
 	Takes in voltage as an integer.
 	Only one pin, as the other one is usually grounded. MAYBE?"""
 	
-	def __init__(self,voltage,voltageType='DC',frequency=0):
+	def __init__(self,voltage,voltageType='DC',frequency=0,currentOrVoltage='Voltage'):
 		referencePin = RelativeLocation(0,0)
 		self.voltage = Voltage(voltage,voltageType,frequency)
 		self.voltageType = voltageType
 		self.frequency = frequency
+		self.currentOrVoltage=currentOrVoltage
 		pinList = [referencePin]
 		attributes={}
-		displayName = 'Input Device'
-		technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+		if self.currentOrVoltage=='Current':
+			displayName = 'Current Input Device'
+			technicalName = '%gAmps %s %gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+			spiceName = 'I'
+		else:
+			displayName = 'Voltage Input Device'
+			technicalName = '%gVolts %s %gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+		
+		#~ technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
 		spiceName = 'V'
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 
