@@ -81,7 +81,7 @@ class BreadboardPanel(wx.Panel):
 			return
 		else:
 			if self.currentComponent == None:
-				if self.buttonManager.currentName in self.typeToImage:
+				if not self.buttonManager.currentName in self.typeToImage:
 					self.loadTypeImage(self.buttonManager.currentName)
 				self.currentComponent = BreadboardComponentWrapper(OpAmp('MINCH'),wx.Image('res/components/opamp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
 				self.currentComponent.pos = pos
@@ -180,21 +180,20 @@ class VariableBreadboardComponentWrapper:
 		self.bbp = breadboardPanel
 		self.vbbc = variableBreadboardComponent
 		self.typeName= type(self.vbbc).__name__
+		
 		#main image of this component's center
 		if not self.typeName in self.bbp.typeToImage.keys():
 			self.bbp.loadTypeImage(self.typeName)
 		#image of the wire....
 		if not BreadboardPanel.PLAINWIRE in self.bbp.typeToImage.keys():
 			self.bbp.loadTypeImage(BreadboardPanel.PLAINWIRE)
+		
 		self.mainBMP = None #will be created on first draw
 		self.wireBMP = None #will be created on first draw
 		
-	def drawSelf(self,dc,rescale,xyopt1=None,xyopt2=None):
+	def drawSelf(self,dc,rescale):
 		"""draw this vbbc. optionally, if xy1 and xy2 are non None, draw it between the two XY's,
-		 instead of the locations, which may not be absolute"""
-		if xyopt1 != None or xyopt2 != None:
-			print "Cory get yo shit together"
-		
+		 instead of the locations, which may not be absolute"""		
 		x1,y1 = self.bbp.getCenteredXY(self.vbbc.pinList[0].getLocationTuple())
 		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
 		dx,dy = (x2-x1,y2-y1)
@@ -208,7 +207,6 @@ class VariableBreadboardComponentWrapper:
 			self.wireBMP = tImage.Rotate(theta,(0,tImage.GetHeight()/2)).ConvertToBitmap()
 #		if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
 			#just draw the damn centerpiece!
-			
 			#there is a sin/cos term here, we need to shift by some amount...		
 		dc.DrawBitmap(self.wireBMP, x1, y1-(self.wireBMP.GetHeight()/2))
 		dc.SetPen( wx.Pen( wx.Color(255,0,0), 5 ))
