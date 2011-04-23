@@ -3,6 +3,7 @@ from Location import *
 from BreadboardComponent import *
 import os
 import pickle
+import copy
 
 
 class Breadboard(object):
@@ -290,14 +291,14 @@ class Breadboard(object):
 			return None
 	
 	def flipComponent(self,aComponent):
-		"""Flips a fixed bbc horizontally."""
-		firstHalf = aComponent.pinList[:len(aComponent.pinList)/2]
-		secondHalf = aComponent.pinList[len(aComponent.pinList)/2:]
-		firstHalf.reverse()
-		secondHalf.reverse()
-		firstHalf.append(secondHalf)
-		aComponent.pinList = firstHalf
-		return True
+		"""Rotates a fixed bbc pi radians."""
+
+		pinListCopy = copy.copy(aComponent.pinList)
+		lenth = len(aComponent.pinList)
+		print pinListCopy
+		for i in range(lenth-1):
+			aComponent.pinList[i] = pinListCopy[(i+lenth/2)%(lenth)]  #adds half the length
+		print aComponent.pinList
 	
 	def getComponentAtLocation(self,x,y):
 		"""gets component at an x,y location"""
@@ -350,5 +351,5 @@ if __name__ == "__main__":
 	#~ bb.clearBreadboard()
 	bb.saveBreadboard('yousuckatcoding')
 	cc = bb.openBreadboard('yousuckatcoding.txt')
-	print cc.componentList
+	print bb.flipComponent(a)
 
