@@ -292,11 +292,13 @@ class Breadboard(object):
 	
 	def flipComponent(self,aComponent):
 		"""Rotates a fixed bbc pi radians."""
-
+		if not isinstance(aComponent,FixedBreadboardComponent):
+			return False
 		pinListCopy = copy.copy(aComponent.pinList)
 		lenth = len(aComponent.pinList)
 		for i in range(lenth):
 			aComponent.pinList[i] = pinListCopy[(i+lenth/2)%(lenth)]  #adds half the length
+		return True
 	
 	def getComponentAtLocation(self,x,y):
 		"""gets component at an x,y location"""
@@ -311,23 +313,27 @@ class Breadboard(object):
 		Should never be used"""
 		self.rails[0]=voltage
 		self.setNodeVoltage(0,17,voltage)
+		return True
 		
 	def setVoltageAtRail1(self,voltage):
 		"""sets voltage at the second rail, second from
 		bottom, y=16"""
 		self.rails[1]=voltage
 		self.setNodeVoltage(0,16,voltage)
+		return True
 		
 	def setVoltageAtRail2(self,voltage):
 		"""sets voltage at third from bottom rail,
 		second from top,y=1"""
 		self.rails[2]=voltage
 		self.setNodeVoltage(0,1,voltage)
+		return True
 		
 	def setVoltageAtRail3(self,voltage):
 		"""sets voltage at topmost rail,y=0"""
 		self.rails[3]=voltage
 		self.setNodeVoltage(0,0,voltage)
+		return True
 	
 	
 		
