@@ -66,13 +66,13 @@ class BreadboardPanel(wx.Panel):
 		pass
 
 	def OnSize(self,event):
-		#event.Skip(
+		"""when resized... Just refresh, the actual computation of sizes occurs there, that should probably change..."""
 		self.Refresh()
 
 	# The mouse is moving
 	
 	def OnMotion(self, evt):
-		# Ignore mouse movement if we're not dragging.
+		"""Invoked when this panel receives an OnMotion event from the wx.App"""
 		pos = self.ScreenToClient(wx.GetMousePosition())
 		pos = (pos[0] -3,pos[1] +3)
 		#print pos
@@ -92,9 +92,11 @@ class BreadboardPanel(wx.Panel):
 
 
 	def getBitmapSize(self,size):
+		"""Simple helper to get the current bitmap size for a single location"""
 		return (size[0]//self.breadboard.numColumns,size[1]//self.breadboard.numRows)
 	
 	def OnEraseBackground(self, evt):
+		"""erase background is called during certain paint events and when the canvas is damaged"""
 		dc = evt.GetDC()
 		if not dc:
 			dc = wx.ClientDC(self)
@@ -216,17 +218,31 @@ class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
 		self.bbp = breadboardPanel
 		self.fbbc = fixedBreadboardComponent
-		typeName= type(self.fbbc).__name__
-		if not typeName in self.bbp.typeToImage.keys():
-			self.bbp.loadTypeImage(typeName,instance=self.fbbc)
+		self.typeName= type(self.fbbc).__name__
+		if not self.typeName in self.bbp.typeToImage.keys():
+			self.bbp.loadTypeImage(self.typeName,instance=self.fbbc)
+		self.pos = None
 
 	def drawSelf(self,dc,rescale):
-		if rescale or self.bbp.typeToBitmap[type(self.fbbc).__name__] == None:
-			self.bbp.typeToBitmap[type(self.fbbc).__name__] = copy.copy(self.bbp.typeToImage[type(self.fbbc).__name__]).Rescale(self.bbp.bmpW*self.fbbc.width,self.bbp.bmpH*self.fbbc.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+		if rescale or self.bbp.typeToBitmap[self.typeName] == None:
+			self.bbp.typeToBitmap[self.typeName] = copy.copy(self.bbp.typeToImage[self.typeName]).Rescale(self.bbp.bmpW*self.fbbc.width,self.bbp.bmpH*self.fbbc.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+			if self.pos != None:
+				self.bmp = copy.copy(self.bbp.typeToBitmap[self.typeName]) #store a local copy for blitting
+		if self.pos != None:
+			self.drawMovingSelf(dc)
 		x,y = self.bbp.getXY(self.fbbc.pinList[0].getLocationTuple())
 		y -= self.bbp.bmpH * (self.fbbc.height -1)
-		dc.DrawBitmap(self.bbp.typeToBitmap[type(self.fbbc).__name__], x, y)
-
+		dc.DrawBitmap(self.bbp.typeToBitmap[self.typeName], x, y)
+	
+		
+	def drawMovingSelf(self,dc):
+		op = wx.COPY
+		if self.bmp.Ok():
+			memDC = wx.MemoryDC()
+			memDC.SelectObject(self.bmp1)
+			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
+	
+	
 
 class Example(wx.Frame):
 	"""Dummy frame"""
