@@ -3,6 +3,7 @@ from Location import *
 from BreadboardComponent import *
 import os
 import pickle
+import copy
 
 
 class Breadboard(object):
@@ -290,13 +291,13 @@ class Breadboard(object):
 			return None
 	
 	def flipComponent(self,aComponent):
-		"""Flips a fixed bbc horizontally."""
-		firstHalf = aComponent.pinList[:len(aComponent.pinList)/2]
-		secondHalf = aComponent.pinList[len(aComponent.pinList)/2:]
-		firstHalf.reverse()
-		secondHalf.reverse()
-		firstHalf.append(secondHalf)
-		aComponent.pinList = firstHalf
+		"""Rotates a fixed bbc pi radians."""
+		if not isinstance(aComponent,FixedBreadboardComponent):
+			return False
+		pinListCopy = copy.copy(aComponent.pinList)
+		lenth = len(aComponent.pinList)
+		for i in range(lenth):
+			aComponent.pinList[i] = pinListCopy[(i+lenth/2)%(lenth)]  #adds half the length
 		return True
 	
 	def getComponentAtLocation(self,x,y):
@@ -312,30 +313,34 @@ class Breadboard(object):
 		Should never be used"""
 		self.rails[0]=voltage
 		self.setNodeVoltage(0,17,voltage)
+		return True
 		
 	def setVoltageAtRail1(self,voltage):
 		"""sets voltage at the second rail, second from
 		bottom, y=16"""
 		self.rails[1]=voltage
 		self.setNodeVoltage(0,16,voltage)
+		return True
 		
 	def setVoltageAtRail2(self,voltage):
 		"""sets voltage at third from bottom rail,
 		second from top,y=1"""
 		self.rails[2]=voltage
 		self.setNodeVoltage(0,1,voltage)
+		return True
 		
 	def setVoltageAtRail3(self,voltage):
 		"""sets voltage at topmost rail,y=0"""
 		self.rails[3]=voltage
 		self.setNodeVoltage(0,0,voltage)
+		return True
 	
 	
 		
 
 if __name__ == "__main__":
 	bb = Breadboard()
-	a=OpAmp('OPA551')	
+	a = OpAmp('OPA551')	
 	bb.putComponent(a,3,7)
 	a.pinList
 	b = Resistor(100)
@@ -350,5 +355,5 @@ if __name__ == "__main__":
 	#~ bb.clearBreadboard()
 	bb.saveBreadboard('yousuckatcoding')
 	cc = bb.openBreadboard('yousuckatcoding.txt')
-	print cc.componentList
+	print bb.flipComponent(a)
 
