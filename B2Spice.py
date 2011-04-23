@@ -59,7 +59,7 @@ class B2Spice(object):
 
 	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
 		if len(self.inputDeviceList) <1:
-			return '.print dc v(%d) \n' % scopedNode 
+			return '.dc V1 V2 V3 \n .print dc v(%d) \n' % scopedNode 
 		if analysisType == 'ac':
 			return self.makeACCards(scopedNode,stepType,numSteps,startFreq,endFreq)
 		elif analysisType == 'dc':
@@ -142,7 +142,7 @@ class B2Spice(object):
 			suffix = ''
 		nodes = self.getNodes(component)
 		attr = self.getAttr(component)
-		ans = attr[0] + nodes + attr[1] + suffix + ' '
+		ans = attr[0] + nodes + attr[1] + suffix + '\n'
 		return ans
 		
 		
@@ -213,7 +213,7 @@ class B2Spice(object):
 if __name__ == '__main__':
 	bb = Breadboard()
 	p = OpAmp('OPA551')
-	print bb.putComponent(p,3,10)
+	#~ print bb.putComponent(p,3,10)
 	R1 = Resistor(10000)
 	R2 = Resistor(100)
 	W1 = Wire()
@@ -226,10 +226,10 @@ if __name__ == '__main__':
 	print bb.putComponent(W3,4,1,4,3)
 	b = B2Spice(bb)
 	#~ print b.nodeList
-	#~ b.buildNetList('dc',28,10,10,0)
-	print b.inputDeviceList
+	b.buildNetList('dc',28,10,10,0)
+	#~ print b.inputDeviceList
 	#~ print bb.componentList
-	#~ print b.netList
+	print b.netList
 
 	
 
