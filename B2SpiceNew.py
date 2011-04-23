@@ -8,7 +8,7 @@ class B2SpiceNew(object):
 	
 	def __init__(self,board):
 		self.board = board
-		self.cirName = 'CIRCUIT'+str(id(self))
+		self.cirName = 'CIRCUIT%d' % id(self)
 		#~ getNodeList(self,board)
 		os.system('mkdir b2spice')
 		os.system('cd b2spice')
@@ -32,7 +32,7 @@ class B2SpiceNew(object):
 		railCards = ''
 		for item in self.rails:
 			if item != 0:
-				railCards += 'V%g %g 0 dc %g \n' % railCount,railCount,item
+				railCards += 'V%d %g 0 dc %g \n' % railCount,railCount,item
 				#~ railCards += 'V' + str(railCount) + ' 0 ' + str(railCount) + ' dc ' + str(item) + '\n'
 				railCount += 1
 		return railCards
@@ -48,10 +48,10 @@ class B2SpiceNew(object):
 		inputDeviceCards = ''
 		for item in self.inputDeviceList:
 			if item.voltageType == 'AC':
-				inputDeviceCards += 'V%g %g 0 sin \n' % id(item),item.pinList[0].Node.number
+				inputDeviceCards += 'V%d %g 0 sin \n' % id(item),item.pinList[0].Node.number
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'sin \n'
 			else:
-				inputDeviceCards += 'V%g %g 0 dc %g \n' % id(item),item.pinList[0].Node.number,item.voltage.volts
+				inputDeviceCards += 'V%d %g 0 dc %g \n' % id(item),item.pinList[0].Node.number,item.voltage.volts
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
 		return inputDeviceCards
 
@@ -69,7 +69,7 @@ class B2SpiceNew(object):
 		if len(InputDeviceList) <1:
 			raise NameError('There are no input devices...')
 		acLine = '.ac %s %g %g %g \n' % stepType,numSteps,startFreq,endFreq
-		printLine = '.print ac v(%g) \n' % scopedNode
+		printLine = '.print ac v(%d) \n' % scopedNode
 		return acLine + printLine
 	
 	def makeDCCards(self,scopedNode,vMin,vMax,stepSize):
@@ -81,13 +81,13 @@ class B2SpiceNew(object):
 		if len(dcInputDeviceList) or len(InputDeviceList) <1:
 			raise NameError("There's nothing for me to analyze!")
 		inp = dcInputDeviceList[0]
-		dcLine = '.dc V(%g) %g %g %g \n' % id(inp),vMin,vMax,stepSize
-		printLine = '.print dc v(%g) \n' % scopedNode 
+		dcLine = '.dc V(%d) %g %g %g \n' % id(inp),vMin,vMax,stepSize
+		printLine = '.print dc v(%d) \n' % scopedNode 
 		return acLine+printLine
 	
 	def makeTranCards(scopedNode,tstep,ttotal):
 		tranLine = '.tran %g %g \n' % tstep, ttotal
-		printLine = '.print tran v(%g) \n' % scopedNode
+		printLine = '.print tran v(%d) \n' % scopedNode
 		return tranLine+printLine
 	
 	def clearEmptyNodes(self):
@@ -107,7 +107,6 @@ class B2SpiceNew(object):
 						if pin.Node.number == val:
 							del self.board.componentList[count]
 		return d
-	
 		
 	def getNodeList(self):
 		"""Creates a list of all 
@@ -123,9 +122,65 @@ class B2SpiceNew(object):
 		the nodes of a component, separated by spaces"""
 		nodeStr = ' '
 		for pins in component.pinList:
-			nodeStr += str(pins.Node.number) + ' '
+			nodeStr += '%d ' % pins.Node.number
 		return nodeStr
-				
+	
+	def getAttr(self,component):
+		"""returns a tuple containing the attribute
+		of the component and its value,
+		both as strings"""
+		attributeDict = component.attributes
+		attrKey = attributeDict.keys()[0]
+		attrVal = attributeDict[attrKey]
+		attrKey = attrKey[0] + str(id(component))
+		return str(attrKey),str(attrVal)
+					
+	def buildVariableComponentText(self,component):
+		if isinstance(component,Capacitor):
+			suffix = ' ic=0'
+		else:
+			suffix = ''
+		nodes = self.getNodes(component)
+		attr = self.getAttr(component)
+		ans = attr[0] + nodes + attr[1] + suffix
+		return ans
+		
+		
+	def buildOpAmpText(self,opamp):
+		"""returns a tuple describing the nodal location of the opamp with the spice file,
+		and a big line of text containing the definition of the opamp"""
+		pinDict = {}
+		pinDict['notUsed1'] = opamp.pinList[0]
+		pinDict['negIn'] = opamp.pinList[1]
+		pinDict['plusIn'] = opamp.pinList[2]
+		pinDict['negSupply'] = opamp.pinList[3]
+		pinDict['flag'] = opamp.pinList[4]
+		pinDict['plusSupply'] = opamp.pinList[5]
+		pinDict['out'] = opamp.pinList[6]
+		pinDict['notUsed2'] = opamp.pinList[7]
+		opAmpNodeString = '%d %d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number,pinDict['out'].Node.number,pinDict['flag'].Node.number)		
+		opAmpID = 'X%d' % id(opamp)
+		subCktID = opamp.technicalName
+		subCktFileName = '%s.txt' % opamp.technicalName
+		fin = open(subCktFileName)
+		opAmpSubCkt = fin.read()
+		opAmpCard = '%s %s %s' % (opAmpID,opAmpNodeString,subCktID)
+		return (opAmpCard,opAmpSubCkt)
+	
+	def buildNetList(self,analysisFlag='dc'):
+		netList = self.cirName + '\n'
+		netList += self.makeRailCards()
+		netList += self.makeInputDeviceCards()
+		for comp in self.board.componentList:
+			if isinstance(comp,VariableBreadboardComponent):
+				netList += self.buildVariableComponentText(comp)
+			elif isinstance(comp,FixedBreadboardComponent):
+				netList += self.buildOpAmpText(comp)[0]
+			elif isinstance(comp,InputDevice):
+				netList += ''
+		
+	
+		
 		
 if __name__ == '__main__':
 	bb = Breadboard()
@@ -133,8 +188,10 @@ if __name__ == '__main__':
 	V2 = InputDevice(10)
 	bb.putComponent(Vsource,30,5)
 	bb.putComponent(V2,30,5)
+	p = OpAmp('OPA551')
+	bb.putComponent(p,10,4)
 	b = B2SpiceNew(bb)
-	b.scope(node1,node
+	print b.buildOpAmpText(p)[0]
 	
 	
 	#what cory wants:
