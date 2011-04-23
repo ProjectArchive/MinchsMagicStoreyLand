@@ -31,6 +31,8 @@ class Breadboard(object):
 	def getLocation(self,x,y):
 		if x>=self.numColumns or y>=self.numRows:
 			return None
+		if (x<0 and x!=-1) or (y<0):
+			return None
 		return self.locMatrix.getItem(x,y)
 		
 	def assignNodeHoriz(self,x,y,number):
@@ -294,17 +296,8 @@ class Breadboard(object):
 				if pin.xLoc==x and pin.yLoc==y:
 					return component
 		return None
+	
+	#def setVoltageAtRails
 
 if __name__ == "__main__":
 	bb = Breadboard()
-	a = OpAmp('hello')
-	print bb.putComponent(a,2,13)
-	print bb.isFilled(2,17)
-	print a.pinList
-	print a.deadPins
-	d = Capacitor(5)
-	r = InputDevice(10)
-	c = Resistor(10)
-	bb.putComponent(c,4,4,4,5)
-	bb.putComponent(d,5,4,5,5)
-	bb.putComponent(r,3,3)
