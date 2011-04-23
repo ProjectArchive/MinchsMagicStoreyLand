@@ -339,8 +339,8 @@ class Breadboard(object):
 		
 
 if __name__ == "__main__":
-	bb = Breadboard.openBreadboard('yousuckatcoding.txt')
+	bb = Breadboard()
 	r = InputDevice(5,currentOrVoltage='Current')
 	bb.putComponent(r,4,4)
-	bb.componentList
+	print bb.componentList
 

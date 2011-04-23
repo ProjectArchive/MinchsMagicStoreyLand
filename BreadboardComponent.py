@@ -186,12 +186,13 @@ class InputDevice(BreadboardComponent):
 		attributes={}
 		if self.currentOrVoltage=='Current':
 			displayName = 'Current Input Device'
-			technicalName = '%dA%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+			technicalName = '%gAmps %s %gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+			spiceName = 'I'
 		else:
 			displayName = 'Voltage Input Device'
-			technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+			technicalName = '%gVolts %s %gHz' % (self.voltage.volts,self.voltageType,self.frequency)
 		
-		technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
+		#~ technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
 		spiceName = 'V'
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
 
