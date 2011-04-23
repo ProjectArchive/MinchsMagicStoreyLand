@@ -174,10 +174,12 @@ class B2SpiceNew(object):
 		for comp in self.board.componentList:
 			if isinstance(comp,VariableBreadboardComponent):
 				netList += self.buildVariableComponentText(comp)
-			elif isinstance(comp,FixedBreadboardComponent):
-				netList += self.buildOpAmpText(comp)[0]
-			elif isinstance(comp,InputDevice):
+			elif isinstance(comp,OpAmp):
+				compCard,subCktCard = self.buildOpAmpText(comp)
+				netList += compCard
+			else:
 				netList += ''
+		netList += subCktCard
 		
 	
 		
@@ -189,7 +191,7 @@ if __name__ == '__main__':
 	bb.putComponent(Vsource,30,5)
 	bb.putComponent(V2,30,5)
 	p = OpAmp('OPA551')
-	bb.putComponent(p,10,4)
+	bb.putComponent(p,14,10)
 	b = B2SpiceNew(bb)
 	print b.buildOpAmpText(p)[0]
 	
