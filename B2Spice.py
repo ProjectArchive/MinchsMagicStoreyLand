@@ -4,14 +4,15 @@ from BreadboardComponent import *
 from Location import *
 from Node import *
 from Voltage import *
-class B2SpiceNew(object):
+
+class B2Spice(object):
 	
 	def __init__(self,board):
 		self.board = board
 		self.cirName = 'CIRCUIT%d' % id(self)
 		os.system('mkdir b2spice')
 		os.system('cd b2spice')
-		self.clearEmptyNodes()
+		#~ self.clearEmptyNodes()
 		self.inputDeviceList = self.getInputDevices()
 		self.getInputDevices()
 		self.rails = self.getRails()
@@ -44,6 +45,8 @@ class B2SpiceNew(object):
 		return inputDeviceList
 	
 	def makeInputDeviceCards(self):
+		if len(self.inputDeviceList) <1:
+			return ''
 		inputDeviceCards = ''
 		for item in self.inputDeviceList:
 			if item.voltageType == 'AC':
@@ -55,6 +58,8 @@ class B2SpiceNew(object):
 		return inputDeviceCards
 
 	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+		if len(self.inputDeviceList) <1:
+			return '.dc V1 V2 V3 \n .print dc v(%d) \n' % scopedNode 
 		if analysisType == 'ac':
 			return self.makeACCards(scopedNode,stepType,numSteps,startFreq,endFreq)
 		elif analysisType == 'dc':
@@ -137,7 +142,7 @@ class B2SpiceNew(object):
 			suffix = ''
 		nodes = self.getNodes(component)
 		attr = self.getAttr(component)
-		ans = attr[0] + nodes + attr[1] + suffix
+		ans = attr[0] + nodes + attr[1] + suffix + '\n'
 		return ans
 		
 		
@@ -160,6 +165,7 @@ class B2SpiceNew(object):
 		fin = open(subCktFileName)
 		opAmpSubCkt = fin.read()
 		opAmpCard = '%s %s %s\n' % (opAmpID,opAmpNodeString,subCktID)
+		fin.close()
 		return (opAmpCard,opAmpSubCkt)
 	
 	def buildNetList(self,analysisFlag='dc',scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
@@ -178,37 +184,52 @@ class B2SpiceNew(object):
 				icCount += 1
 			else:
 				netList += ''
+		if icCount > 0:
+			netList += subCktCard
 		if analysisFlag == 'dc':
 			netList += self.makeAnalysisCards('dc',scopedNode=scopedNode,vMin=vMin,vMax = vMax,stepSize=stepSize)
 		if analysisFlag == 'ac':
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
 		if analysisFlag == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
-		if icCount > 0:
-			netList += subCktCard
-
 		self.netList = netList
 		#File interface stuff
 		self.fileName = '%s.cir' % self.cirName
+		self.resName = '%s_res.txt' % self.cirName
 		makeFileCommand = 'touch %s' % self.fileName
+		makeFileCommand2 = 'touch %s' % self.resName
 		os.system(makeFileCommand)
+		os.system(makeFileCommand2)
 		fout = open(self.fileName,'w')
 		fout.write(self.netList)
 		fout.close()
-		spiceCommand = 'ngspice -b %s.cir' % self.cirName
+		spiceCommand = 'ngspice -b %s > %s' % (self.fileName,self.resName)
 		res = os.system(spiceCommand)
+		delFileCommand = 'rm %s' % self.fileName
+		os.system(delFileCommand)
 		return res
 		
 		
 if __name__ == '__main__':
 	bb = Breadboard()
-	Vsource = InputDevice(10,'AC',60)
-	V2 = InputDevice(10)
-	bb.putComponent(Vsource,30,5)
-	bb.putComponent(V2,30,5)
 	p = OpAmp('OPA551')
-	bb.putComponent(p,14,10)
-	b = B2SpiceNew(bb)
-	print b.buildNetList('dc',65,10,10,0)
+	#~ print bb.putComponent(p,3,10)
+	R1 = Resistor(10000)
+	R2 = Resistor(100)
+	W1 = Wire()
+	W2 = Wire()
+	W3 = Wire()
+	print bb.putComponent(R1,3,14,3,16)
+	print bb.putComponent(R2,4,14,4,16)
+	print bb.putComponent(W1,5,17,5,14)
+	print bb.putComponent(W2,1,17,7,3)
+	print bb.putComponent(W3,4,1,4,3)
+	b = B2Spice(bb)
+	#~ print b.nodeList
+	b.buildNetList('dc',28,10,10,0)
+	#~ print b.inputDeviceList
+	#~ print bb.componentList
+	print b.netList
+
 	
 

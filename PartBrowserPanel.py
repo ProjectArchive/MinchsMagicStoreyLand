@@ -30,7 +30,7 @@ class PartBrowserPanel(wx.Panel):
 		for name in self.commonComponentNameList.keys():
 			button1 = GenBitmapToggleButton(self, id=wx.ID_ANY, bitmap=self.nameToBitmap[name],style=wx.BU_EXACTFIT)
 			button1.typeName = name
-			button1.isFlexible = self.commonComponentNameList[name]
+			button1.isVariable = self.commonComponentNameList[name]
 			self.buttonGroup.addButton(button1,name)
 			self.bSizer.Add(button1,0,wx.ALL,5)
 
@@ -41,7 +41,7 @@ class ButtonGroup(object):
 		""" """
 		self.currentName = None
 		self.currentButton = None
-		self.isFlexible = False
+		self.isVariable = False #is current component variable?
 		
 	def addButton(self,button,label):
 		button.Bind(wx.EVT_BUTTON,self.buttonPressed)
@@ -50,7 +50,7 @@ class ButtonGroup(object):
 		if self.currentButton == None: #no button is currently selected, store it locally then return quickly
 			self.currentButton = event.GetEventObject()
 			self.currentName = self.currentButton.typeName
-			self.isFlexible = self.currentButton.isFlexible
+			self.isVariable = self.currentButton.isVariable
 			return #return early, no other logic needed
 		sameAsLast = self.currentButton == event.GetEventObject() #if evt is the same as our current button, the same one was pressed, nullify current and set unpressed
 		if sameAsLast: #we need to set this deselected
