@@ -295,10 +295,8 @@ class Breadboard(object):
 
 		pinListCopy = copy.copy(aComponent.pinList)
 		lenth = len(aComponent.pinList)
-		print pinListCopy
-		for i in range(lenth-1):
+		for i in range(lenth):
 			aComponent.pinList[i] = pinListCopy[(i+lenth/2)%(lenth)]  #adds half the length
-		print aComponent.pinList
 	
 	def getComponentAtLocation(self,x,y):
 		"""gets component at an x,y location"""
@@ -336,7 +334,7 @@ class Breadboard(object):
 
 if __name__ == "__main__":
 	bb = Breadboard()
-	a=OpAmp('OPA551')	
+	a = OpAmp('OPA551')	
 	bb.putComponent(a,3,7)
 	a.pinList
 	b = Resistor(100)
