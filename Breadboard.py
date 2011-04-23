@@ -89,7 +89,7 @@ class Breadboard(object):
 				if y==9:
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.CENTER_TOP)
-				if x%6==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
+				if (x+1)%6==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
 				if y==0:	
@@ -109,7 +109,7 @@ class Breadboard(object):
 		or whatever voltage you want."""
 		self.getLocation(x,y).Node.voltage = Voltage(voltage,voltageType,frequency)
 		return True
-			
+
 	
 	def clearNodeVoltage(self,x,y):
 		"""sets a voltage to zero."""
@@ -339,21 +339,8 @@ class Breadboard(object):
 		
 
 if __name__ == "__main__":
-	bb = Breadboard()
-	a = OpAmp('OPA551')	
-	bb.putComponent(a,3,7)
-	a.pinList
-	b = Resistor(100)
-	r = InputDevice(5)
-	bb.isFilled(2,4)
-	bb.isFilled(2,3)
-	bb.putComponent(r,2,3)
-	bb.setVoltageAtRail0(-1000)
-	bb.setVoltageAtRail1(-1000)
-	bb.setVoltageAtRail2(-1000)
-	bb.setVoltageAtRail3(-1)
-	#~ bb.clearBreadboard()
-	bb.saveBreadboard('yousuckatcoding')
-	cc = bb.openBreadboard('yousuckatcoding.txt')
-	print bb.flipComponent(a)
+	bb = Breadboard.openBreadboard('yousuckatcoding.txt')
+	r = InputDevice(5,currentOrVoltage='Current')
+	bb.putComponent(r,4,4)
+	bb.componentList
 
