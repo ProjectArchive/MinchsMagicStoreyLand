@@ -15,7 +15,7 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.rails= [0 , 5 , 5 , 2.5] #voltage rails
+		self.rails= [0 , 5 , 5 , 2.5] #voltage rails. bottom to top. y = 17 16 1 0
 		self.initializeLocations()
 		self.nodeCreation()
 		self.detailLocations()
@@ -30,6 +30,8 @@ class Breadboard(object):
 	
 	def getLocation(self,x,y):
 		if x>=self.numColumns or y>=self.numRows:
+			return None
+		if (x<0 and x!=-1) or (y<0):
 			return None
 		return self.locMatrix.getItem(x,y)
 		
@@ -226,9 +228,17 @@ class Breadboard(object):
 		
 	def clearBreadboard(self):
 		""" Removes all components from component list
-		unfills all pins deletes all components from memory """
+		unfills all pins deletes all components from memory.
+		Sets all nodes back to zero.
+		Puts rails back to standard."""
 		for component in self.componentList:
 			self.removeComponent(component)
+			for pin in component.pinList:
+				self.clearNodeVoltage(pin.xLoc,pin.yLoc) #clears all node voltages. this wipes rails, but we fix below.
+		self.setVoltageAtRail0(0) 	#standard
+		self.setVoltageAtRail1(5)	
+		self.setVoltageAtRail2(5)
+		self.setVoltageAtRail3(2.5)
 
 	def unplugComponent(self,aComponent): 
 		"""removes a breadboard component from the bb by unfilling its pins
@@ -294,17 +304,45 @@ class Breadboard(object):
 				if pin.xLoc==x and pin.yLoc==y:
 					return component
 		return None
+	
+	def setVoltageAtRail0(self,voltage):
+		"""sets voltage at the ground rail,y=17.
+		Should never be used"""
+		self.rails[0]=voltage
+		self.setNodeVoltage(0,17,voltage)
+		
+	def setVoltageAtRail1(self,voltage):
+		"""sets voltage at the second rail, second from
+		bottom, y=16"""
+		self.rails[1]=voltage
+		self.setNodeVoltage(0,16,voltage)
+		
+	def setVoltageAtRail2(self,voltage):
+		"""sets voltage at third from bottom rail,
+		second from top,y=1"""
+		self.rails[2]=voltage
+		self.setNodeVoltage(0,1,voltage)
+		
+	def setVoltageAtRail3(self,voltage):
+		"""sets voltage at topmost rail,y=0"""
+		self.rails[3]=voltage
+		self.setNodeVoltage(0,0,voltage)
+	
+	
+		
 
 if __name__ == "__main__":
 	bb = Breadboard()
-	a = OpAmp('hello')
-	print bb.putComponent(a,2,13)
-	print bb.isFilled(2,17)
-	print a.pinList
-	print a.deadPins
-	d = Capacitor(5)
-	r = InputDevice(10)
-	c = Resistor(10)
-	bb.putComponent(c,4,4,4,5)
-	bb.putComponent(d,5,4,5,5)
-	bb.putComponent(r,3,3)
+	a=OpAmp('OPA551')	
+	print bb.putComponent(a,3,7)
+	bb.setVoltageAtRail0(-1000)
+	bb.setVoltageAtRail1(-1000)
+	bb.setVoltageAtRail2(-1000)
+	bb.setVoltageAtRail3(-1)
+	print bb.getNodeVoltage(0,0)
+	print bb.rails
+	print bb.componentList
+	bb.clearBreadboard()
+	print bb.rails
+	print bb.getNodeVoltage(0,0)
+	print bb.componentList
