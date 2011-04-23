@@ -4,23 +4,86 @@ from BreadboardComponent import *
 from Location import *
 from Node import *
 from Voltage import *
-
-class B2Spice(object):
-	"""encapsulatstes a set of methods to
-	turn BreadBoard Components into a netlist
-	line usable by SPICE. Also contains anaylsis
-	options and the interface with SPICE"""
+class B2SpiceNew(object):
+	
 	def __init__(self,board):
 		self.board = board
+		self.cirName = 'CIRCUIT%d' % id(self)
+		os.system('mkdir b2spice')
+		os.system('cd b2spice')
 		self.clearEmptyNodes()
-		self.cirName = 'CIRCUIT'+str(id(self))
-		self.nodeList = self.makeNodeList()
-		self.netList = self.buildNetList()
-		try:
-			os.system('mkdir .temp')
-			os.system('cd .temp')
-		except:
-			pass
+		self.inputDeviceList = self.getInputDevices()
+		self.getInputDevices()
+		self.rails = self.getRails()
+		self.nodeList = self.getNodeList()
+		
+		
+	def getRails(self):
+		##The 0th value of the list is the bottom of the board
+		topRail = self.board.rails[0]
+		midTopRail = self.board.rails[1]
+		midBotRail = self.board.rails[2]
+		botRail = self.board.rails[3]
+		return (topRail,midTopRail,midBotRail,botRail)
+		
+	def makeRailCards(self):
+		railCount = 1;
+		railCards = ''
+		for item in self.rails:
+			if item != 0:
+				railCards += 'V%d %g 0 dc %g \n' % (railCount,railCount,item)
+				#~ railCards += 'V' + str(railCount) + ' 0 ' + str(railCount) + ' dc ' + str(item) + '\n'
+				railCount += 1
+		return railCards
+		
+	def getInputDevices(self):
+		inputDeviceList = []
+		for comp in self.board.componentList:
+			if isinstance(comp,InputDevice):
+				inputDeviceList.append(comp)
+		return inputDeviceList
+	
+	def makeInputDeviceCards(self):
+		inputDeviceCards = ''
+		for item in self.inputDeviceList:
+			if item.voltageType == 'AC':
+				inputDeviceCards += 'V%d %g 0 sin \n' % (id(item),item.pinList[0].Node.number)
+				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'sin \n'
+			else:
+				inputDeviceCards += 'V%d %g 0 dc %g \n' % (id(item),item.pinList[0].Node.number,item.voltage.volts)
+				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
+		return inputDeviceCards
+
+	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+		if analysisType == 'ac':
+			return self.makeACCards(scopedNode,stepType,numSteps,startFreq,endFreq)
+		elif analysisType == 'dc':
+			return self.makeDCCards(scopedNode,vMin,vMax,stepSize)
+		else:
+			return self.makeTranCards(scopedNode,tstep,ttotal)
+		
+	def makeACCards(self,scopedNode,stepType,numSteps,startFreq,endFreq):
+		if len(InputDeviceList) <1:
+			raise NameError('There are no input devices...')
+		acLine = '.ac %s %g %g %g \n' % stepType,numSteps,startFreq,endFreq
+		printLine = '.print ac v(%d) \n' % scopedNode
+		return acLine + printLine
+	
+	def makeDCCards(self,scopedNode,vMin,vMax,stepSize):
+		dcInputDeviceList = []
+		for item in self.inputDeviceList:
+			if item.voltageType == 'DC':
+				dcInputDeviceList.append(item)
+		self.dcInputDeviceList = dcInputDeviceList
+		inp = dcInputDeviceList[0]
+		dcLine = '.dc V(%d) %g %g %g \n' % (id(inp),vMin,vMax,stepSize)
+		printLine = '.print dc v(%d) \n' % scopedNode 
+		return dcLine+printLine
+	
+	def makeTranCards(scopedNode,tstep,ttotal):
+		tranLine = '.tran %g %g \n' % tstep, ttotal
+		printLine = '.print tran v(%d) \n' % scopedNode
+		return tranLine+printLine
 	
 	def clearEmptyNodes(self):
 		"""notes how many times a node appears in a circuit.
@@ -39,27 +102,24 @@ class B2Spice(object):
 						if pin.Node.number == val:
 							del self.board.componentList[count]
 		return d
-			
-	
-	def makeNodeList(self):
+		
+	def getNodeList(self):
 		"""Creates a list of all 
 		occupied nodes on a breadboard"""
-		board = self.board
 		nodeList = []
-		for comp in board.componentList:
+		for comp in self.board.componentList:
 			for pin in comp.pinList:
 				nodeList.append(pin.Node.number)
 		return nodeList
-	
+		
 	def getNodes(self,component):
 		"""returns a string that contains
-		the nodes of a component, separated by spaces.
-		"""
+		the nodes of a component, separated by spaces"""
 		nodeStr = ' '
 		for pins in component.pinList:
-			nodeStr += str(pins.Node.number) + ' '
+			nodeStr += '%d ' % pins.Node.number
 		return nodeStr
-		
+	
 	def getAttr(self,component):
 		"""returns a tuple containing the attribute
 		of the component and its value,
@@ -69,188 +129,86 @@ class B2Spice(object):
 		attrVal = attributeDict[attrKey]
 		attrKey = attrKey[0] + str(id(component))
 		return str(attrKey),str(attrVal)
-		
-	#~ def getOpAmpModel(self,component):
-		#TODO
-		
-		
-	def buildText(self,component):
-		"""builds the line of text that SPICE
-		uses to describe the component. Only 
-		takes Resistors, Wires, and Capacitors 
-		right now. Also sets initial conditions
-		for Capacitors."""
-		##NEED TO FINISH THIS TODO
+					
+	def buildVariableComponentText(self,component):
 		if isinstance(component,Capacitor):
 			suffix = ' ic=0'
 		else:
 			suffix = ''
-		#~ if isinstance(component,OpAmp):
-			#~ return getOpAmpModel
 		nodes = self.getNodes(component)
 		attr = self.getAttr(component)
 		ans = attr[0] + nodes + attr[1] + suffix
 		return ans
+		
+		
+	def buildOpAmpText(self,opamp):
+		"""returns a tuple describing the nodal location of the opamp with the spice file,
+		and a big line of text containing the definition of the opamp"""
+		pinDict = {}
+		pinDict['notUsed1'] = opamp.pinList[0]
+		pinDict['negIn'] = opamp.pinList[1]
+		pinDict['plusIn'] = opamp.pinList[2]
+		pinDict['negSupply'] = opamp.pinList[3]
+		pinDict['flag'] = opamp.pinList[4]
+		pinDict['plusSupply'] = opamp.pinList[5]
+		pinDict['out'] = opamp.pinList[6]
+		pinDict['notUsed2'] = opamp.pinList[7]
+		opAmpNodeString = '%d %d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number,pinDict['out'].Node.number,pinDict['flag'].Node.number)		
+		opAmpID = 'X%d' % id(opamp)
+		subCktID = opamp.technicalName
+		subCktFileName = '%s.txt' % opamp.technicalName
+		fin = open(subCktFileName)
+		opAmpSubCkt = fin.read()
+		opAmpCard = '%s %s %s\n' % (opAmpID,opAmpNodeString,subCktID)
+		return (opAmpCard,opAmpSubCkt)
 	
-	def getRail(self):
-		"""finds the voltage on the rail
-		of the breadboard. returns the Node
-		and power of the voltage rail source"""
-		board = self.board
-		compList = board.componentList
-		for comp in compList:
-			for pin in comp.pinList:
-				if pin.Node.number < 4 and pin.Node.number >0:
-					if pin.Node.number ==1:
-						voltagePower = 2.5
-					elif pin.Node.number ==2:
-						voltagePower = 2.5
-					elif pin.Node.number ==3:
-						voltagePower = 5
-					else:
-						voltagePower = 0
-					voltageNode = pin.Node.number
-					return voltagePower,voltageNode
-				else:
-					voltagePower = 0
-					voltageNode = 0
-					return voltagePower,voltageNode
-		
-	def sourceDC(self,t=0,numPts=20):
-		"""builds the line that describes
-		the source voltage of the breadboard
-		(probably from the rail). In addition, this method
-		tells SPICE what kind of analysis to do on the circuit.
-		Only handles DC circuits right now."""
-		board = self.board
-		vPower,vNode = self.getRail()
-		sourceName = 'v' + str(id(board))
-		groundNode =  '0'
-		powerNode = str(vNode)
-		power = str(vPower)
-		sourceLine = sourceName + ' ' + powerNode + ' ' + groundNode + ' dc ' + power
-		if t == 0:
-			analysisLine = '.dc ' + sourceName + ' ' + power + ' ' + power + ' 1'
-		else:
-			tstep = float(t)/float(numPts)
-			analysisLine = '.tran ' + str(tstep) + ' ' + str(t) + ' uic'
-		return sourceLine,analysisLine
-		
-	def buildNetList(self,analysisFlag='DC'):
-		"""This is the demi-motherlode. This
-		builds a string that describes the circuit and 
-		type of analysis. Only handles DC circuits right now
-		"""
-		#TODO
-		board = self.board
+	def buildNetList(self,analysisFlag='dc',scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+		"""dc requires scopedNode,vMin,vMax,and stepSize. tran requires scopedNode, tstep, and ttotal. ac requires stepType, numSteps,
+		startFreq, and endFreq"""
 		netList = self.cirName + '\n'
-		if analysisFlag == 'DC':
-			sourceLine,analysisLine = self.sourceDC()
-			netList += sourceLine + '\n'
-			compList = board.componentList
-			for components in compList:
-				netList += self.buildText(components) + '\n'
-			netList += analysisLine + '\n'
-			vAtNodeLine = '.print dc'
-			for node in self.nodeList:
-				if int(node) < 1:
-					vAtNodeLine += ''
-				else:
-					vAtNodeLine += ' v(%s)' % node
-			vAtNodeLine += ' \n'
-			netList += vAtNodeLine
-			netList += '.end'
-		elif analysisFlag == 'AC':
-			return netList
-	
-		
-	
-	#~ def parse(self,textFile):
-		#~ key=[]
-		#~ val=[]
-		#~ b=[]
-		#~ flag=0
-#~ 
-		#~ for line in textFile:
-			#~ b.append(line)
-			#~ print line,
-		#~ for i in range(len(b)-1):
-			#~ for j in range(len(b[i])-1):
-				#~ if b[i][j:j+2] == 'v(' or b[i][j:j+2] == 'v-':
-					#~ for k in range(-1,5):
-						#~ if b[i][j+k]==')':
-							#~ flag=k
-					#~ a = b[i][j+2:j+flag]
-					#~ if 'sw' in a or a=='':
-						#~ a = 'Power'
-					#~ key.append(a) 
-				#~ if b[i][j:j+2] == 'e+' or  b[i][j:j+2]=='e-':
-					#~ val.append(float(b[i][j-8:j+4]))
-		#~ a = zip(key,val)
-		#~ return dict(a)
-		
-	def parse(self,textFile): 
-		"""parses the output string from SPICE.
-		Not perfect, probably not going to be used
-		later."""
-		b=[]
-		for line in textFile:
-			b.append(line)
-		for i in range(len(b)-1):
-			if 'Index' in b[i]:
-				print b[i],b[i+1],b[i+2]
-		return True
-			
-		
-	def loadBb(self):
-		"""Creates the temporary files and directories
-		necessary for circuit analysis. Initializes ngspice, feeds
-		the netlist to it, and parses the output. Deletes all the files
-		and directories after analysis. Cory's really into anal.
-		"""
-		fileName = self.cirName + '.cir'
-		resFileName = 'res.txt'
-		netList = self.netList
-		os.system('touch %s' % fileName) 
-		os.system('touch %s' % resFileName)
-		fout = open(fileName,'w')
-		fout.write(netList)
+		netList += self.makeRailCards()
+		netList += self.makeInputDeviceCards()
+		icCount = 0;
+		for comp in self.board.componentList:
+			if isinstance(comp,VariableBreadboardComponent):
+				netList += self.buildVariableComponentText(comp)
+			elif isinstance(comp,OpAmp):
+				compCard,subCktCard = self.buildOpAmpText(comp)
+				netList += compCard
+				icCount += 1
+			else:
+				netList += ''
+		if analysisFlag == 'dc':
+			netList += self.makeAnalysisCards('dc',scopedNode=scopedNode,vMin=vMin,vMax = vMax,stepSize=stepSize)
+		if analysisFlag == 'ac':
+			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
+		if analysisFlag == 'tran':
+			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
+		if icCount > 0:
+			netList += subCktCard
+
+		self.netList = netList
+		#File interface stuff
+		self.fileName = '%s.cir' % self.cirName
+		makeFileCommand = 'touch %s' % self.fileName
+		os.system(makeFileCommand)
+		fout = open(self.fileName,'w')
+		fout.write(self.netList)
 		fout.close()
-		res = os.system('ngspice -b ' + fileName + ' > ' + resFileName) 
-		#~ res = os.system('ngspice -b ' + fileName)
-		fin = open(resFileName,'r')
-		voltageNodeDict = self.parse(fin)
-		fin.close()
-		os.system('rm ' + fileName)
-		os.system('rm ' + resFileName)
-		os.system('cd ..')
-		os.system('rm -rf .temp/')
-		return voltageNodeDict
-		#~ return fin
-	
-	#~ def getVoltageAtLocations(self,board):
-		#~ nodeList = []
-		#~ for comp in board.componentList:
-			#~ for loc in comp.pinList:
-				#~ nodeList += 
+		spiceCommand = 'ngspice -b %s.cir' % self.cirName
+		res = os.system(spiceCommand)
+		return res
+		
+		
+if __name__ == '__main__':
+	bb = Breadboard()
+	Vsource = InputDevice(10,'AC',60)
+	V2 = InputDevice(10)
+	bb.putComponent(Vsource,30,5)
+	bb.putComponent(V2,30,5)
+	p = OpAmp('OPA551')
+	bb.putComponent(p,14,10)
+	b = B2SpiceNew(bb)
+	print b.buildNetList('dc',65,10,10,0)
 	
 
-if __name__ == "__main__":
-	bb = Breadboard()
-	r1 = Resistor(500)
-	w2 = Wire()
-	r3 = Resistor(2000)
-	c1 = Capacitor(.000001)
-	r4 = Resistor(1000)
-	r5 = Resistor(200)
-	w1 = Wire()
-	bb.putComponent(r1,18,1,18,7)
-	bb.putComponent(w2,18,6,11,17)
-	bb.putComponent(r3,18,5,11,17)
-	bb.putComponent(c1,22,6,22,17)
-	bb.putComponent(w1,11,5,11,17)
-	r1.pinList[0].Node.voltage = Voltage(-5)
-	b = B2Spice(bb)
-	b.clearEmptyNodes()
-	print b.buildNetList()
-	print b.loadBb()
