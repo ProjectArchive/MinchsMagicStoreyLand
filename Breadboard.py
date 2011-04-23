@@ -29,6 +29,8 @@ class Breadboard(object):
 				self.locMatrix.setItem(x,y,Location(x,y))
 	
 	def getLocation(self,x,y):
+		if x>=self.numColumns or y>=self.numRows:
+			return None
 		return self.locMatrix.getItem(x,y)
 		
 	def assignNodeHoriz(self,x,y,number):
@@ -84,7 +86,7 @@ class Breadboard(object):
 				if y==9:
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.CENTER_TOP)
-				if x%7==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
+				if x%6==0 and (y==0 or y==1 or y==16 or y==17): #fills pins between power fivesomes
 					self.setFilled(x,y)
 					self.setDisplayFlag(x,y,Location.BLANK)
 				if y==0:	
@@ -160,23 +162,21 @@ class Breadboard(object):
 		"""Tests whether or not a component can be placed at the
 		reference (absolute) x,y coordinate by checking each pin
 		specified by the pinList of aComponent"""
-		flag=True
+
 		for i in range(0,len(pinPositions),2):
 			x = pinPositions[i]
 			y = pinPositions[i+1]
-			if x>self.numColumns or y>self.numRows:
-				return False
 			refLocTest = self.getLocation(x,y) #the loc to test at
 			#first test if the reference location is available
 			if refLocTest == None or refLocTest.isFilled:
-				flag=False
+				return False
 			else:
 				#then check if every pin the component specifies is also
 				#available, if not, then we cannot place the component here
 				for relLoc in aComponent.pinList[1:]:#all but the zero'th pin in the pinlist
-					if self.translateLocation(refLocTest,relLoc).isFilled:
-						flag=False
-		return flag
+					if self.translateLocation(refLocTest,relLoc)==None or self.translateLocation(refLocTest,relLoc).isFilled:
+						return False
+		return True
 
 	def putComponent(self,aComponent,*args):
 		"""This function puts the a component down. Give it a reference pin for a regular component.
@@ -189,7 +189,7 @@ class Breadboard(object):
 			if isinstance(aComponent,FixedBreadboardComponent): #opamps
 				aComponent.pinList = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
 				self.setAllFilled(aComponent.pinList)
-				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.pinList)
+				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.deadPins)
 				self.setAllFilled(aComponent.deadPins)
 				return True
 				
@@ -286,21 +286,25 @@ class Breadboard(object):
 		firstHalf.append(secondHalf)
 		aComponent.pinList = firstHalf
 		return True
+	
+	def getComponentAtLocation(self,x,y):
+		"""gets component at an x,y location"""
+		for component in self.componentList:
+			for pin in component.pinList:
+				if pin.xLoc==x and pin.yLoc==y:
+					return component
+		return None
 
 if __name__ == "__main__":
 	bb = Breadboard()
 	a = OpAmp('hello')
-	bb.putComponent(a,3,7)
-	c = Resistor(10)
+	print bb.putComponent(a,2,13)
+	print bb.isFilled(2,17)
+	print a.pinList
+	print a.deadPins
 	d = Capacitor(5)
 	r = InputDevice(10)
-	
+	c = Resistor(10)
 	bb.putComponent(c,4,4,4,5)
 	bb.putComponent(d,5,4,5,5)
 	bb.putComponent(r,3,3)
-	print a.pinList
-	bb.flipComponent(a)
-	print a.pinList
-	
-
-

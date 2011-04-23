@@ -31,7 +31,7 @@ class B2Spice(object):
 				for pin in component.pinList:
 					d[pin.Node.number]=d.get(pin.Node.number,0)+1
 		for val in d:
-			if d[val]==1 and (val!=1 and val!=2 and val!=3 and val!=0):
+			if d[val]==1 and val!=1 and val!=2 and val!=3 and val!=0:
 				count=-1
 				for component in self.board.componentList:
 					count+=1

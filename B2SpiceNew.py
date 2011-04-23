@@ -122,7 +122,7 @@ class B2SpiceNew(object):
 		the nodes of a component, separated by spaces"""
 		nodeStr = ' '
 		for pins in component.pinList:
-			nodeStr += str(pins.Node.number) + ' '
+			nodeStr += '%d ' % pins.Node.number
 		return nodeStr
 	
 	def getAttr(self,component):
@@ -173,25 +173,12 @@ class B2SpiceNew(object):
 		netList += self.makeInputDeviceCards()
 		for comp in self.board.componentList:
 			if isinstance(comp,VariableBreadboardComponent):
-				netlist +=
-		if analysisFlag == 'DC':
-			sourceLine,analysisLine = self.sourceDC()
-			netList += sourceLine + '\n'
-			compList = board.componentList
-			for components in compList:
-				netList += self.buildText(components) + '\n'
-			netList += analysisLine + '\n'
-			vAtNodeLine = '.print dc'
-			for node in self.nodeList:
-				if int(node) < 1:
-					vAtNodeLine += ''
-				else:
-					vAtNodeLine += ' v(%s)' % node
-			vAtNodeLine += ' \n'
-			netList += vAtNodeLine
-			netList += '.end'
-		elif analysisFlag == 'AC':
-			return netList
+				netList += self.buildVariableComponentText(comp)
+			elif isinstance(comp,FixedBreadboardComponent):
+				netList += self.buildOpAmpText(comp)[0]
+			elif isinstance(comp,InputDevice):
+				netList += ''
+		
 	
 		
 		
@@ -205,4 +192,9 @@ if __name__ == '__main__':
 	bb.putComponent(p,10,4)
 	b = B2SpiceNew(bb)
 	print b.buildOpAmpText(p)[0]
+	
+	
+	#what cory wants:
+	#scope between two nodes. Maybe DC? maybe AC?
+	#
 
