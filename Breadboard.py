@@ -214,12 +214,13 @@ class Breadboard(object):
 
 	def removeComponent(self,aComponent):
 		"""removes a component from the breadboard. unfills all the holes and pops it from the breadboard component list.
-		then deletes the component from memory"""		
+		then deletes the component from memory. if its an op amp unfills the pins in between"""
 		self.setAllUnfilled(aComponent.pinList)
-		self.setAllUnfilled(aComponent.deadPins)
 		self.componentList.remove(aComponent)
 		if isinstance(aComponent,InputDevice):
 			self.clearNodeVoltage(aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc)
+		elif isinstance(aComponent,FixedBreadboardComponent):
+			self.setAllUnfilled(aComponent.deadPins)
 		for val in globals():  #actually kills the global variable aComponent refers to
 			if globals()[val]==aComponent:
 				del globals()[val]
@@ -231,10 +232,11 @@ class Breadboard(object):
 		unfills all pins deletes all components from memory.
 		Sets all nodes back to zero.
 		Puts rails back to standard."""
-		for component in self.componentList:
-			self.removeComponent(component)
-			for pin in component.pinList:
-				self.clearNodeVoltage(pin.xLoc,pin.yLoc) #clears all node voltages. this wipes rails, but we fix below.
+		
+		while len(self.componentList) > 0:
+			for pin in self.componentList[0].pinList:
+				self.clearNodeVoltage(pin.xLoc,pin.yLoc)
+			self.removeComponent(self.componentList[0])		
 		self.setVoltageAtRail0(0) 	#standard
 		self.setVoltageAtRail1(5)	
 		self.setVoltageAtRail2(5)
@@ -334,15 +336,19 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	a=OpAmp('OPA551')	
-	print bb.putComponent(a,3,7)
+	bb.putComponent(a,3,7)
+	a.pinList
+	b = Resistor(100)
+	r = InputDevice(5)
+	bb.isFilled(2,4)
+	bb.isFilled(2,3)
+	bb.putComponent(r,2,3)
 	bb.setVoltageAtRail0(-1000)
 	bb.setVoltageAtRail1(-1000)
 	bb.setVoltageAtRail2(-1000)
 	bb.setVoltageAtRail3(-1)
-	print bb.getNodeVoltage(0,0)
-	print bb.rails
-	print bb.componentList
-	bb.clearBreadboard()
-	print bb.rails
-	print bb.getNodeVoltage(0,0)
-	print bb.componentList
+	#~ bb.clearBreadboard()
+	bb.saveBreadboard('yousuckatcoding')
+	cc = bb.openBreadboard('yousuckatcoding.txt')
+	print cc.componentList
+
