@@ -146,8 +146,8 @@ class BreadboardPanel(wx.Panel):
 	def loadTypeImage(self,typeName,instance=None):
 		print "loading %s" %typeName
 		temp =wx.Image('res/components/' + typeName.lower()+'_image.png',wx.BITMAP_TYPE_PNG)
-		print "transparency", temp.HasAlpha()
-		temp.SaveFile(typeName  + ".png",wx.BITMAP_TYPE_PNG)
+		if not temp.HasAlpha():
+			temp.InitAlpha()
 		self.typeToImage[typeName] = copy.copy(temp)
 		if instance != None: #we were passed an instance, and can create and size the bitmap
 			self.typeToBitmap[typeName] = wx.BitmapFromImage(copy.copy(self.typeToImage[typeName]).Rescale(instance.width*self.bmpW,instance.height*self.bmpH))
@@ -202,24 +202,17 @@ class VariableBreadboardComponentWrapper:
 		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
 		dx,dy = (x2-x1,y2-y1)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
-		theta = 1.5#this needs an answer....
-		totalLength = math.sqrt(dx**2 + dy**2)
+		theta = 3.1415/4#this needs an answer....
+		totalLength = math.sqrt(dx**2 + dy**2) #total length conencting the two points
 		if rescale or self.mainBMP == None or self.wireBMP == None:
-		#	self.mainBMP = copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta).Rescale(self.bbp.bmpW*2,self.bmpH).ConvertToBitmap()
-			tImage = copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE])
-			tImage.SaveFile("newImage.png", wx.BITMAP_TYPE_PNG)
-			tImage.Rescale(totalLength,self.bbp.bmpH/2)
-			tImage=tImage.Rotate(theta,(0,0),interpolating = True)
-			self.wireBMP = wx.BitmapFromImage(tImage)
-			self.wireBMP = self.removeTheBlacks(self.wireBMP)
-			self.wireBMP.SaveFile("newBMP.bmp", wx.BITMAP_TYPE_BMP)
-#		if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
-			#just draw the damn centerpiece!
-			#there is a sin/cos term here, we need to shift by some amount...		
+			self.mainBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta,(0,0)).Rescale(self.bbp.bmpW*2,self.bbp.bmpH))
+			self.wireBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE]).Rescale(totalLength,self.bbp.bmpH/2).Rotate90())
+
+		#if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
+		#just draw the damn centerpiece!
+		#there is a sin/cos term here, we need to shift by some amount...		
 		dc.DrawBitmap(self.wireBMP, x1, y1)
-		dc.SetPen( wx.Pen( wx.Color(255,0,0), 5 ))
-		dc.DrawLine(x1,y1,x2,y2)
-	def removeTheBlacks(self,bmp):
+
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
@@ -233,10 +226,8 @@ class FixedBreadboardComponentWrapper:
 	def drawSelf(self,dc,rescale):
 		if rescale or self.bbp.typeToBitmap[self.typeName] == None:
 			self.bbp.typeToBitmap[self.typeName] = copy.copy(self.bbp.typeToImage[self.typeName]).Rescale(self.bbp.bmpW*self.fbbc.width,self.bbp.bmpH*self.fbbc.height,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
-
 			if self.pos != None:
-				self.bmp = copy.copy(self.bbp.typeToBitmap[self.typeName]) #store a local copy for blitting
-				
+				self.bmp = copy.copy(self.bbp.typeToBitmap[self.typeName]) #store a local copy for blitting	
 		if self.pos != None:
 			self.drawMovingSelf(dc)
 		x,y = self.bbp.getXY(self.fbbc.pinList[0].getLocationTuple())
