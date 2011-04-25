@@ -16,7 +16,7 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.rails= [0 , 5 , 5 , 2.5] #voltage rails. bottom to top. y = 17 16 1 0
+		self.rails= [0 , 2.5 , 2.5 , 5] #voltage rails. bottom to top. y = 17 16 1 0
 		self.initializeLocations()
 		self.nodeCreation()
 		self.detailLocations()
@@ -239,9 +239,9 @@ class Breadboard(object):
 				self.clearNodeVoltage(pin.xLoc,pin.yLoc)
 			self.removeComponent(self.componentList[0])		
 		self.setVoltageAtRail0(0) 	#standard
-		self.setVoltageAtRail1(5)	
-		self.setVoltageAtRail2(5)
-		self.setVoltageAtRail3(2.5)
+		self.setVoltageAtRail1(2.5)	
+		self.setVoltageAtRail2(2.5)
+		self.setVoltageAtRail3(5)
 
 	def unplugComponent(self,aComponent): 
 		"""removes a breadboard component from the bb by unfilling its pins
