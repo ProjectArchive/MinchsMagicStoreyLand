@@ -59,7 +59,7 @@ class B2Spice(object):
 
 	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
 		if len(self.inputDeviceList) <1:
-			return '.dc V1 V2 V3 \n .print dc v(%d) \n' % scopedNode 
+			return '.dc V1 %d %d 1 \nV2 %d %d 1\nV3 %d %d 1\n.print dc v(%d) \n' % (self.board.rails[1],self.board.rails[1],self.board.rails[2],self.board.rails[2],self.board.rails[3],self.board.rails[3], scopedNode)
 		if analysisType == 'ac':
 			return self.makeACCards(scopedNode,stepType,numSteps,startFreq,endFreq)
 		elif analysisType == 'dc':
@@ -195,7 +195,7 @@ class B2Spice(object):
 		self.netList = netList
 		#File interface stuff
 		self.fileName = '%s.cir' % self.cirName
-		self.resName = '%s_res.txt' % self.cirName
+		self.resName = '%s_res.out' % self.cirName
 		makeFileCommand = 'touch %s' % self.fileName
 		makeFileCommand2 = 'touch %s' % self.resName
 		os.system(makeFileCommand)
@@ -203,7 +203,7 @@ class B2Spice(object):
 		fout = open(self.fileName,'w')
 		fout.write(self.netList)
 		fout.close()
-		spiceCommand = 'ngspice -b %s > %s' % (self.fileName,self.resName)
+		spiceCommand = 'ngspice -b %s ir %s' % (self.fileName,self.resName)
 		res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
@@ -226,10 +226,11 @@ if __name__ == '__main__':
 	print bb.putComponent(W3,4,1,4,3)
 	b = B2Spice(bb)
 	#~ print b.nodeList
+	#~ print b.rails
 	b.buildNetList('dc',28,10,10,0)
 	#~ print b.inputDeviceList
 	#~ print bb.componentList
-	print b.netList
+	#~ print b.n5etList
 
 	
 
