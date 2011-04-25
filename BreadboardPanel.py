@@ -71,7 +71,7 @@ class BreadboardPanel(wx.Panel):
 				self.currentComponent = None
 			else:
 				if self.currentComponent.anchorPos == None:
-					self.currentComponent.anchorPos = (posx,posy) #assign the first anchor
+					self.currentComponent.anchorPos = (xLoc,yLoc) #assign the first anchor
 				else:
 					xLocAnchor = self.currentComponent.anchorPos[0]//self.bmpW
 					yLocAnchor = self.currentComponent.anchorPos[1]//self.bmpH
@@ -203,6 +203,7 @@ class BreadboardComponentWrapper:
 		self.pos = (0,0)
 		self.anchorPos = None
 		self.breadboardComponent = breadboardComponent
+		self.typeName = type(self.breadboardComponent).__name__
 	
 	def drawSelf(self,dc,op,bmpW,bmpH):
 		if isinstance(self.breadboardComponent,FixedBreadboardComponent):			
@@ -214,7 +215,11 @@ class BreadboardComponentWrapper:
 			if self.anchorPos == None:
 				return
 			dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
+			
 			dc.DrawLine(self.anchorPos[0],self.anchorPos[1],self.pos[0],self.pos[1])
+			xDif = self.pos[0]- self.anchorPos[0]
+			yDif = self.pos[1]- self.anchorPos[1]			
+			
 			
 class VariableBreadboardComponentWrapper:
 	"""this needed to happen"""
@@ -240,17 +245,19 @@ class VariableBreadboardComponentWrapper:
 		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
 		dx,dy = (x2-x1,y2-y1)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
-		theta = 3.1415/4#this needs an answer....
-		totalLength = math.sqrt(dx**2 + dy**2) #total length conencting the two points
-		if rescale or self.mainBMP == None or self.wireBMP == None:
-			self.mainBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta,(0,0)).Rescale(self.bbp.bmpW*2,self.bbp.bmpH))
-			self.wireBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE]).Rescale(totalLength,self.bbp.bmpH/2).Rotate90())
-		#if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
-		#just draw the damn centerpiece!
-		#there is a sin/cos term here, we need to shift by some amount...		
-		#dc.DrawBitmap(self.wireBMP, x1, y1)
+		totalLength = math.sqrt(dx**2 +dy**2)
+		slopeX = dx/totalLength
+		slopeY = dy/totalLength #slope of x with respect to length	
+
 		dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
 		dc.DrawLine(x1,y1,x2,y2)
+		if self.typeName.lower().find('resistor') != -1:
+			dc.SetPen(wx.Pen(wx.Color(255,0,0),5))
+			startX=x1 + (0.1*totalLength*slopeX)
+			startY =y1 + (0.1*totalLength*slopeY)
+			endX = startX+(0.8*totalLength*slopeX)
+			endY = startY+(0.8*totalLength*slopeY)	
+			dc.DrawLine(startX,startY,endX,endY)
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
