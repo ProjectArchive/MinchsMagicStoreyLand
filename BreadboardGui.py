@@ -4,6 +4,8 @@ from BreadboardPanel import *
 from SimulationPanel import *
 from PartBrowserPanel import *
 from B2Spice import *
+import randomplotter
+
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadboard, *args, **kwargs):
@@ -94,6 +96,7 @@ class BreadboardGUI(wx.Frame):
 		self.Destroy()
 		
 	def OnSimulateButtonPress(self,event):
+		randomplotter.runMe()
 		b = B2Spice(self.breadboard)
 		#~ print b.nodeList
 		b.buildNetList('dc',28,10,10,0)
