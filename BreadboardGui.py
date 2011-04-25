@@ -96,14 +96,16 @@ class BreadboardGUI(wx.Frame):
 		self.Destroy()
 		
 	def OnSimulateButtonPress(self,event):
+		try:
+			b = B2Spice(self.breadboard)
+			#~ print b.nodeList
+			b.buildNetList('dc',28,10,10,0)
+			#~ print b.inputDeviceList
+			#~ print bb.componentList
+			print b.netList
+		except:
+			randomplotter.runMe()
 		randomplotter.runMe()
-		b = B2Spice(self.breadboard)
-		#~ print b.nodeList
-		b.buildNetList('dc',28,10,10,0)
-		#~ print b.inputDeviceList
-		#~ print bb.componentList
-		print b.netList
-
 
 if __name__=="__main__":
 
