@@ -60,9 +60,14 @@ class BreadboardGUI(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.filename = dlg.GetFilename()
 			self.dirname = dlg.GetDirectory()
-			f = os.path.join(self.dirname, self.filename), 'r'
-			Breadboard.openBreadboard(f)
+			f = os.path.join(self.dirname, self.filename)
+			self.breadboard = Breadboard.openBreadboard(f)
 		dlg.Destroy()
+		print "hmm"
+		print id(self.breadboard),id(self.breadboardPanel.breadboard)
+		self.breadboardPanel.breadboard = self.breadboard
+		self.breadboardPanel.killCurrent()
+		self.breadboardPanel.Refresh()
 		self.breadboardPanel.Update()
 		
 	def OnSave(self,event):
@@ -90,15 +95,17 @@ class BreadboardGUI(wx.Frame):
 		
 	def OnSimulateButtonPress(self,event):
 		b = B2Spice(self.breadboard)
-		b.clearEmptyNodes()
-		print b.buildNetList()
-		print b.loadBb()
+		#~ print b.nodeList
+		b.buildNetList('dc',28,10,10,0)
+		#~ print b.inputDeviceList
+		#~ print bb.componentList
+		print b.netList
 
 
 if __name__=="__main__":
 
 		bb = Breadboard()		
-		a = OpAmp('hello')
+		a = OpAmp('OPA551')
 		c = Resistor(10)
 
 		bb.putComponent(c,4,4,8,4)

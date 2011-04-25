@@ -38,7 +38,13 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
+		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
 		
+		
+	def OnLeaveWindow(self,evt):
+		self.currentComponent = None
+		self.Refresh()
+		self.Update()	
 
 	# Fired whenever a paint event occurs
 	def OnPaint(self, evt):
@@ -59,9 +65,19 @@ class BreadboardPanel(wx.Panel):
 		yLoc = posy//self.bmpH
 		if self.currentComponent!= None: #we are moving something
 			print (xLoc,yLoc)
-			print self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc)
-			self.currentComponent = None
-
+			if isinstance(self.currentComponent.breadboardComponent,FixedBreadboardComponent):
+				if self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLoc,yLoc):
+					print "placed", self.currentComponent.breadboardComponent,xLoc,yLoc
+				self.currentComponent = None
+			else:
+				if self.currentComponent.anchorPos == None:
+					self.currentComponent.anchorPos = (posx,posy) #assign the first anchor
+				else:
+					xLocAnchor = self.currentComponent.anchorPos[0]//self.bmpW
+					yLocAnchor = self.currentComponent.anchorPos[1]//self.bmpH
+					if self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLocAnchor,yLocAnchor,xLoc,yLoc):
+						self.currentComponent = None
+				
 	# Left mouse button up.
 	def OnLeftUp(self, evt):
 		pass
@@ -82,9 +98,7 @@ class BreadboardPanel(wx.Panel):
 			return
 		else:
 			if self.currentComponent == None:
-				if not self.buttonManager.currentName in self.typeToImage:
-					self.loadTypeImage(self.buttonManager.currentName)
-				self.currentComponent = BreadboardComponentWrapper(OpAmp('MINCH'),wx.Image('res/components/opamp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
+				self.currentComponent = BreadboardComponentWrapper(self,self.getDefaultInstance(self.buttonManager.currentName),wx.Image('res/components/opamp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
 				self.currentComponent.pos = pos
 			else:
 				self.currentComponent.pos = pos
@@ -162,22 +176,46 @@ class BreadboardPanel(wx.Panel):
 		return (loc[0]*self.bmpW,loc[1]*self.bmpH)
 		
 	def getCenteredXY(self,loc):	
-		return ((loc[0]*self.bmpW) +(self.bmpW/2) ,(loc[1]*self.bmpH) + (self.bmpW/2)) #because we are drawing from top left, center is half of both down
+		return ((loc[0]*self.bmpW) +(float(self.bmpW)/2) ,(loc[1]*self.bmpH) + (float(self.bmpW)/2)) #because we are drawing from top left, center is half of both down
+
+	def getDefaultInstance(self,typeName):
+		typeName = typeName.lower()
+		if typeName.find('resistor') != -1:
+			return Resistor(50)
+		elif typeName.find('capacitor') != -1:
+			return Capacitor(50)
+		elif typeName.find('wire') != -1:
+			return Wire()
+		elif typeName.find('opamp') != -1:
+			return OpAmp('OPA551')
+		else:
+			return None
+	def killCurrent(self):
+		self.wrappedComponents = {}
+
 
 class BreadboardComponentWrapper:
-	"""Wraps an image, a bbc and a position for ease of use."""
-	def __init__(self,breadboardComponent,bmp1,bmp2=None):
+	"""Wraps an image, a bbc and a position for ease of drawing while moving..."""
+	def __init__(self,bbp,breadboardComponent,bmp1,bmp2=None):
+		self.bbp = bbp
 		self.bmp1 = bmp1
 		self.bmp2 = bmp2
 		self.pos = (0,0)
+		self.anchorPos = None
 		self.breadboardComponent = breadboardComponent
 	
 	def drawSelf(self,dc,op,bmpW,bmpH):
-		if self.bmp1.Ok():
-			memDC = wx.MemoryDC()
-			memDC.SelectObject(self.bmp1)
-			dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
- 
+		if isinstance(self.breadboardComponent,FixedBreadboardComponent):			
+			if self.bmp1.Ok():
+				memDC = wx.MemoryDC()
+				memDC.SelectObject(self.bmp1)
+				dc.Blit(self.pos[0], self.pos[1]-(self.breadboardComponent.height*bmpH),self.bmp1.GetWidth(), self.bmp1.GetHeight(),memDC, 0, 0, op, True)
+		else:
+			if self.anchorPos == None:
+				return
+			dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
+			dc.DrawLine(self.anchorPos[0],self.anchorPos[1],self.pos[0],self.pos[1])
+			
 class VariableBreadboardComponentWrapper:
 	"""this needed to happen"""
 	def __init__(self,breadboardPanel,variableBreadboardComponent):
@@ -207,12 +245,12 @@ class VariableBreadboardComponentWrapper:
 		if rescale or self.mainBMP == None or self.wireBMP == None:
 			self.mainBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta,(0,0)).Rescale(self.bbp.bmpW*2,self.bbp.bmpH))
 			self.wireBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE]).Rescale(totalLength,self.bbp.bmpH/2).Rotate90())
-
 		#if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
 		#just draw the damn centerpiece!
 		#there is a sin/cos term here, we need to shift by some amount...		
-		dc.DrawBitmap(self.wireBMP, x1, y1)
-
+		#dc.DrawBitmap(self.wireBMP, x1, y1)
+		dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
+		dc.DrawLine(x1,y1,x2,y2)
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
