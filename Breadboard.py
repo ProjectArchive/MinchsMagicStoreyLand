@@ -205,8 +205,8 @@ class Breadboard(object):
 				return True
 				
 			elif isinstance(aComponent,InputDevice):	#input devices
-				self.setAllFilled(aComponent.pinList)
-				aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc=args[0],args[1]
+				self.setFilled(args[0],args[1])
+				aComponent.pinList[0]=self.locMatrix.getItem(args[0],args[1])
 				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 				return True
 		return False
@@ -342,5 +342,6 @@ if __name__ == "__main__":
 	bb = Breadboard()
 	r = InputDevice(5,currentOrVoltage='Current')
 	bb.putComponent(r,4,4)
+	print bb.isFilled(4,4)
 	print bb.componentList
 
