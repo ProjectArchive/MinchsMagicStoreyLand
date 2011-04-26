@@ -214,11 +214,15 @@ class GraphFrame(wx.Frame):
 		# 
 		if self.ymin_control.is_auto():
 			ymin = min(self.data[self.selection])
+			if ymin >0:
+				ymin =  ymin*0.8
+			else:
+				ymin = ymin * 1.2
 		else:
 			ymin = int(self.ymin_control.manual_value())
 
 		if self.ymax_control.is_auto():
-			ymax = max(self.data[self.selection])
+			ymax = max(self.data[self.selection]) * 1.5
 		else:
 			ymax = int(self.ymax_control.manual_value())
 

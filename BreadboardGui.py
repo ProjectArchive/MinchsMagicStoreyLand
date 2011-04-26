@@ -96,33 +96,35 @@ class BreadboardGUI(wx.Frame):
 		
 		simType = self.simulationPanel.comboBox.GetValue()
 		b = B2Spice(self.breadboard)
+		
+		fileName = 'sampleCircuitData.txt'
 		if simType.find('AC') != -1:
 			print 'AC'
-			b.buildNetList('ac')
+			fileName = b.buildNetList('ac')
 		elif simType.find('Transient') != -1:
 			print 'Transient'
-			b.buildNetList('tran')
+			fileName = b.buildNetList('tran')
 		elif simType.find('DC') != -1:
 			print 'Transient'
-			b.buildNetList('tran')
+			fileName = b.buildNetList('tran')
 		else:
 			print "no mode of analysis"
 		
 		gf =GraphFrame(self.input_parser())
 		gf.Show()
 		
-	def input_parser(self):
+	def input_parser(self,fileName ='AmplifierData' ):
 		
 		# initialize a bunch of storage arrays
 
 		vals =[] #list of list
 		# open the file
-		fout = open('sampleCircuitData.txt')
+		fout = open(fileName)
 		content_string = ""
 		start = False
 		lineNum = 0
 		
-		n = 11
+		n = 26
 		lineNum = 0
 		
 		for i in range(n):
