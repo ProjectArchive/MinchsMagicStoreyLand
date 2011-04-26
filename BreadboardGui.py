@@ -3,9 +3,9 @@ import wx.aui
 from BreadboardPanel import *
 from SimulationPanel import *
 from PartBrowserPanel import *
+from ComponentEditorPanel import *
 from B2Spice import *
 import randomplotter
-
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadboard, *args, **kwargs):
@@ -18,6 +18,7 @@ class BreadboardGUI(wx.Frame):
 		self.breadboardPanel = BreadboardPanel(self,self.breadboard,self.partBrowserPanel.buttonGroup)
 		self.simulationPanel = SimulationPanel(self)
 		# add the panes to the manager
+
 		auiInfo =  wx.aui.AuiPaneInfo().Bottom().CaptionVisible(False)
 		auiInfo.dock_proportion = 0
 		auiInf1 =  wx.aui.AuiPaneInfo().Center().CaptionVisible(False)
@@ -25,12 +26,12 @@ class BreadboardGUI(wx.Frame):
 		self._mgr.AddPane(self.breadboardPanel,auiInf1) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel,auiInfo)
 		self._mgr.AddPane(self.simulationPanel, wx.RIGHT)
-		# tell the manager to 'commit' all the changes just made
-		#self.Fit()
+
 		self.Layout()
 		self._mgr.Update()
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		self.simulationPanel.Bind(wx.EVT_BUTTON,self.OnSimulateButtonPress)
+
 	def createMenu(self):
 		filemenu= wx.Menu()
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open","Generic open")
