@@ -73,7 +73,8 @@ class BreadboardPanel(wx.Panel):
 				self.currentComponent = None
 			else:
 				if self.currentComponent.anchorPos == None:
-					self.currentComponent.anchorPos = (xLoc,yLoc) #assign the first anchor
+					if not self.breadboard.getLocation(xLoc,yLoc).isFilled:
+						self.currentComponent.anchorPos = (xLoc,yLoc) #assign the first anchor
 				else:
 					if self.breadboard.putComponent(self.currentComponent.breadboardComponent,self.currentComponent.anchorPos[0],self.currentComponent.anchorPos[1],xLoc,yLoc):
 						self.currentComponent = None
