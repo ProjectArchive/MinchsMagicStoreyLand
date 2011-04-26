@@ -90,7 +90,7 @@ class GraphFrame(wx.Frame):
 	"""
 	title = "Minch's Magic Storey Land"
 	
-	def __init__(self,data=[1,2,3,4,5]):
+	def __init__(self,data=[[1,2,3,4,5],[1,2,3,4,5],[10,20,30,40,50]]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
 		self.dataSetNames = range(1,len(data))
@@ -134,8 +134,6 @@ class GraphFrame(wx.Frame):
 		#~ self.comboBox = wx.ComboBox(self.panel, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.pause_button =  wx.ComboBox(self.panel, -1, self.dataSetNames[0], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.pause_button.Bind(wx.EVT_COMBOBOX, self.EvtCombobox)
-		self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
-		self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
 		
 		self.cb_grid = wx.CheckBox(self.panel, -1, 
 			"Show Grid",
@@ -188,7 +186,7 @@ class GraphFrame(wx.Frame):
 		# plot the data as a line series, and save the reference 
 		# to the plotted line series
 		#
-		self.plot_data = self.axes.plot(self.data,linewidth=1,color=(1, 1, 0),)[0]
+		self.plot_data = self.axes.plot(self.data[0],linewidth=1,color=(1, 1, 0),)[0]
 
 	def draw_plot(self):
 		""" Redraws the plot
@@ -198,12 +196,12 @@ class GraphFrame(wx.Frame):
 		# xmax.
 		#
 		if self.xmax_control.is_auto():
-			xmax = len(self.data) if len(self.data) > 50 else 50
+			xmax = max(self.data[0])
 		else:
 			xmax = int(self.xmax_control.manual_value())
 			
-		if self.xmin_control.is_auto():			
-			xmin = xmax - 50
+		if self.xmin_control.is_auto():
+			xmin = 0
 		else:
 			xmin = int(self.xmin_control.manual_value())
 
@@ -215,12 +213,12 @@ class GraphFrame(wx.Frame):
 		# the whole data set.
 		# 
 		if self.ymin_control.is_auto():
-			ymin = round(min(self.data), 0) - 1
+			ymin = min(self.data[self.selection])
 		else:
 			ymin = int(self.ymin_control.manual_value())
-		
+
 		if self.ymax_control.is_auto():
-			ymax = round(max(self.data), 0) + 1
+			ymax = max(self.data[self.selection])
 		else:
 			ymax = int(self.ymax_control.manual_value())
 
@@ -246,13 +244,6 @@ class GraphFrame(wx.Frame):
 		self.plot_data.set_ydata(np.array(self.data[self.selection]))
 
 		self.canvas.draw()
-	
-	def on_pause_button(self, event):
-		self.paused = not self.paused
-	
-	def on_update_pause_button(self, event):
-		label = "Resume" if self.paused else "Pause"
-		self.pause_button.SetLabel(label)
 	
 	def on_cb_grid(self, event):
 		self.draw_plot()
@@ -299,6 +290,9 @@ class GraphFrame(wx.Frame):
 	
 	def EvtCombobox(self, event):
 		self.selection = int(self.pause_button.GetValue()) 
+		self.Refresh()
+		self.Update()
+		print self.data[self.selection]
 		print self.pause_button.GetValue()
 		
 

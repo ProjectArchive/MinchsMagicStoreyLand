@@ -5,7 +5,7 @@ from SimulationPanel import *
 from PartBrowserPanel import *
 from ComponentEditorPanel import *
 from B2Spice import *
-import randomplotter
+from randomplotter import *
 
 class BreadboardGUI(wx.Frame):
 	def __init__(self, parent,breadboard, *args, **kwargs):
@@ -108,7 +108,8 @@ class BreadboardGUI(wx.Frame):
 		else:
 			print "no mode of analysis"
 		
-		randomplotter(self.input_parser())
+		gf =GraphFrame(self.input_parser())
+		gf.Show()
 		
 	def input_parser(self):
 		
@@ -135,7 +136,6 @@ class BreadboardGUI(wx.Frame):
 				if line[0] != '\t':
 					line = line[line.find('\t'):]
 				line = line.translate(None,'\t')
-				print line
 				vals[lineNum%n].append(float(line))
 				lineNum +=1
 		return vals			
