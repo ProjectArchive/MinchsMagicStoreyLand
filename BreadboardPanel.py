@@ -259,19 +259,11 @@ class VariableBreadboardComponentWrapper:
 		self.vbbc = variableBreadboardComponent
 		self.typeName= type(self.vbbc).__name__
 		
-		#main image of this component's center
-		if not self.typeName in self.bbp.typeToImage.keys():
-			self.bbp.loadTypeImage(self.typeName)
-		#image of the wire....
-		if not BreadboardPanel.PLAINWIRE in self.bbp.typeToImage.keys():
-			self.bbp.loadTypeImage(BreadboardPanel.PLAINWIRE)
+		self.wireImage = Image.open('res/components/plainwire_image.png')
+		self.mainImage = Image.open('res/components/' + self.typeName.lower() + '_image.png')
 		
-		self.mainBMP = None #will be created on first draw
-		self.wireBMP = None #will be created on first draw
-
 
 	def getTheta(self,dx,dy):
-		print dx,dy
 		if dx ==0:
 			if dy > 0:
 				return 90
@@ -284,7 +276,6 @@ class VariableBreadboardComponentWrapper:
 				return 0
 		if dy <0 and dx >0:
 			res = (180-math.degrees(math.atan(dy/dx)))
-			print res
 			return res
 		if dy >0 and dx >0:
 			return 180.0- math.degrees(math.atan(dy/dx))
@@ -298,37 +289,34 @@ class VariableBreadboardComponentWrapper:
 		dx,dy = (x1-x2,y1-y2)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
 		totalLength = math.sqrt(dx**2 +dy**2)
-		slopeX = dx/totalLength
-		slopeY = dy/totalLength #slope of x with respect to length	
+		xRate = dx/totalLength
+		yRate = dy/totalLength
 
-		dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
-		dc.DrawLine(x1,y1,x2,y2)
+		#~ #first draw the underlying wire
+		rotatedPilImage = self.wireImage.resize((int(totalLength)*2,int(self.bbp.bmpW/3.0)),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
+		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
+		imageWid, imageHgt = rotated_wxImage.GetSize()
+		offsetX = (x1) -(imageWid / 2) #x1 is the pointx to draw from
+		offsetY = (y1) - (imageHgt / 2) #y1 is the pointy to draw from
+		dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
+		
 		if self.typeName.lower().find('wire') != -1:
-			dc.SetPen(wx.Pen(wx.Color(255,0,0),5))
-			startX=x1 + (0.1*totalLength*slopeX)
-			startY =y1 + (0.1*totalLength*slopeY)
-			endX = startX+(0.8*totalLength*slopeX)
-			endY = startY+(0.8*totalLength*slopeY)	
-			dc.DrawLine(startX,startY,endX,endY)
+			lengthToDraw = totalLength-(2*self.bbp.bmpW)
+			xprime = x1-(self.bbp.bmpW*xRate)
+			yprime = y1-(self.bbp.bmpW*yRate)
+			width = self.bbp.bmpW/2
 		elif self.typeName.lower().find('resistor') != -1:
-			imgFilename ='res/components/plainwire_image.png'
-			self.pilImage = Image.open( imgFilename )
-			self.pilImage.save('part1.png')
-			#twice the length is used, as the images are half length
-			self.pilImage = self.pilImage.resize((int(totalLength)*2,self.pilImage.size[1]))
-			self.pilImage.save('part2.png')
-			rotatedPilImage = self.pilImage.rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
-			rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
-			imageWid, imageHgt = rotated_wxImage.GetSize()
-			offsetX = (x1) -(imageWid / 2)
-			offsetY = (y1) - (imageHgt / 2)
-			# Display the rotated image. Only wxBitmaps can be displayed, not wxImages.
-			# .DrawBitmap() autmatically "closes" the dc, meaning it finalizes the bitmap in some way.
-			dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
+			lengthToDraw = 3*self.bbp.bmpW
+			xprime = float(x1-(((totalLength-lengthToDraw)/2.0)*xRate))
+			yprime = float(y1-(((totalLength-lengthToDraw)/2.0)*yRate))
+			width = self.bbp.bmpW
+		rotatedPilImage = self.mainImage.resize((int(lengthToDraw)*2,width),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
+		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
+		imageWid, imageHgt = rotated_wxImage.GetSize()
+		offsetX = (xprime) -(imageWid / 2) #x1 is the pointx to draw from
+		offsetY = (yprime) - (imageHgt / 2) #y1 is the pointy to draw from
+		dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
 
-
-			
-			
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
@@ -364,7 +352,7 @@ class Example(wx.Frame):
 		wx.Frame.__init__(self,parent, title=title)
 		bb = Breadboard()		
 		a = OpAmp('hello')
-		c = Resistor(10)
+		c = Wire()
 		print bb.putComponent(c,28,10,8,4)
 		print bb.putComponent(a,8,7)
 		BreadboardPanel(self,bb)
