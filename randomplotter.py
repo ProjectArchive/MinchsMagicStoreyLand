@@ -36,31 +36,6 @@ import numpy as np
 import pylab
 
 
-class DataGen(object):
-    """ A silly class that generates pseudo-random data for
-        display in the plot.
-    """
-    def __init__(self, init=50):
-        self.data = self.init = init
-        
-    def next(self):
-        self._recalc_data()
-        return self.data
-    
-    def _recalc_data(self):
-        delta = random.uniform(-0.5, 0.5)
-        r = random.random()
-
-        if r > 0.9:
-            self.data += delta * 15
-        elif r > 0.8: 
-            # attraction to the initial value
-            delta += (0.5 if self.init > self.data else -0.5)
-            self.data += delta
-        else:
-            self.data += delta
-
-
 class BoundControlBox(wx.Panel):
     """ A static box with a couple of radio buttons and a text
         box. Allows to switch between an automatic mode and a 
@@ -114,11 +89,9 @@ class GraphFrame(wx.Frame):
     """
     title = 'Demo: dynamic matplotlib graph'
     
-    def __init__(self):
+    def __init__(self,data):
         wx.Frame.__init__(self, None, -1, self.title)
-        
-        self.datagen = DataGen()
-        self.data = [self.datagen.next()]
+                self.data = data
         self.paused = False
         
         self.create_menu()
