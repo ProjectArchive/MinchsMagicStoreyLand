@@ -185,7 +185,7 @@ class InputDevice(FixedBreadboardComponent):
 		self.frequency = frequency
 		self.currentOrVoltage=currentOrVoltage
 		pinList = [referencePin]
-		attributes={}
+		attributes={'Voltage':voltage,'Voltage Type':voltageType,'Frequency':frequency}
 		width=1
 		height=1
 		deadPins=[]
