@@ -352,7 +352,7 @@ class Example(wx.Frame):
 		wx.Frame.__init__(self,parent, title=title)
 		bb = Breadboard()		
 		a = OpAmp('hello')
-		c = Wire()
+		c = Resistor(50)
 		print bb.putComponent(c,28,10,8,4)
 		print bb.putComponent(a,8,7)
 		BreadboardPanel(self,bb)
