@@ -308,6 +308,7 @@ class GraphFrame(wx.Frame):
         #
         if not self.paused:
             self.data.append(self.datagen.next())
+            print len(self.data)
         self.draw_plot()
     
     def on_exit(self, event):

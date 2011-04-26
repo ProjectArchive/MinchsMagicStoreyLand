@@ -99,7 +99,7 @@ class BreadboardPanel(wx.Panel):
 			return
 		else:
 			if self.currentComponent == None:
-				self.currentComponent = BreadboardComponentWrapper(self,self.getDefaultInstance(self.buttonManager.currentName),wx.Image('res/components/opamp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
+				self.currentComponent = BreadboardComponentWrapper(self,self.getDefaultInstance(self.buttonManager.currentName))
 				self.currentComponent.pos = pos
 			else:
 				self.currentComponent.pos = pos
@@ -189,25 +189,36 @@ class BreadboardPanel(wx.Panel):
 			return Wire()
 		elif typeName.find('opamp') != -1:
 			return OpAmp('OPA551')
+		elif typeName.find('inputdevice') != -1:
+			print 'inpt'
+			return InputDevice(0)
+		elif typeName.find('scope') != -1:
+			print 'scope'
+			return Scope()
 		else:
 			return None
+			
 	def killCurrent(self):
 		self.wrappedComponents = {}
 
 
 class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of drawing while moving..."""
-	def __init__(self,bbp,breadboardComponent,bmp1,bmp2=None):
+	def __init__(self,bbp,breadboardComponent):
 		self.bbp = bbp
-		self.bmp1 = bmp1
-		self.bmp2 = bmp2
 		self.pos = (0,0)
 		self.anchorPos = None
 		self.breadboardComponent = breadboardComponent
 		self.typeName = type(self.breadboardComponent).__name__
-	
+		self.typeName = self.typeName.lower()
+		if isinstance(self.breadboardComponent,FixedBreadboardComponent):
+			print 'we are fixed'
+			self.image = wx.Image('res/components/'+ self.typeName + '_image.png')
+			self.image.SaveFile("something.png",wx.BITMAP_TYPE_PNG)
+			self.bmp1 =self.image.Rescale(4*self.bbp.bmpW,4*self.bbp.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+
 	def drawSelf(self,dc,op,bmpW,bmpH):
-		if isinstance(self.breadboardComponent,FixedBreadboardComponent):			
+		if isinstance(self.breadboardComponent,FixedBreadboardComponent):	
 			if self.bmp1.Ok():
 				memDC = wx.MemoryDC()
 				memDC.SelectObject(self.bmp1)
