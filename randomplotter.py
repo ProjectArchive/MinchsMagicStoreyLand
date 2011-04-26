@@ -92,7 +92,7 @@ class GraphFrame(wx.Frame):
 	def __init__(self,data=[1,2,3,4,5]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
-		self.dataSetNames = ["ohh yeah","msmsma"]
+		self.dataSetNames = ["ohh yeah"]
 		self.paused = False
 		self.create_menu()
 		self.create_status_bar()
@@ -126,7 +126,7 @@ class GraphFrame(wx.Frame):
 		self.ymin_control = BoundControlBox(self.panel, -1, "Y min", 0)
 		self.ymax_control = BoundControlBox(self.panel, -1, "Y max", 100)
 		
-		self.comboBox = wx.ComboBox(self, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
+		#self.comboBox = wx.ComboBox(self, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.pause_button = wx.Button(self.panel, -1, "Pause")
 		self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
 		self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
