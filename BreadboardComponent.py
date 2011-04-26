@@ -74,7 +74,6 @@ class Wire(Resistor):
 	def __init__(self):
 		"""its a wire, but actually a pico-ohm resistor"""
 		Resistor.__init__(self,10**-9)
-		self.attributes={}
 		self.displayName='Wire'
 		self.technicalName = 'Wire'
 	

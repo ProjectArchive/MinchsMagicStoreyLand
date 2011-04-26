@@ -367,6 +367,10 @@ if __name__ == "__main__":
 	bb.putComponent(f,3,7)
 	bb.putComponent(g,20,7)
 	
-	for i in range(bb.numColumns):
-		for j in range(bb.numRows):
-			print bb.getLocation(i,j)
+	print f.pinList
+	
+	print bb.getComponentAtLocation(7,7)
+	
+	#~ for i in range(bb.numColumns):
+		#~ for j in range(bb.numRows):
+			#~ print bb.getLocation(i,j)
