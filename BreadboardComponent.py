@@ -171,7 +171,7 @@ class QuadChip(FixedBreadboardComponent):
 		
 		FixedBreadboardComponent.__init__(self,7,4,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
 
-class InputDevice(BreadboardComponent):
+class InputDevice(FixedBreadboardComponent):
 	"""An input device.  Is capable of outputting AC or DC
 	Takes in voltage as an integer.
 	Only one pin, as the other one is usually grounded. MAYBE?"""
@@ -184,19 +184,20 @@ class InputDevice(BreadboardComponent):
 		self.currentOrVoltage=currentOrVoltage
 		pinList = [referencePin]
 		attributes={}
+		width=1
+		height=1
+		deadPins=[]
 		if self.currentOrVoltage=='Current':
-			displayName = 'Current Input Device'
 			technicalName = '%gAmps %s %gHz' % (self.voltage.volts,self.voltageType,self.frequency)
 			spiceName = 'I'
 		else:
-			displayName = 'Voltage Input Device'
 			technicalName = '%gVolts %s %gHz' % (self.voltage.volts,self.voltageType,self.frequency)
-		
-		#~ technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
-		spiceName = 'V'
-		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
-		
-class Scope(BreadboardComponent):
+			spiceName = 'V'
+		displayName = 'Input Device'
+		FixedBreadboardComponent.__init__(self,width,height,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)
+
+
+class Scope(FixedBreadboardComponent):
 	"""Basically a flag for the gui to make a plot"""
 
 	def __init__(self):
@@ -206,4 +207,7 @@ class Scope(BreadboardComponent):
 		technicalName = ''
 		referencePin = RelativeLocation(0,0)
 		pinList = [referencePin]
-		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
+		width=1
+		height=1
+		deadPins=[]
+		FixedBreadboardComponent.__init__(self,width,height,pinList,attributes,displayName,spiceName,technicalName,referencePin,deadPins)

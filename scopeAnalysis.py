@@ -16,7 +16,7 @@ def scopeAnalysis(bb):
 	count=0
 	for i in range(len(bb.componentList)):
 		component = bb.componentList[i]
-		if isinstance(component,Scope):
+		if component.displayName=='Scope':
 			scopeNodeDict[component.referencePin.Node.number] = i
 	for node in scopeNodeDict.values():
 		del bb.componentList[i-count]

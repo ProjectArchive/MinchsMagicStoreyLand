@@ -226,7 +226,7 @@ class B2Spice(object):
 		
 		scopeNodes =[]
 		for i in range(len(bb.componentList)):
-			if isinstance(bb.componentList[i],Scope):
+			if bb.componentList[i].displayName=='Input Device':
 				scopeNodes.append(bb.componentList[i])
 				del bb.componentList[i]
 		return scopeNodes
