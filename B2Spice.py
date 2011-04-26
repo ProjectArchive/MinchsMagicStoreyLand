@@ -13,6 +13,7 @@ class B2Spice(object):
 		self.cirName = 'CIRCUIT%d' % id(self)
 		self.fileName = '%s.cir' % self.cirName
 		self.resName = '%s_res' % self.cirName
+		self.getNodesForPlot()
 		#~ os.system('mkdir b2spice')
 		#~ os.system('cd b2spice')
 		#~ self.clearEmptyNodes()
@@ -20,7 +21,14 @@ class B2Spice(object):
 		self.getInputDevices()
 		self.rails = self.getRails()
 		self.nodeList = self.getNodeList()
-				
+
+	def getNodesForPlot(self):
+		"""maps the nth entry in a circuit to the corresponding node"""
+		self.nodePlotDict = {}
+		self.nodePlotDict[1] = 1
+		self.nodePlotDict[2] = 2
+		self.nodePlotDict[3] = 3
+		
 	def getRails(self):
 		##The 0th value of the list is the bottom of the board
 		topRail = self.board.rails[0]
@@ -51,7 +59,7 @@ class B2Spice(object):
 			return ''
 		inputDeviceCards = ''
 		for item in self.inputDeviceList:
-			if item.voltageType == 'AC':
+			if item.attributes['Voltage Type'] == 'AC':
 				inputDeviceCards += 'V%d %g 0 ac %g sin \n' % (id(item),item.pinList[0].Node.number,item.pinList[0].Node.voltage.volts)
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'sin \n'
 			else:
@@ -184,14 +192,19 @@ class B2Spice(object):
 		netList = self.cirName + '\n'
 		netList += self.makeRailCards()
 		netList += self.makeInputDeviceCards()
-		icCount = 0;
+		icCount = 0
+		nodePlotCount = 4
 		for comp in self.board.componentList:
 			if isinstance(comp,VariableBreadboardComponent):
 				netList += self.buildVariableComponentText(comp)
+				self.nodePlotDict[nodePlotCount] = comp.pinList[0].Node.number
+				nodePlotCount += 1
 				#~ compCard,subCktCard = self.buildOpAmpText(comp)
 			elif isinstance(comp,OpAmp):
 				compCard,subCktCard = self.buildOpAmpText(comp)
 				netList += compCard
+				self.nodePlotDict[nodePlotCount] = comp.pinList[0].Node.number
+				nodePlotCount += 1
 				icCount += 1
 			else:
 				netList += ''
@@ -203,7 +216,7 @@ class B2Spice(object):
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
 		if analysisType == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
-		netList += '.write %s allv\n' % self.resName
+		#~ netList += 'write %s allv\n' % self.resName
 		netList += '.end'
 		self.netList = netList
 		#File interface stuff
@@ -224,7 +237,8 @@ class B2Spice(object):
 		#~ res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
-		#~ subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
+		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
+		print self.netList
 		return self.resName
 	
 	def scopeAnalysis(self):
@@ -261,12 +275,12 @@ if __name__ == '__main__':
 	print bb.putComponent(W4,5,6,7,17)
 	print bb.putComponent(C,5,14,3,16)
 	b = B2Spice(bb)
-	#~ print b.nodeList
+	print b.nodeList
 	#~ print b.rails
 	print b.buildNetList('tran',scopedNode=25,tstep = .001,ttotal=1)
 	#~ print b.buildNetList('ac',scopedNode=5,stepType='dec',numSteps = 20,startFreq=.0001,endFreq=1000)
 	print b.netList
-	
+	print b.nodePlotDict
 	
 
 	
