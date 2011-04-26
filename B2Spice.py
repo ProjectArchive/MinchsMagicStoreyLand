@@ -15,7 +15,7 @@ class B2Spice(object):
 		self.resName = '%s_res' % self.cirName
 		#~ os.system('mkdir b2spice')
 		#~ os.system('cd b2spice')
-		self.clearEmptyNodes()
+		#~ self.clearEmptyNodes()
 		self.inputDeviceList = self.getInputDevices()
 		self.getInputDevices()
 		self.rails = self.getRails()
@@ -165,7 +165,7 @@ class B2Spice(object):
 		pinDict['notUsed2'] = opamp.pinList[7]
 		opAmpNodeString = '%d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['out'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number)		
 		opAmpID = 'X%d' % id(opamp)
-		subCktID = opamp.technicalName.upper()
+		subCktID = 'opamp2'
 		subCktFileName = '%s.txt' % opamp.technicalName
 		fin = open(subCktFileName)
 		opAmpSubCkt = fin.read()
@@ -247,7 +247,7 @@ class B2Spice(object):
 if __name__ == '__main__':
 	bb = Breadboard()
 	source = InputDevice(.01,'DC')
-	p = OpAmp('OPA551')
+	p = OpAmp()
 	W1 = Wire()
 	W2 = Wire()
 	W3 = Wire()
@@ -265,7 +265,7 @@ if __name__ == '__main__':
 	#~ print b.rails
 	print b.buildNetList('tran',scopedNode=25,tstep = .001,ttotal=1)
 	#~ print b.buildNetList('ac',scopedNode=5,stepType='dec',numSteps = 20,startFreq=.0001,endFreq=1000)
-	#~ print b.netList
+	print b.netList
 	
 	
 
