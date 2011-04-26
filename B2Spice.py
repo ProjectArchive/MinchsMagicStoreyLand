@@ -59,7 +59,7 @@ class B2Spice(object):
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
 		return inputDeviceCards
 
-	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def makeAnalysisCards(self,analysisType='tran',scopedNode=0,vMin=0,vMax=5,tstep=.01,ttotal=1,stepType='lin',numSteps=20,startFreq=.001,endFreq=100000):
 		if len(self.inputDeviceList) <1:
 			return '.dc V1 %g %g 1 V2 %g %g 1 V3 %g %g 1\n.print dc v(%d) \n' % (self.board.rails[1],self.board.rails[1],self.board.rails[2],self.board.rails[2],self.board.rails[3],self.board.rails[3], scopedNode)
 		if analysisType == 'ac':
@@ -174,7 +174,7 @@ class B2Spice(object):
 		return (opAmpCard,opAmpSubCkt)
 		#~ return 'e%d %d 0 %d %d 999k\n' % (id(opamp),pinDict['out'].Node.number,pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number)
 	
-	def buildNetList(self,analysisFlag='dc',scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def buildNetList(self,analysisType='tran',scopedNode=0,vMin=0,vMax=5,tstep=.01,ttotal=1,stepType='lin',numSteps=20,startFreq=.001,endFreq=100000):
 		"""dc requires scopedNode,vMin,vMax,and stepSize. tran requires scopedNode, tstep, and ttotal. ac requires stepType, numSteps,
 		startFreq, and endFreq"""
 		makeFileCommand = 'touch %s' % self.fileName
