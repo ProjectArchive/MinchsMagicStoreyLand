@@ -11,6 +11,8 @@ class B2Spice(object):
 	def __init__(self,board):
 		self.board = board
 		self.cirName = 'CIRCUIT%d' % id(self)
+		self.fileName = '%s.cir' % self.cirName
+		self.resName = '%s_res' % self.cirName
 		#~ os.system('mkdir b2spice')
 		#~ os.system('cd b2spice')
 		#~ self.clearEmptyNodes()
@@ -197,11 +199,11 @@ class B2Spice(object):
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
 		if analysisFlag == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
+		netList += '.wrdata %s allv\n' % self.resName
+		netList += 'set filetype=ascii '
 		netList += '.end'
 		self.netList = netList
 		#File interface stuff
-		self.fileName = '%s.cir' % self.cirName
-		self.resName = '%s_res.out' % self.cirName
 		makeFileCommand = 'touch %s' % self.fileName
 		makeFileCommand2 = 'touch %s' % self.resName
 		os.system(makeFileCommand)
@@ -215,7 +217,7 @@ class B2Spice(object):
 		#~ res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
-		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
+		#~ subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		return res
 		
 		
@@ -237,6 +239,7 @@ if __name__ == '__main__':
 	print b.buildNetList('tran',scopedNode=37,tstep = .001,ttotal=1)
 	#~ print b.buildNetList('ac',scopedNode=24,stepType='lin',startFreq=10,endFreq=1000)
 	#~ print b.netList
+	
 	
 
 	
