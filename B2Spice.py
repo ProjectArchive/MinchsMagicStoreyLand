@@ -197,11 +197,11 @@ class B2Spice(object):
 				netList += ''
 		if icCount > 0:
 			netList += subCktCard
-		if analysisFlag == 'dc':
+		if analysisType == 'dc':
 			netList += self.makeAnalysisCards('dc',scopedNode=scopedNode,vMin=vMin,vMax = vMax,numSteps=numSteps)
-		if analysisFlag == 'ac':
+		if analysisType == 'ac':
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
-		if analysisFlag == 'tran':
+		if analysisType == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
 		netList += '.write %s allv\n' % self.resName
 		netList += '.end'
@@ -223,7 +223,7 @@ class B2Spice(object):
 		#~ res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
-		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
+		#~ subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		return self.resName
 	
 	def scopeAnalysis(self):
