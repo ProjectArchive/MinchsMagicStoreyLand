@@ -194,6 +194,8 @@ class Breadboard(object):
 				self.setAllFilled(aComponent.pinList)
 				aComponent.deadPins = self.translateAllLocations(aComponent.referencePin,aComponent.deadPins)
 				self.setAllFilled(aComponent.deadPins)
+				if aComponent.displayName=='Input Device':
+					self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 				return True
 				
 			elif isinstance(aComponent,VariableBreadboardComponent):	#resistors
@@ -204,11 +206,12 @@ class Breadboard(object):
 					count+=1
 				return True
 				
-			elif isinstance(aComponent,InputDevice):	#input devices
-				self.setFilled(args[0],args[1])
-				aComponent.pinList[0]=self.locMatrix.getItem(args[0],args[1])
-				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
-				return True
+			#~ elif isinstance(aComponent,InputDevice):	#input devices
+				#~ self.setFilled(args[0],args[1])
+				#~ aComponent.pinList[0]=self.locMatrix.getItem(args[0],args[1])
+				#~ self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
+				#~ return True
+				
 		return False
 	
 
@@ -300,12 +303,16 @@ class Breadboard(object):
 			aComponent.pinList[i] = pinListCopy[(i+lenth/2)%(lenth)]  #adds half the length
 		return True
 	
-	def getComponentAtLocation(self,x,y):
+	def getComponentAtLocation(self,x,y): #does this need to be dead pins? I added it...
 		"""gets component at an x,y location"""
 		for component in self.componentList:
 			for pin in component.pinList:
 				if pin.xLoc==x and pin.yLoc==y:
 					return component
+			if isinstance(component,FixedBreadboardComponent):
+				for pin in component.deadPins:
+					if pin.xLoc==x and pin.yLoc==y:
+						return component
 		return None
 	
 	def setVoltageAtRail0(self,voltage):
@@ -340,10 +347,11 @@ class Breadboard(object):
 
 if __name__ == "__main__":
 	bb = Breadboard()
-	r = InputDevice(5,currentOrVoltage='Current')
+	r = InputDevice(4,currentOrVoltage='Current')
 	c = Scope()
-	bb.putComponent(c,4,4)
-	bb.putComponent(r,4,4)
+	print bb.putComponent(c,4,4)
+	print bb.putComponent(r,4,5)
+	print bb.getNodeVoltage(4,4)
 	print bb.isFilled(4,4)
 	print bb.componentList
 

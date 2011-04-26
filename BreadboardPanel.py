@@ -41,8 +41,25 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
+		self.Bind(wx.EVT_LEFT_DCLICK,self.OnDoubleClick)
+
+	def OnDoubleClick(self,evt):
+		posx,posy = evt.GetPosition()
+		xLoc = posx//self.bmpW
+		yLoc = posy//self.bmpH
 		
+		if self.currentComponent!= None: #we are moving something and should place it...
+			print 'dblclick while dragging component, placing it...'
+			self.OnLeftDown(evt)
+			return
 		
+		potentialTarget = self.breadboard.getComponentAtLocation(xLoc,yLoc)
+		if potentialTarget == None:
+			potentialTarget = self.getVariableTarget(posx,posy)
+			
+		if potentialTarget != None:
+			self.PopupEditor(potentialTarget)
+			
 	def OnLeaveWindow(self,evt):
 		self.currentComponent = None
 		self.Refresh()
@@ -73,7 +90,8 @@ class BreadboardPanel(wx.Panel):
 				self.currentComponent = None
 			else:
 				if self.currentComponent.anchorPos == None:
-					self.currentComponent.anchorPos = (xLoc,yLoc) #assign the first anchor
+					if not self.breadboard.getLocation(xLoc,yLoc).isFilled:
+						self.currentComponent.anchorPos = (xLoc,yLoc) #assign the first anchor
 				else:
 					if self.breadboard.putComponent(self.currentComponent.breadboardComponent,self.currentComponent.anchorPos[0],self.currentComponent.anchorPos[1],xLoc,yLoc):
 						self.currentComponent = None
@@ -98,7 +116,7 @@ class BreadboardPanel(wx.Panel):
 			return
 		else:
 			if self.currentComponent == None:
-				self.currentComponent = BreadboardComponentWrapper(self,self.getDefaultInstance(self.buttonManager.currentName),wx.Image('res/components/opamp_image.png').Rescale(4*self.bmpW,4*self.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap())
+				self.currentComponent = BreadboardComponentWrapper(self,self.getDefaultInstance(self.buttonManager.currentName))
 				self.currentComponent.pos = pos
 			else:
 				self.currentComponent.pos = pos
@@ -139,16 +157,23 @@ class BreadboardPanel(wx.Panel):
 				
 	def PaintBreadboardComponents(self,dc,rescale):
 		"""paint all components, pass in devic context and whether or not we have been scaled since last redraww"""
+		paintLaterList = []
 		for component in self.breadboard.componentList:
 			if not component in self.wrappedComponents.keys():
 				if isinstance(component, FixedBreadboardComponent):
 					self.wrappedComponents[component] = FixedBreadboardComponentWrapper(self,component)
 				else:
 					self.wrappedComponents[component] = VariableBreadboardComponentWrapper(self,component)
-			self.wrappedComponents[component].drawSelf(dc,rescale)
+			if isinstance(component,VariableBreadboardComponent):
+				paintLaterList.append(self.wrappedComponents[component])
+			else:	
+				self.wrappedComponents[component].drawSelf(dc,rescale)
+		for wrapped in paintLaterList: #paint fbbc after all vbbc
+			wrapped.drawSelf(dc,rescale)
+		
 		if len(self.wrappedComponents.keys()) > len(self.breadboard.componentList):
 			print "something was deleted, dolphin you need to fix this"
-
+		
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
 		if not dc:
@@ -188,25 +213,56 @@ class BreadboardPanel(wx.Panel):
 			return Wire()
 		elif typeName.find('opamp') != -1:
 			return OpAmp('OPA551')
+		elif typeName.find('inputdevice') != -1:
+			return InputDevice(0)
+		elif typeName.find('scope') != -1:
+			return Scope()
 		else:
 			return None
+			
 	def killCurrent(self):
 		self.wrappedComponents = {}
+	
+	def PopupEditor(self,component):
+		dlg = wx.MessageDialog(self, str(component), "edit the part?", wx.OK)
+		dlg.ShowModal() # Shows it
+		dlg.Destroy() # finally destroy it when finished.
 
-
+	def getVariableTarget(self,posx,posy):
+		closest = None
+		dist = 100
+		for comp in self.wrappedComponents.keys():
+			if isinstance(comp,VariableBreadboardComponent):
+				x1,y1 = self.getCenteredXY(comp.pinList[0].getLocationTuple())
+				x2,y2 = self.getCenteredXY(comp.pinList[1].getLocationTuple())
+				centerx,centery = (x1+x2)/2,(y1+y2)/2
+				if self.dist(posx,posy,centerx,centery) < 1.5*self.bmpW:
+					if closest == None or dist < dist(posx,posy,centerx,centery):
+						closest = comp
+						dist =self.dist(posx,posy,centerx,centery)
+		return closest
+		
+	def dist(self,x1,y1,x2,y2):
+		xdif = x2-x1
+		ydif = y2-y1			
+		return math.sqrt(xdif**2 + ydif**2)
+		
 class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of drawing while moving..."""
-	def __init__(self,bbp,breadboardComponent,bmp1,bmp2=None):
+	def __init__(self,bbp,breadboardComponent):
 		self.bbp = bbp
-		self.bmp1 = bmp1
-		self.bmp2 = bmp2
 		self.pos = (0,0)
 		self.anchorPos = None
 		self.breadboardComponent = breadboardComponent
 		self.typeName = type(self.breadboardComponent).__name__
-	
+		self.typeName = self.typeName.lower()
+		if isinstance(self.breadboardComponent,BreadboardComponent):
+			self.image = wx.Image('res/components/'+ self.typeName + '_image.png')
+			self.image.SaveFile("something.png",wx.BITMAP_TYPE_PNG)
+			self.bmp1 =self.image.Rescale(4*self.bbp.bmpW,4*self.bbp.bmpH,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+
 	def drawSelf(self,dc,op,bmpW,bmpH):
-		if isinstance(self.breadboardComponent,FixedBreadboardComponent):			
+		if isinstance(self.breadboardComponent,FixedBreadboardComponent):	
 			if self.bmp1.Ok():
 				memDC = wx.MemoryDC()
 				memDC.SelectObject(self.bmp1)
@@ -232,7 +288,6 @@ class BreadboardComponentWrapper:
 				endY = startY+(0.8*totalLength*slopeY)	
 				dc.DrawLine(startX,startY,endX,endY)
 			elif self.typeName.lower().find('resistor') != -1:
-				print 'res'
 				dc.SetPen(wx.Pen(wx.Color(255,0,0),5))
 				points = []
 				resLength = 50
@@ -306,7 +361,7 @@ class VariableBreadboardComponentWrapper:
 			yprime = y1-(self.bbp.bmpW*yRate)
 			width = self.bbp.bmpW/2
 		elif self.typeName.lower().find('resistor') != -1:
-			lengthToDraw = 3*self.bbp.bmpW
+			lengthToDraw = 2*self.bbp.bmpW
 			xprime = float(x1-(((totalLength-lengthToDraw)/2.0)*xRate))
 			yprime = float(y1-(((totalLength-lengthToDraw)/2.0)*yRate))
 			width = self.bbp.bmpW
