@@ -267,10 +267,10 @@ class GraphFrame(wx.Frame):
         #  
         pylab.setp(self.axes.get_xticklabels(), 
             visible=self.cb_xlab.IsChecked())
-        
+        self.data = [1,2,3,4,5,6,7,8,9,10,12,125,100,200,300,400]
         self.plot_data.set_xdata(np.arange(len(self.data)))
         self.plot_data.set_ydata(np.array(self.data))
-        
+
         self.canvas.draw()
     
     def on_pause_button(self, event):
