@@ -43,6 +43,7 @@ class BoundControlBox(wx.Panel):
 	"""
 	def __init__(self, parent, ID, label, initval):
 		wx.Panel.__init__(self, parent, ID)
+		self.parent = parent
 		
 		self.value = initval
 		
@@ -92,7 +93,7 @@ class GraphFrame(wx.Frame):
 	def __init__(self,data=[1,2,3,4,5]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
-		self.dataSetNames = ["ohh yeah"]
+		self.dataSetNames = ["ohh yeah","what","wahi"]
 		self.paused = False
 		self.create_menu()
 		self.create_status_bar()
@@ -126,8 +127,9 @@ class GraphFrame(wx.Frame):
 		self.ymin_control = BoundControlBox(self.panel, -1, "Y min", 0)
 		self.ymax_control = BoundControlBox(self.panel, -1, "Y max", 100)
 		
-		#self.comboBox = wx.ComboBox(self, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
-		self.pause_button = wx.Button(self.panel, -1, "Pause")
+		#~ self.comboBox = wx.ComboBox(self.panel, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
+		self.pause_button =  wx.ComboBox(self.panel, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
+		self.pause_button.Bind(wx.EVT_COMBOBOX, self.EvtCombobox)
 		self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
 		self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
 		
@@ -292,7 +294,10 @@ class GraphFrame(wx.Frame):
 	
 	def on_flash_status_off(self, event):
 		self.statusbar.SetStatusText('')
-
+	
+	def EvtCombobox(self, event):
+		print self.pause_button.GetValue()
+		
 
 def runMe():
 	app = wx.App()

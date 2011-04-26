@@ -378,14 +378,15 @@ class VariableBreadboardComponentWrapper:
 			width = self.bbp.bmpW
 			if self.typeName.lower().find('capacitor') != -1:
 				width = self.bbp.bmpW*3
-
-		rotatedPilImage = self.mainImage.resize((int(lengthToDraw)*2,width),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
-		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
-		imageWid, imageHgt = rotated_wxImage.GetSize()
-		offsetX = (xprime) -(imageWid / 2) #x1 is the pointx to draw from
-		offsetY = (yprime) - (imageHgt / 2) #y1 is the pointy to draw from
-		dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
-
+		try:
+			rotatedPilImage = self.mainImage.resize((int(lengthToDraw)*2,width),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
+			rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
+			imageWid, imageHgt = rotated_wxImage.GetSize()
+			offsetX = (xprime) -(imageWid / 2) #x1 is the pointx to draw from
+			offsetY = (yprime) - (imageHgt / 2) #y1 is the pointy to draw from
+			dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
+		except:
+			print ""
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
