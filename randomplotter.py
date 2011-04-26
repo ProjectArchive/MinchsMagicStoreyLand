@@ -89,11 +89,11 @@ class GraphFrame(wx.Frame):
 	"""
 	title = 'Demo: dynamic matplotlib graph'
 	
-	def __init__(self,data=None):
+	def __init__(self,data=[1,2,3,4,5]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
+		self.dataSetNames = ["ohh yeah"]
 		self.paused = False
-		
 		self.create_menu()
 		self.create_status_bar()
 		self.create_main_panel()
@@ -126,6 +126,7 @@ class GraphFrame(wx.Frame):
 		self.ymin_control = BoundControlBox(self.panel, -1, "Y min", 0)
 		self.ymax_control = BoundControlBox(self.panel, -1, "Y max", 100)
 		
+		#self.comboBox = wx.ComboBox(self, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.pause_button = wx.Button(self.panel, -1, "Pause")
 		self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
 		self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
@@ -181,11 +182,7 @@ class GraphFrame(wx.Frame):
 		# plot the data as a line series, and save the reference 
 		# to the plotted line series
 		#
-		self.plot_data = self.axes.plot(
-			self.data, 
-			linewidth=1,
-			color=(1, 1, 0),
-			)[0]
+		self.plot_data = self.axes.plot(self.data,linewidth=1,color=(1, 1, 0),)[0]
 
 	def draw_plot(self):
 		""" Redraws the plot
@@ -279,9 +276,6 @@ class GraphFrame(wx.Frame):
 		# if paused do not add data, but still redraw the plot
 		# (to respond to scale modifications, grid change, etc.)
 		#
-		if not self.paused:
-			self.data.append(self.datagen.next())
-			print len(self.data)
 		self.draw_plot()
 	
 	def on_exit(self, event):

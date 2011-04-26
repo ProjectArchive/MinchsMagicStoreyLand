@@ -255,7 +255,7 @@ class BreadboardPanel(wx.Panel):
 		closest = None
 		dist = 100
 		for comp in self.wrappedComponents.keys():
-			if isinstance(comp,VariableBreadboardComponent):
+			if isinstance(comp,VariableBreadboardComponent) and not isinstance(comp,Wire):
 				x1,y1 = self.getCenteredXY(comp.pinList[0].getLocationTuple())
 				x2,y2 = self.getCenteredXY(comp.pinList[1].getLocationTuple())
 				centerx,centery = (x1+x2)/2,(y1+y2)/2

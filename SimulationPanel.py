@@ -16,7 +16,7 @@ class SimulationPanel(wx.Panel):
 		image.Rescale(70,70,wx.IMAGE_QUALITY_HIGH)
 		self.startSimulationButton = wx.BitmapButton(self, wx.ID_ANY, image.ConvertToBitmap())
 		analysisTypes = ['AC','DC','Transient']
-		self.comboBox = self.combobox = wx.ComboBox(self, -1, "Modes of Analysis", (150, 30), wx.DefaultSize,analysisTypes, wx.CB_SIMPLE|wx.CB_READONLY)
+		self.comboBox = wx.ComboBox(self, -1, "Modes of Analysis", (150, 30), wx.DefaultSize,analysisTypes, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.bVerticalSizer.Add(self.startSimulationButton,0, wx.ALL|wx.ALIGN_CENTER, 5)
 		self.bVerticalSizer.Add(self.comboBox,0,wx.ALL|wx.ALIGN_CENTER, 5)
 		self.SetSizerAndFit(self.bVerticalSizer)
