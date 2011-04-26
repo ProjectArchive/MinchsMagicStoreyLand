@@ -23,7 +23,7 @@ class PartBrowserPanel(wx.Panel):
 	def gatherCommonComponents(self):
 		for componentName in self.commonComponentNameList.keys():
 			print str(componentName)
-			self.nameToBitmap[componentName] = wx.Image('res/components/' + str(componentName).lower() + '_image.png').Rescale(60,60,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+			self.nameToBitmap[componentName] = wx.Image('res/components/' + str(componentName).lower() + '_display_image.png').Rescale(60,60,wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
 
 	def createButtons(self):
 		self.buttonGroup = ButtonGroup()

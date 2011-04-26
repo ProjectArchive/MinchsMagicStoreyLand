@@ -195,6 +195,15 @@ class InputDevice(BreadboardComponent):
 		#~ technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
 		spiceName = 'V'
 		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)
+		
+class Scope(BreadboardComponent):
+	"""Basically a flag for the gui to make a plot"""
 
-	def __repr__(self):
-		return '%s at %s' % (self.displayName,self.technicalName)
+	def __init__(self):
+		attributes={}
+		displayName = 'Scope'
+		spiceName = ''
+		technicalName = ''
+		referencePin = RelativeLocation(0,0)
+		pinList = [referencePin]
+		BreadboardComponent.__init__(self,attributes,displayName,spiceName,technicalName,referencePin,pinList)

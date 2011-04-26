@@ -15,7 +15,7 @@ class B2Spice(object):
 		self.resName = '%s_res' % self.cirName
 		#~ os.system('mkdir b2spice')
 		#~ os.system('cd b2spice')
-		#~ self.clearEmptyNodes()
+		self.clearEmptyNodes()
 		self.inputDeviceList = self.getInputDevices()
 		self.getInputDevices()
 		self.rails = self.getRails()
@@ -219,6 +219,22 @@ class B2Spice(object):
 		os.system(delFileCommand)
 		#~ subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		return res
+	
+	def scopeAnalysis(self):
+		"""searches for the scope or scopes,
+		returns list of nodes at which the scops) live.
+		also removes the scope from bb component list
+		because we dont want to do analysis"""
+		
+		scopeNodes =[]
+		for i in range(len(bb.componentList)):
+			if isinstance(bb.componentList[i],Scope):
+				scopeNodes.append(bb.componentList[i])
+				del bb.componentList[i]
+		return scopeNodes
+				
+				
+				
 		
 		
 if __name__ == '__main__':

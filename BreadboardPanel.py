@@ -8,6 +8,8 @@ import wx
 from Breadboard import *
 import math
 import copy
+import Image		# Pil package for rotation+filtering all-in-one.
+import ImgConv	
 
 class BreadboardPanel(wx.Panel):
 	PLAINWIRE = "plainwire"
@@ -71,11 +73,9 @@ class BreadboardPanel(wx.Panel):
 				self.currentComponent = None
 			else:
 				if self.currentComponent.anchorPos == None:
-					self.currentComponent.anchorPos = (posx,posy) #assign the first anchor
+					self.currentComponent.anchorPos = (xLoc,yLoc) #assign the first anchor
 				else:
-					xLocAnchor = self.currentComponent.anchorPos[0]//self.bmpW
-					yLocAnchor = self.currentComponent.anchorPos[1]//self.bmpH
-					if self.breadboard.putComponent(self.currentComponent.breadboardComponent,xLocAnchor,yLocAnchor,xLoc,yLoc):
+					if self.breadboard.putComponent(self.currentComponent.breadboardComponent,self.currentComponent.anchorPos[0],self.currentComponent.anchorPos[1],xLoc,yLoc):
 						self.currentComponent = None
 				
 	# Left mouse button up.
@@ -203,6 +203,7 @@ class BreadboardComponentWrapper:
 		self.pos = (0,0)
 		self.anchorPos = None
 		self.breadboardComponent = breadboardComponent
+		self.typeName = type(self.breadboardComponent).__name__
 	
 	def drawSelf(self,dc,op,bmpW,bmpH):
 		if isinstance(self.breadboardComponent,FixedBreadboardComponent):			
@@ -213,8 +214,43 @@ class BreadboardComponentWrapper:
 		else:
 			if self.anchorPos == None:
 				return
-			dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
-			dc.DrawLine(self.anchorPos[0],self.anchorPos[1],self.pos[0],self.pos[1])
+			x1,y1 = self.bbp.getCenteredXY(self.anchorPos)
+			x2,y2 = self.pos
+			dx,dy = (x2-x1,y2-y1)
+			totalLength = math.sqrt(dx**2 +dy**2)
+			slopeX = dx/totalLength
+			slopeY = dy/totalLength #slope of x with respect to length	
+
+			dc.SetPen( wx.Pen( wx.Color(128,128,128),3))	
+			dc.DrawLine(x1,y1,x2,y2)
+			
+			if self.typeName.lower().find('wire') != -1:
+				dc.SetPen(wx.Pen(wx.Color(255,0,0),5))
+				startX=x1 + (0.1*totalLength*slopeX)
+				startY =y1 + (0.1*totalLength*slopeY)
+				endX = startX+(0.8*totalLength*slopeX)
+				endY = startY+(0.8*totalLength*slopeY)	
+				dc.DrawLine(startX,startY,endX,endY)
+			elif self.typeName.lower().find('resistor') != -1:
+				print 'res'
+				dc.SetPen(wx.Pen(wx.Color(255,0,0),5))
+				points = []
+				resLength = 50
+				resHeight = 20
+				startL = float(totalLength-resLength )/ 2
+				startX = x1 + (startL*slopeX)
+				startY =y1 + (startL*slopeY)
+				endX = startX+(resLength*slopeX)
+				endY = startY+(resHeight*slopeY)	
+				points.append((startX-15,startY)) #top left vertices
+				points.append((startX+15,startY)) #top right vertices
+				points.append((endX+15,endY)) #top right vertices
+
+				points.append((endX-15,endY)) #top left vertices
+				
+				dc.DrawPolygon(points)
+			
+			
 			
 class VariableBreadboardComponentWrapper:
 	"""this needed to happen"""
@@ -223,34 +259,64 @@ class VariableBreadboardComponentWrapper:
 		self.vbbc = variableBreadboardComponent
 		self.typeName= type(self.vbbc).__name__
 		
-		#main image of this component's center
-		if not self.typeName in self.bbp.typeToImage.keys():
-			self.bbp.loadTypeImage(self.typeName)
-		#image of the wire....
-		if not BreadboardPanel.PLAINWIRE in self.bbp.typeToImage.keys():
-			self.bbp.loadTypeImage(BreadboardPanel.PLAINWIRE)
+		self.wireImage = Image.open('res/components/plainwire_image.png')
+		self.mainImage = Image.open('res/components/' + self.typeName.lower() + '_image.png')
 		
-		self.mainBMP = None #will be created on first draw
-		self.wireBMP = None #will be created on first draw
-		
+
+	def getTheta(self,dx,dy):
+		if dx ==0:
+			if dy > 0:
+				return 90
+			else:
+				return -90
+		if dy ==0:
+			if dx >0:
+				return 180
+			else:
+				return 0
+		if dy <0 and dx >0:
+			res = (180-math.degrees(math.atan(dy/dx)))
+			return res
+		if dy >0 and dx >0:
+			return 180.0- math.degrees(math.atan(dy/dx))
+		return -math.degrees(math.atan(dy/dx))
+
 	def drawSelf(self,dc,rescale):
 		"""draw this vbbc. optionally, if xy1 and xy2 are non None, draw it between the two XY's,
 		 instead of the locations, which may not be absolute"""		
 		x1,y1 = self.bbp.getCenteredXY(self.vbbc.pinList[0].getLocationTuple())
 		x2,y2 = self.bbp.getCenteredXY(self.vbbc.pinList[1].getLocationTuple())		
-		dx,dy = (x2-x1,y2-y1)
+		dx,dy = (x1-x2,y1-y2)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
-		theta = 3.1415/4#this needs an answer....
-		totalLength = math.sqrt(dx**2 + dy**2) #total length conencting the two points
-		if rescale or self.mainBMP == None or self.wireBMP == None:
-			self.mainBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[self.typeName]).Rotate(theta,(0,0)).Rescale(self.bbp.bmpW*2,self.bbp.bmpH))
-			self.wireBMP = wx.BitmapFromImage(copy.copy(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE]).Rescale(totalLength,self.bbp.bmpH/2).Rotate90())
-		#if math.sqrt(disp[0]**2 + disp[1]**2) < 1:
-		#just draw the damn centerpiece!
-		#there is a sin/cos term here, we need to shift by some amount...		
-		#dc.DrawBitmap(self.wireBMP, x1, y1)
-		dc.SetPen( wx.Pen( wx.Color(128,128,128),3))
-		dc.DrawLine(x1,y1,x2,y2)
+		totalLength = math.sqrt(dx**2 +dy**2)
+		xRate = dx/totalLength
+		yRate = dy/totalLength
+
+		#~ #first draw the underlying wire
+		rotatedPilImage = self.wireImage.resize((int(totalLength)*2,int(self.bbp.bmpW/3.0)),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
+		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
+		imageWid, imageHgt = rotated_wxImage.GetSize()
+		offsetX = (x1) -(imageWid / 2) #x1 is the pointx to draw from
+		offsetY = (y1) - (imageHgt / 2) #y1 is the pointy to draw from
+		dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
+		
+		if self.typeName.lower().find('wire') != -1:
+			lengthToDraw = totalLength-(2*self.bbp.bmpW)
+			xprime = x1-(self.bbp.bmpW*xRate)
+			yprime = y1-(self.bbp.bmpW*yRate)
+			width = self.bbp.bmpW/2
+		elif self.typeName.lower().find('resistor') != -1:
+			lengthToDraw = 3*self.bbp.bmpW
+			xprime = float(x1-(((totalLength-lengthToDraw)/2.0)*xRate))
+			yprime = float(y1-(((totalLength-lengthToDraw)/2.0)*yRate))
+			width = self.bbp.bmpW
+		rotatedPilImage = self.mainImage.resize((int(lengthToDraw)*2,width),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
+		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
+		imageWid, imageHgt = rotated_wxImage.GetSize()
+		offsetX = (xprime) -(imageWid / 2) #x1 is the pointx to draw from
+		offsetY = (yprime) - (imageHgt / 2) #y1 is the pointy to draw from
+		dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
+
 		
 class FixedBreadboardComponentWrapper:
 	def __init__(self,breadboardPanel,fixedBreadboardComponent):
@@ -286,8 +352,8 @@ class Example(wx.Frame):
 		wx.Frame.__init__(self,parent, title=title)
 		bb = Breadboard()		
 		a = OpAmp('hello')
-		c = Resistor(10)
-		print bb.putComponent(c,3,3,3,7)
+		c = Resistor(50)
+		print bb.putComponent(c,28,10,8,4)
 		print bb.putComponent(a,8,7)
 		BreadboardPanel(self,bb)
 		self.Fit()
