@@ -74,6 +74,8 @@ class Wire(Resistor):
 	def __init__(self):
 		"""its a wire, but actually a pico-ohm resistor"""
 		Resistor.__init__(self,10**-9)
+		self.displayName='Wire'
+		self.technicalName = 'Wire'
 	
 	def __repr__(self):
 		return "Wire at ref pin %g,%g" %(self.referencePin.xLoc,self.referencePin.yLoc)
@@ -97,7 +99,7 @@ class OpAmp(FixedBreadboardComponent):
 	"""An eight-pin op amp. doesnt have any attributes.
 	We start counting pins at 1, like in the real world"""
 	
-	def __init__(self,technicalName):
+	def __init__(self):
 		"""reference is location of bottom left pin
 		8 pins. bottom left is reference pin"""		
 		referencePin = RelativeLocation()
@@ -119,7 +121,8 @@ class OpAmp(FixedBreadboardComponent):
 		deadPin6 = RelativeLocation(2,-2)
 		deadPin7 = RelativeLocation(3,-2)
 		deadPins = [deadPin0,deadPin1,deadPin2,deadPin3,deadPin4,deadPin5,deadPin6,deadPin7]
-
+		
+		technicalName = 'OPA551'
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'OpAmp' #default
 		spiceName = 'X'
@@ -130,7 +133,7 @@ class QuadChip(FixedBreadboardComponent):
 	"""A 14 pin op amp.
 	We start counting pins at 1, like in the real world"""
 	
-	def __init__(self,technicalName):
+	def __init__(self):
 		"""reference is location of bottom left pin
 		14 pins. bottom left is reference pin"""		
 		referencePin = RelativeLocation()
@@ -164,6 +167,7 @@ class QuadChip(FixedBreadboardComponent):
 		deadPin13 = RelativeLocation(6,-2)
 		deadPins = [deadPin0,deadPin1,deadPin2,deadPin3,deadPin4,deadPin5,deadPin6,deadPin7,deadPin8,deadPin9,deadPin10,deadPin11,deadPin12,deadPin13]
 	
+		technicalName = ''
 		pinList = [referencePin,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10,pin11,pin12,pin13,pin14]
 		attributes = {} #for our purposes, unneeded (max current? rail to rail? max power?)
 		displayName = 'QuadChip' #default
@@ -183,7 +187,7 @@ class InputDevice(FixedBreadboardComponent):
 		self.frequency = frequency
 		self.currentOrVoltage=currentOrVoltage
 		pinList = [referencePin]
-		attributes={}
+		attributes={'Voltage':voltage,'Voltage Type':voltageType,'Frequency':frequency}
 		width=1
 		height=1
 		deadPins=[]

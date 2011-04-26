@@ -15,7 +15,7 @@ class B2Spice(object):
 		self.resName = '%s_res' % self.cirName
 		#~ os.system('mkdir b2spice')
 		#~ os.system('cd b2spice')
-		self.clearEmptyNodes()
+		#~ self.clearEmptyNodes()
 		self.inputDeviceList = self.getInputDevices()
 		self.getInputDevices()
 		self.rails = self.getRails()
@@ -42,7 +42,7 @@ class B2Spice(object):
 	def getInputDevices(self):
 		inputDeviceList = []
 		for comp in self.board.componentList:
-			if isinstance(comp,InputDevice):
+			if comp.displayName=='Input Device':
 				inputDeviceList.append(comp)
 		return inputDeviceList
 	
@@ -59,13 +59,14 @@ class B2Spice(object):
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
 		return inputDeviceCards
 
-	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def makeAnalysisCards(self,analysisType='tran',scopedNode=0,vMin=0,vMax=5,tstep=.01,ttotal=1,stepType='lin',numSteps=20,startFreq=.001,endFreq=100000):
 		if len(self.inputDeviceList) <1:
 			return '.dc V1 %g %g 1 V2 %g %g 1 V3 %g %g 1\n.print dc v(%d) \n' % (self.board.rails[1],self.board.rails[1],self.board.rails[2],self.board.rails[2],self.board.rails[3],self.board.rails[3], scopedNode)
 		if analysisType == 'ac':
 			return self.makeACCards(scopedNode,stepType,numSteps,startFreq,endFreq)
 		elif analysisType == 'dc':
-			return self.makeDCCards(scopedNode,vMin,vMax,stepSize)
+			return self.makeDCCards(scopedNode,vMin,vMax,numSteps
+			)
 		else:
 			return self.makeTranCards(scopedNode,tstep,ttotal)
 		
@@ -76,14 +77,14 @@ class B2Spice(object):
 		printLine = '.print ac v(%d) \n' % scopedNode
 		return acLine + printLine
 	
-	def makeDCCards(self,scopedNode,vMin,vMax,stepSize):
+	def makeDCCards(self,scopedNode,vMin,vMax,numSteps):
 		dcInputDeviceList = []
 		for item in self.inputDeviceList:
 			if item.voltageType == 'DC':
 				dcInputDeviceList.append(item)
 		self.dcInputDeviceList = dcInputDeviceList
 		inp = dcInputDeviceList[0]
-		dcLine = '.dc V(%d) %g %g %g \n' % (id(inp),vMin,vMax,stepSize)
+		dcLine = '.dc V(%d) %g %g %g \n' % (id(inp),vMin,vMax,numSteps)
 		printLine = '.print dc v(%d) \n' % scopedNode 
 		return dcLine+printLine
 	
@@ -100,7 +101,6 @@ class B2Spice(object):
 			#~ if not isinstance(component,FixedBreadboardComponent):
 			for pin in component.pinList:
 				d[pin.Node.number]=d.get(pin.Node.number,0)+1
-		print d
 		for val in d:
 			if d[val]==1 and val!=1 and val!=2 and val!=3 and val!=0:
 				count=-1
@@ -163,20 +163,24 @@ class B2Spice(object):
 		pinDict['plusSupply'] = opamp.pinList[5]
 		pinDict['out'] = opamp.pinList[6]
 		pinDict['notUsed2'] = opamp.pinList[7]
-		#~ opAmpNodeString = '%d %d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number,pinDict['out'].Node.number,pinDict['flag'].Node.number)		
-		#~ opAmpID = 'X%d' % id(opamp)
-		#~ subCktID = opamp.technicalName
-		#~ subCktFileName = '%s.txt' % opamp.technicalName
-		#~ fin = open(subCktFileName)
-		#~ opAmpSubCkt = fin.read()
-		#~ opAmpCard = '%s %s %s\n' % (opAmpID,opAmpNodeString,subCktID)
-		#~ fin.close()
-		#~ return (opAmpCard,opAmpSubCkt)
-		return 'e%d %d 0 %d %d 999k\n' % (id(opamp),pinDict['out'].Node.number,pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number)
+		opAmpNodeString = '%d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['out'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number)		
+		opAmpID = 'X%d' % id(opamp)
+		subCktID = 'opamp2'
+		subCktFileName = '%s.txt' % opamp.technicalName
+		fin = open(subCktFileName)
+		opAmpSubCkt = fin.read()
+		opAmpCard = '%s %s %s\n' % (opAmpID,opAmpNodeString,subCktID)
+		fin.close()
+		return (opAmpCard,opAmpSubCkt)
+		#~ return 'e%d %d 0 %d %d 999k\n' % (id(opamp),pinDict['out'].Node.number,pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number)
 	
-	def buildNetList(self,analysisFlag='dc',scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def buildNetList(self,analysisType='tran',scopedNode=0,vMin=0,vMax=5,tstep=.01,ttotal=1,stepType='lin',numSteps=20,startFreq=.001,endFreq=100000):
 		"""dc requires scopedNode,vMin,vMax,and stepSize. tran requires scopedNode, tstep, and ttotal. ac requires stepType, numSteps,
 		startFreq, and endFreq"""
+		makeFileCommand = 'touch %s' % self.fileName
+		makeFileCommand2 = 'touch %s' % self.resName
+		os.system(makeFileCommand)
+		os.system(makeFileCommand2)
 		netList = self.cirName + '\n'
 		netList += self.makeRailCards()
 		netList += self.makeInputDeviceCards()
@@ -186,31 +190,28 @@ class B2Spice(object):
 				netList += self.buildVariableComponentText(comp)
 				#~ compCard,subCktCard = self.buildOpAmpText(comp)
 			elif isinstance(comp,OpAmp):
-				compCard = self.buildOpAmpText(comp)
+				compCard,subCktCard = self.buildOpAmpText(comp)
 				netList += compCard
-				#~ icCount += 1
+				icCount += 1
 			else:
 				netList += ''
-		#~ if icCount > 0:
-			#~ netList += subCktCard
-		if analysisFlag == 'dc':
-			netList += self.makeAnalysisCards('dc',scopedNode=scopedNode,vMin=vMin,vMax = vMax,stepSize=stepSize)
-		if analysisFlag == 'ac':
+		if icCount > 0:
+			netList += subCktCard
+		if analysisType == 'dc':
+			netList += self.makeAnalysisCards('dc',scopedNode=scopedNode,vMin=vMin,vMax = vMax,numSteps=numSteps)
+		if analysisType == 'ac':
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
-		if analysisFlag == 'tran':
+		if analysisType == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
-		#~ netList += '*wrdata %s allv\n' % self.resName
+		netList += '.write %s allv\n' % self.resName
 		netList += '.end'
 		self.netList = netList
 		#File interface stuff
-		makeFileCommand = 'touch %s' % self.fileName
-		makeFileCommand2 = 'touch %s' % self.resName
-		os.system(makeFileCommand)
-		os.system(makeFileCommand2)
 		fout = open(self.fileName,'w')
 		fout.write(self.netList)
 		fout.close()
 		#~ spiceCommand = 'ngspice -b %s -r %s' % (self.fileName,self.resName)
+		print self.nodeList
 		res = subprocess.Popen(['ngspice','-b',self.fileName,'-r',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		#~ p = subprocess.Popen(['ngspice'],stdout=subprocess.PIPE)
 		#~ p.communicate('set filetype=ascii')
@@ -224,7 +225,7 @@ class B2Spice(object):
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
 		#~ subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
-		return res
+		return self.resName
 	
 	def scopeAnalysis(self):
 		"""searches for the scope or scopes,
@@ -234,7 +235,7 @@ class B2Spice(object):
 		
 		scopeNodes =[]
 		for i in range(len(bb.componentList)):
-			if bb.componentList[i].displayName=='Input Device':
+			if bb.componentList[i].displayName=='Scope':
 				scopeNodes.append(bb.componentList[i])
 				del bb.componentList[i]
 		return scopeNodes
@@ -245,22 +246,26 @@ class B2Spice(object):
 		
 if __name__ == '__main__':
 	bb = Breadboard()
-	source = InputDevice(10,'DC')
-	R = Resistor(10000)
-	C = Capacitor(1)
+	source = InputDevice(.01,'DC')
+	p = OpAmp()
 	W1 = Wire()
 	W2 = Wire()
-	bb.putComponent(source,6,4)
-	bb.putComponent(R,6,5,1,13)
-	bb.putComponent(C,6,6,9,13)
-	bb.putComponent(W1,1,14,1,17)
-	bb.putComponent(W2,9,14,9,17)
+	W3 = Wire()
+	W4 = Wire()
+	C = Capacitor(.01)
+	print bb.putComponent(p,3,10)
+	print bb.putComponent(source,5,12)
+	print bb.putComponent(W1,4,14,4,17)
+	print bb.putComponent(W2,6,14,6,17)
+	print bb.putComponent(W3,4,6,4,0)
+	print bb.putComponent(W4,5,6,7,17)
+	print bb.putComponent(C,5,14,3,16)
 	b = B2Spice(bb)
 	#~ print b.nodeList
 	#~ print b.rails
-	print b.buildNetList('tran',scopedNode=37,tstep = .001,ttotal=1)
-	#~ print b.buildNetList('ac',scopedNode=24,stepType='lin',startFreq=10,endFreq=1000)
-	#~ print b.netList
+	print b.buildNetList('tran',scopedNode=25,tstep = .001,ttotal=1)
+	#~ print b.buildNetList('ac',scopedNode=5,stepType='dec',numSteps = 20,startFreq=.0001,endFreq=1000)
+	print b.netList
 	
 	
 

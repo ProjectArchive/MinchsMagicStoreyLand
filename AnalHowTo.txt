@@ -1,0 +1,9 @@
+AC - change frequency of AC source. arguments: 
+b.buildNetList('ac',scopedNode=5,stepType='dec',numSteps = 20,startFreq=.0001,endFreq=1000)
+stepTypes: lin,oct,or dec
+Transient - time dependent
+b.buildNetList('tran',scopedNode=25,tstep = .001,ttotal=1)
+starts from 0. tstep is timestep, ttotal is the end time
+DC - change voltage of DC source. 
+b.buildNetList('dc',scopedNode,vMin,vMax,numSteps):
+vMin is the lower voltage, vMax is the upper voltage, numSteps is the number of steps.

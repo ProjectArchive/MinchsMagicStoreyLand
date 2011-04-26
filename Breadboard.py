@@ -182,7 +182,7 @@ class Breadboard(object):
 		return True
 
 	def putComponent(self,aComponent,*args):
-		"""This function puts the a component down. Give it a reference pin for a regular component.
+		"""This function puts the a component down. Give it a reference pin for a fixed component.
 		Give it x1,y1,x2,y2 for a variable size component, or x,y for an input device. """	
 		
 		if self.canPutComponent(aComponent,args):
@@ -211,7 +211,7 @@ class Breadboard(object):
 				#~ aComponent.pinList[0]=self.locMatrix.getItem(args[0],args[1])
 				#~ self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 				#~ return True
-				
+		
 		return False
 	
 
@@ -341,17 +341,36 @@ class Breadboard(object):
 		self.rails[3]=voltage
 		self.setNodeVoltage(0,0,voltage)
 		return True
-	
-	
-		
+
 
 if __name__ == "__main__":
 	bb = Breadboard()
-	r = InputDevice(4,currentOrVoltage='Current')
-	c = Scope()
-	print bb.putComponent(c,4,4)
-	print bb.putComponent(r,4,5)
-	print bb.getNodeVoltage(4,4)
-	print bb.isFilled(4,4)
-	print bb.componentList
+	
+	a = InputDevice(4,currentOrVoltage='Current')
+	b = Scope()
+	
+	c = Resistor(5)
+	d = Capacitor(100)
+	e = Wire()
+	
+	f = OpAmp('OPA551')
+	g = QuadChip('LM661')
 
+	
+	listy = [a,b,c,d,e,f,g]
+	
+	bb.putComponent(a,3,3)
+	bb.putComponent(b,4,3)
+	bb.putComponent(c,5,3,6,3)
+	bb.putComponent(d,7,3,8,3)
+	bb.putComponent(e,9,3,10,3)
+	bb.putComponent(f,3,7)
+	bb.putComponent(g,20,7)
+	
+	print f.pinList
+	
+	print bb.getComponentAtLocation(7,7)
+	
+	#~ for i in range(bb.numColumns):
+		#~ for j in range(bb.numRows):
+			#~ print bb.getLocation(i,j)
