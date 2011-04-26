@@ -291,8 +291,6 @@ class VariableBreadboardComponentWrapper:
 		return -math.degrees(math.atan(dy/dx))
 
 	def drawSelf(self,dc,rescale):
-		
-		self.wireBMP = wx.BitmapFromImage(self.bbp.typeToImage[BreadboardPanel.PLAINWIRE].Rotate(math.pi/2,(0,0)))
 		"""draw this vbbc. optionally, if xy1 and xy2 are non None, draw it between the two XY's,
 		 instead of the locations, which may not be absolute"""		
 		x1,y1 = self.bbp.getCenteredXY(self.vbbc.pinList[0].getLocationTuple())
@@ -314,7 +312,11 @@ class VariableBreadboardComponentWrapper:
 			dc.DrawLine(startX,startY,endX,endY)
 		elif self.typeName.lower().find('resistor') != -1:
 			imgFilename ='res/components/plainwire_image.png'
-			self.pilImage = Image.open( imgFilename )			
+			self.pilImage = Image.open( imgFilename )
+			self.pilImage.save('part1.png')
+			#twice the length is used, as the images are half length
+			self.pilImage = self.pilImage.resize((int(totalLength)*2,self.pilImage.size[1]))
+			self.pilImage.save('part2.png')
 			rotatedPilImage = self.pilImage.rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
 			rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
 			imageWid, imageHgt = rotated_wxImage.GetSize()
@@ -322,7 +324,7 @@ class VariableBreadboardComponentWrapper:
 			offsetY = (y1) - (imageHgt / 2)
 			# Display the rotated image. Only wxBitmaps can be displayed, not wxImages.
 			# .DrawBitmap() autmatically "closes" the dc, meaning it finalizes the bitmap in some way.
-			dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY )	
+			dc.DrawBitmap( rotated_wxImage.ConvertToBitmap(), offsetX, offsetY)
 
 
 			
