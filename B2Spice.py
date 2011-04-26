@@ -224,7 +224,7 @@ class B2Spice(object):
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
 		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
-		return res
+		return self.resName
 	
 	def scopeAnalysis(self):
 		"""searches for the scope or scopes,
