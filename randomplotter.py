@@ -89,7 +89,7 @@ class GraphFrame(wx.Frame):
 	"""
 	title = 'Demo: dynamic matplotlib graph'
 	
-	def __init__(self,data=None):
+	def __init__(self,data=[1,2,3,4,5]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
 		self.paused = False
@@ -279,9 +279,6 @@ class GraphFrame(wx.Frame):
 		# if paused do not add data, but still redraw the plot
 		# (to respond to scale modifications, grid change, etc.)
 		#
-		if not self.paused:
-			self.data.append(self.datagen.next())
-			print len(self.data)
 		self.draw_plot()
 	
 	def on_exit(self, event):
