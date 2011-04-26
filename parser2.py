@@ -26,6 +26,8 @@ def input_parser():
 			print line
 			vals[lineNum%n].append(float(line))
 			lineNum +=1
-	print vals[0]
+	return vals
+	
+	
 input_parser()
 

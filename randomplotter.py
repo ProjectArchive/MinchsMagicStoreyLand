@@ -93,12 +93,16 @@ class GraphFrame(wx.Frame):
 	def __init__(self,data=[1,2,3,4,5]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
-		self.dataSetNames = ["ohh yeah","what","wahi"]
+		self.dataSetNames = range(1,len(data))
+		for x in range(len(self.dataSetNames)):
+			self.dataSetNames[x] = str(self.dataSetNames[x])
+			
+		print self.dataSetNames
 		self.paused = False
 		self.create_menu()
 		self.create_status_bar()
 		self.create_main_panel()
-		
+		self.selection=1
 		self.redraw_timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)		
 		self.redraw_timer.Start(100)
@@ -128,7 +132,7 @@ class GraphFrame(wx.Frame):
 		self.ymax_control = BoundControlBox(self.panel, -1, "Y max", 100)
 		
 		#~ self.comboBox = wx.ComboBox(self.panel, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
-		self.pause_button =  wx.ComboBox(self.panel, -1, self.dataSetNames[1], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
+		self.pause_button =  wx.ComboBox(self.panel, -1, self.dataSetNames[0], (150, 30), wx.DefaultSize,self.dataSetNames, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.pause_button.Bind(wx.EVT_COMBOBOX, self.EvtCombobox)
 		self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
 		self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
@@ -238,8 +242,8 @@ class GraphFrame(wx.Frame):
 		# iterate, and setp already handles this.
 		#  
 		pylab.setp(self.axes.get_xticklabels(),visible=self.cb_xlab.IsChecked())
-		self.plot_data.set_xdata(np.arange(len(self.data)))
-		self.plot_data.set_ydata(np.array(self.data))
+		self.plot_data.set_xdata(np.array(self.data[0]))
+		self.plot_data.set_ydata(np.array(self.data[self.selection]))
 
 		self.canvas.draw()
 	
@@ -294,6 +298,7 @@ class GraphFrame(wx.Frame):
 		self.statusbar.SetStatusText('')
 	
 	def EvtCombobox(self, event):
+		self.selection = int(self.pause_button.GetValue()) 
 		print self.pause_button.GetValue()
 		
 
