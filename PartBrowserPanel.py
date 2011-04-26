@@ -14,7 +14,7 @@ class PartBrowserPanel(wx.Panel):
 		wx.Panel.__init__(self, parent,*args,**kwargs)
 		self.bSizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.nameToBitmap = {}
-		self.commonComponentNameList = {'OpAmp':False,'resistor':True,'capacitor':True,'wire':True} #common components and whether or not they are flexible
+		self.commonComponentNameList = {'scope':False,'inputdevice':False,'OpAmp':False,'resistor':True,'capacitor':True,'wire':True} #common components and whether or not they are flexible
 		self.gatherCommonComponents()
 		self.createButtons()
 		self.createComboBox()

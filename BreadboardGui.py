@@ -25,14 +25,12 @@ class BreadboardGUI(wx.Frame):
 		self._mgr.AddPane(self.breadboardPanel,auiInf1) #main focused widget
 		self._mgr.AddPane(self.partBrowserPanel,auiInfo)
 		self._mgr.AddPane(self.simulationPanel, wx.RIGHT)
-
 		# tell the manager to 'commit' all the changes just made
 		#self.Fit()
 		self.Layout()
 		self._mgr.Update()
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 		self.simulationPanel.Bind(wx.EVT_BUTTON,self.OnSimulateButtonPress)
-	
 	def createMenu(self):
 		filemenu= wx.Menu()
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open","Generic open")
@@ -40,8 +38,6 @@ class BreadboardGUI(wx.Frame):
 		
 		menuSave = filemenu.Append(wx.ID_SAVE, "&Save","Generic save")
 		self.Bind(wx.EVT_MENU, self.OnSave, menuSave)
-
-		
 		menuAbout= filemenu.Append(wx.ID_ABOUT, "&About","Generic Information about this program")
 		self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
 				
