@@ -163,7 +163,7 @@ class B2Spice(object):
 		pinDict['plusSupply'] = opamp.pinList[5]
 		pinDict['out'] = opamp.pinList[6]
 		pinDict['notUsed2'] = opamp.pinList[7]
-		opAmpNodeString = '%d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['out'].Node.numberpinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number)		
+		opAmpNodeString = '%d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['out'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number)		
 		opAmpID = 'X%d' % id(opamp)
 		subCktID = opamp.technicalName.upper()
 		subCktFileName = '%s.txt' % opamp.technicalName
