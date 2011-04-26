@@ -211,6 +211,7 @@ class B2Spice(object):
 		fout.write(self.netList)
 		fout.close()
 		#~ spiceCommand = 'ngspice -b %s -r %s' % (self.fileName,self.resName)
+		print self.nodeList
 		res = subprocess.Popen(['ngspice','-b',self.fileName,'-r',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		#~ p = subprocess.Popen(['ngspice'],stdout=subprocess.PIPE)
 		#~ p.communicate('set filetype=ascii')
