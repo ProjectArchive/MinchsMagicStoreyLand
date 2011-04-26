@@ -307,7 +307,7 @@ class VariableBreadboardComponentWrapper:
 			yprime = y1-(self.bbp.bmpW*yRate)
 			width = self.bbp.bmpW/2
 		elif self.typeName.lower().find('resistor') != -1:
-			lengthToDraw = 3*self.bbp.bmpW
+			lengthToDraw = 2*self.bbp.bmpW
 			xprime = float(x1-(((totalLength-lengthToDraw)/2.0)*xRate))
 			yprime = float(y1-(((totalLength-lengthToDraw)/2.0)*yRate))
 			width = self.bbp.bmpW

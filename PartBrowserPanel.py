@@ -17,6 +17,7 @@ class PartBrowserPanel(wx.Panel):
 		self.commonComponentNameList = {'OpAmp':False,'resistor':True,'capacitor':True,'wire':True} #common components and whether or not they are flexible
 		self.gatherCommonComponents()
 		self.createButtons()
+		self.createComboBox()
 		self.SetSizerAndFit(self.bSizer)
 		self.Layout()
 
@@ -33,7 +34,11 @@ class PartBrowserPanel(wx.Panel):
 			button1.isVariable = self.commonComponentNameList[name]
 			self.buttonGroup.addButton(button1,name)
 			self.bSizer.Add(button1,0,wx.ALL,5)
-
+			
+	def createComboBox(self):
+		sampleList = ['Inductor','Speaker','Difference Amplifier']
+		self.combobox = wx.ComboBox(self, -1, "Special Components", (150, 30), wx.DefaultSize,sampleList, wx.CB_SIMPLE|wx.CB_READONLY)
+		self.bSizer.Add(self.combobox,wx.ALIGN_RIGHT)
 class ButtonGroup(object):
 	"""encapsulate radio button features using a manager of a number of bitmaptogglebuttons. This should be built into wxpython, but is not B/C of native operations, I believe"""
 	
