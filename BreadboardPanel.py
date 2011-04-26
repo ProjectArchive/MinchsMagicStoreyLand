@@ -350,9 +350,12 @@ class VariableBreadboardComponentWrapper:
 		dx,dy = (x1-x2,y1-y2)
 		disp = self.vbbc.pinList[0].displacementTo(self.vbbc.pinList[1])
 		totalLength = math.sqrt(dx**2 +dy**2)
-		xRate = dx/totalLength
-		yRate = dy/totalLength
-
+		try:
+			xRate = dx/totalLength
+			yRate = dy/totalLength
+		except:
+			return
+			
 		#~ #first draw the underlying wire
 		rotatedPilImage = self.wireImage.resize((int(totalLength)*2,int(self.bbp.bmpW/3.0)),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
 		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
