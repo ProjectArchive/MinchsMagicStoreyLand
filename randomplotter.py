@@ -88,7 +88,7 @@ class BoundControlBox(wx.Panel):
 class GraphFrame(wx.Frame):
 	""" The main frame of the application
 	"""
-	title = 'Demo: dynamic matplotlib graph'
+	title = "Minch's Magic Storey Land"
 	
 	def __init__(self,data=[1,2,3,4,5]):
 		wx.Frame.__init__(self, None, -1, self.title)
@@ -176,7 +176,7 @@ class GraphFrame(wx.Frame):
 
 		self.axes = self.fig.add_subplot(111)
 		self.axes.set_axis_bgcolor('black')
-		self.axes.set_title('Very important random data', size=12)
+		self.axes.set_title('Simulation Results', size=12)
 		
 		pylab.setp(self.axes.get_xticklabels(), fontsize=8)
 		pylab.setp(self.axes.get_yticklabels(), fontsize=8)
@@ -237,9 +237,7 @@ class GraphFrame(wx.Frame):
 		# returns a list over which one needs to explicitly 
 		# iterate, and setp already handles this.
 		#  
-		pylab.setp(self.axes.get_xticklabels(), 
-			visible=self.cb_xlab.IsChecked())
-		self.data = [1,2,3,4,5,6,7,8,9,10,12,125,100,200,300,400]
+		pylab.setp(self.axes.get_xticklabels(),visible=self.cb_xlab.IsChecked())
 		self.plot_data.set_xdata(np.arange(len(self.data)))
 		self.plot_data.set_ydata(np.array(self.data))
 

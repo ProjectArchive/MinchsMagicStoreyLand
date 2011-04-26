@@ -107,6 +107,8 @@ class BreadboardGUI(wx.Frame):
 			b.buildNetList('tran')
 		else:
 			print "no mode of analysis"
+		
+			
 
 
 if __name__=="__main__":
