@@ -39,6 +39,7 @@ class PartBrowserPanel(wx.Panel):
 		sampleList = ['Inductor','Speaker','Difference Amplifier']
 		self.combobox = wx.ComboBox(self, -1, "Special Components", (150, 30), wx.DefaultSize,sampleList, wx.CB_SIMPLE|wx.CB_READONLY)
 		self.bSizer.Add(self.combobox,wx.ALIGN_RIGHT)
+
 class ButtonGroup(object):
 	"""encapsulate radio button features using a manager of a number of bitmaptogglebuttons. This should be built into wxpython, but is not B/C of native operations, I believe"""
 	
