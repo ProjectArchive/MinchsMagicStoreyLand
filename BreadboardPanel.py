@@ -367,12 +367,12 @@ class VariableBreadboardComponentWrapper:
 			yprime = y1-(self.bbp.bmpW*yRate)
 			width = self.bbp.bmpW/2
 		elif self.typeName.lower().find('resistor')  != -1 or self.typeName.lower().find('capacitor') != -1:
-			lengthToDraw = 2*self.bbp.bmpW
+			lengthToDraw = 1.5*self.bbp.bmpW
 			xprime = float(x1-(((totalLength-lengthToDraw)/2.0)*xRate))
 			yprime = float(y1-(((totalLength-lengthToDraw)/2.0)*yRate))
 			width = self.bbp.bmpW
 			if self.typeName.lower().find('capacitor') != -1:
-				width = self.bbp.bmpW*4
+				width = self.bbp.bmpW*3
 
 		rotatedPilImage = self.mainImage.resize((int(lengthToDraw)*2,width),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
 		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
