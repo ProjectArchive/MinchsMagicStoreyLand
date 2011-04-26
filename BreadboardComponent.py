@@ -74,6 +74,8 @@ class Wire(Resistor):
 	def __init__(self):
 		"""its a wire, but actually a pico-ohm resistor"""
 		Resistor.__init__(self,10**-9)
+		self.displayName='Wire'
+		self.technicalName = 'Wire'
 	
 	def __repr__(self):
 		return "Wire at ref pin %g,%g" %(self.referencePin.xLoc,self.referencePin.yLoc)
@@ -183,7 +185,7 @@ class InputDevice(FixedBreadboardComponent):
 		self.frequency = frequency
 		self.currentOrVoltage=currentOrVoltage
 		pinList = [referencePin]
-		attributes={}
+		attributes={'Voltage':voltage,'Voltage Type':voltageType,'Frequency':frequency}
 		width=1
 		height=1
 		deadPins=[]
