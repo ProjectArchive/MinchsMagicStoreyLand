@@ -113,7 +113,7 @@ if __name__=="__main__":
 		a = OpAmp('OPA551')
 		c = Resistor(10)
 
-		bb.putComponent(c,4,4,8,4)
+		bb.putComponent(c,28,10,8,4)
 		bb.putComponent(a,17,13)
 		app = wx.App()
 		frame = BreadboardGUI(None,bb)
