@@ -341,6 +341,8 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	r = InputDevice(5,currentOrVoltage='Current')
+	c = Scope()
+	bb.putComponent(c,4,4)
 	bb.putComponent(r,4,4)
 	print bb.isFilled(4,4)
 	print bb.componentList
