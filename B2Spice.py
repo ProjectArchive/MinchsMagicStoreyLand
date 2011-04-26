@@ -184,8 +184,8 @@ class B2Spice(object):
 		for comp in self.board.componentList:
 			if isinstance(comp,VariableBreadboardComponent):
 				netList += self.buildVariableComponentText(comp)
-			elif isinstance(comp,OpAmp):
 				#~ compCard,subCktCard = self.buildOpAmpText(comp)
+			elif isinstance(comp,OpAmp):
 				compCard = self.buildOpAmpText(comp)
 				netList += compCard
 				#~ icCount += 1
@@ -199,8 +199,7 @@ class B2Spice(object):
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
 		if analysisFlag == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
-		netList += '.wrdata %s allv\n' % self.resName
-		netList += 'set filetype=ascii '
+		#~ netList += '*wrdata %s allv\n' % self.resName
 		netList += '.end'
 		self.netList = netList
 		#File interface stuff
@@ -213,6 +212,13 @@ class B2Spice(object):
 		fout.close()
 		#~ spiceCommand = 'ngspice -b %s -r %s' % (self.fileName,self.resName)
 		res = subprocess.Popen(['ngspice','-b',self.fileName,'-r',self.resName],stdout=subprocess.PIPE).communicate()[0]
+		#~ p = subprocess.Popen(['ngspice'],stdout=subprocess.PIPE)
+		#~ p.communicate('set filetype=ascii')
+		#~ buildCirLine = 'build %s -r %s' % (self.fileName,self.resName)
+		#~ res = p.communicate(buildCirLine)[0]
+		#~ p.terminate()
+		#~ p.communicate('set filetype=ascii')
+		#~ res = p.communicate()[0]
 		#~ ,'-r',self.resName
 		#~ res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
