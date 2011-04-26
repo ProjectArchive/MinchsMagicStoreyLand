@@ -6,6 +6,7 @@
 #       Copyright 2011 Cory Dolphin <wcdolphin@gmail.com>       
 import wx
 from Breadboard import *
+from ComponentEditorPanel import *
 import math
 import copy
 import Image		# Pil package for rotation+filtering all-in-one.
@@ -224,10 +225,10 @@ class BreadboardPanel(wx.Panel):
 		self.wrappedComponents = {}
 	
 	def PopupEditor(self,component):
-		dlg = wx.MessageDialog(self, str(component), "edit the part?", wx.OK)
-		dlg.ShowModal() # Shows it
-		dlg.Destroy() # finally destroy it when finished.
-
+		print component.attributes
+		dlg = ComponentEditorFrame(self.parent,component)
+			
+		print component.attributes
 	def getVariableTarget(self,posx,posy):
 		closest = None
 		dist = 100
@@ -246,6 +247,8 @@ class BreadboardPanel(wx.Panel):
 		xdif = x2-x1
 		ydif = y2-y1			
 		return math.sqrt(xdif**2 + ydif**2)
+
+
 		
 class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of drawing while moving..."""
@@ -286,26 +289,7 @@ class BreadboardComponentWrapper:
 				startY =y1 + (0.1*totalLength*slopeY)
 				endX = startX+(0.8*totalLength*slopeX)
 				endY = startY+(0.8*totalLength*slopeY)	
-				dc.DrawLine(startX,startY,endX,endY)
-			elif self.typeName.lower().find('resistor') != -1:
-				dc.SetPen(wx.Pen(wx.Color(255,0,0),5))
-				points = []
-				resLength = 50
-				resHeight = 20
-				startL = float(totalLength-resLength )/ 2
-				startX = x1 + (startL*slopeX)
-				startY =y1 + (startL*slopeY)
-				endX = startX+(resLength*slopeX)
-				endY = startY+(resHeight*slopeY)	
-				points.append((startX-15,startY)) #top left vertices
-				points.append((startX+15,startY)) #top right vertices
-				points.append((endX+15,endY)) #top right vertices
-
-				points.append((endX-15,endY)) #top left vertices
-				
-				dc.DrawPolygon(points)
-			
-			
+				dc.DrawLine(startX,startY,endX,endY)			
 			
 class VariableBreadboardComponentWrapper:
 	"""this needed to happen"""
