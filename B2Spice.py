@@ -50,7 +50,7 @@ class B2Spice(object):
 		inputDeviceCards = ''
 		for item in self.inputDeviceList:
 			if item.voltageType == 'AC':
-				inputDeviceCards += 'V%d %g 0 sin \n' % (id(item),item.pinList[0].Node.number)
+				inputDeviceCards += 'V%d %g 0 ac %g sin \n' % (id(item),item.pinList[0].Node.number,item.pinList[0].Node.voltage.volts)
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'sin \n'
 			else:
 				inputDeviceCards += 'V%d %g 0 dc %g \n' % (id(item),item.pinList[0].Node.number,item.voltage.volts)
@@ -215,29 +215,29 @@ class B2Spice(object):
 		#~ res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
+		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		return res
 		
 		
 if __name__ == '__main__':
 	bb = Breadboard()
-	p = OpAmp('OPA551')
-	bb.putComponent(p,3,10)
-	R1 = Resistor(10000)
-	R2 = Resistor(100)
+	source = InputDevice(10,'DC')
+	R = Resistor(10000)
+	C = Capacitor(1)
 	W1 = Wire()
 	W2 = Wire()
-	W3 = Wire()
-	ID = InputDevice(10,'AC',1)
-	bb.putComponent(R1,3,14,3,16)
-	bb.putComponent(R2,4,14,4,16)
-	bb.putComponent(ID,5,11)
-	bb.putComponent(W2,1,17,7,3)
-	bb.putComponent(W3,4,1,4,3)
+	bb.putComponent(source,6,4)
+	bb.putComponent(R,6,5,1,13)
+	bb.putComponent(C,6,6,9,13)
+	bb.putComponent(W1,1,14,1,17)
+	bb.putComponent(W2,9,14,9,17)
 	b = B2Spice(bb)
 	#~ print b.nodeList
 	#~ print b.rails
-	#~ print b.buildNetList('ac',scopedNode=21,stepType='lin',numSteps=10,startFreq=100,endFreq=10000)
-	print b.buildNetList('tran',scopedNode=21,tstep=.1,ttotal=1)
+	print b.buildNetList('tran',scopedNode=37,tstep = .001,ttotal=1)
+	#~ print b.buildNetList('ac',scopedNode=24,stepType='lin',startFreq=10,endFreq=1000)
+	#~ print b.netList
+	
 
 	
 
