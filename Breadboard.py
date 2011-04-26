@@ -16,7 +16,7 @@ class Breadboard(object):
 		self.numColumns = 63
 		self.locMatrix = Matrix(self.numColumns,self.numRows)
 		self.componentList = []
-		self.rails= [0 , 5 , 5 , 2.5] #voltage rails. bottom to top. y = 17 16 1 0
+		self.rails= [0 , 2.5 , 2.5 , 5] #voltage rails. bottom to top. y = 17 16 1 0
 		self.initializeLocations()
 		self.nodeCreation()
 		self.detailLocations()
@@ -205,8 +205,8 @@ class Breadboard(object):
 				return True
 				
 			elif isinstance(aComponent,InputDevice):	#input devices
-				self.setAllFilled(aComponent.pinList)
-				aComponent.pinList[0].xLoc,aComponent.pinList[0].yLoc=args[0],args[1]
+				self.setFilled(args[0],args[1])
+				aComponent.pinList[0]=self.locMatrix.getItem(args[0],args[1])
 				self.setNodeVoltage(args[0],args[1],aComponent.voltage.volts,aComponent.voltageType,aComponent.frequency)
 				return True
 		return False
@@ -239,9 +239,9 @@ class Breadboard(object):
 				self.clearNodeVoltage(pin.xLoc,pin.yLoc)
 			self.removeComponent(self.componentList[0])		
 		self.setVoltageAtRail0(0) 	#standard
-		self.setVoltageAtRail1(5)	
-		self.setVoltageAtRail2(5)
-		self.setVoltageAtRail3(2.5)
+		self.setVoltageAtRail1(2.5)	
+		self.setVoltageAtRail2(2.5)
+		self.setVoltageAtRail3(5)
 
 	def unplugComponent(self,aComponent): 
 		"""removes a breadboard component from the bb by unfilling its pins
@@ -341,7 +341,12 @@ class Breadboard(object):
 if __name__ == "__main__":
 	bb = Breadboard()
 	r = InputDevice(5,currentOrVoltage='Current')
+<<<<<<< HEAD
 	c = Scope()
 	bb.putComponent(c,4,4)
+=======
+	bb.putComponent(r,4,4)
+	print bb.isFilled(4,4)
+>>>>>>> 7ba6cb4931416dfdbb94397e7e372bea87027c56
 	print bb.componentList
 
