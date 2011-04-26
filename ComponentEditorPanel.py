@@ -54,7 +54,7 @@ class ComponentEditorFrame(wx.Frame):
 	def buttonPressed(self,evt):
 		for key,val in self.component.attributes.items():
 			if self.cmpPane.aDict[key].GetValue() != str(val):
-				self.component.attributes[key] = int(self.cmpPane.aDict[key].GetValue())
+				self.component.attributes[key] = float(self.cmpPane.aDict[key].GetValue())
 		self.MakeModal(False)
 		self.Destroy()
 
