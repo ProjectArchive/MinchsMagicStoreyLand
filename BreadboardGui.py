@@ -112,7 +112,7 @@ class BreadboardGUI(wx.Frame):
 if __name__=="__main__":
 
 		bb = Breadboard()		
-		a = OpAmp('OPA551')
+		a = OpAmp()
 		c = Resistor(10)
 
 		bb.putComponent(c,28,10,8,4)

@@ -235,7 +235,7 @@ class BreadboardPanel(wx.Panel):
 		elif typeName.find('wire') != -1:
 			return Wire()
 		elif typeName.find('opamp') != -1:
-			return OpAmp('OPA551')
+			return OpAmp()
 		elif typeName.find('inputdevice') != -1:
 			return InputDevice(0)
 		elif typeName.find('scope') != -1:
@@ -248,8 +248,9 @@ class BreadboardPanel(wx.Panel):
 	
 	def PopupEditor(self,component):
 		print component.attributes
-		dlg = ComponentEditorFrame(self.parent,component)
-			
+		if isinstance(component,Wire) or isinstance(component,Scope) or isinstance(component, OpAmp):
+			dlg = ComponentEditorFrame(self.parent,component)
+				
 		print component.attributes
 	def getVariableTarget(self,posx,posy):
 		closest = None
@@ -418,7 +419,7 @@ class Example(wx.Frame):
 	def __init__(self, parent, title):
 		wx.Frame.__init__(self,parent, title=title)
 		bb = Breadboard()		
-		a = OpAmp('hello')
+		a = OpAmp()
 		c = Resistor(50)
 		print bb.putComponent(c,28,10,8,4)
 		print bb.putComponent(a,8,7)
