@@ -224,7 +224,7 @@ class B2Spice(object):
 		fout.write(self.netList)
 		fout.close()
 		#~ spiceCommand = 'ngspice -b %s -r %s' % (self.fileName,self.resName)
-		print self.nodeList
+		#~ print self.nodeList
 		res = subprocess.Popen(['ngspice','-b',self.fileName,'-r',self.resName],stdout=subprocess.PIPE).communicate()[0]
 		#~ p = subprocess.Popen(['ngspice'],stdout=subprocess.PIPE)
 		#~ p.communicate('set filetype=ascii')
@@ -238,7 +238,7 @@ class B2Spice(object):
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
 		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
-		print self.netList
+		#~ print self.netList
 		return self.resName
 	
 	def scopeAnalysis(self):
