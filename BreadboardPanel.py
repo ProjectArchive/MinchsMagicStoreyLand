@@ -359,7 +359,7 @@ class VariableBreadboardComponentWrapper:
 			return
 			
 		#~ #first draw the underlying wire
-		rotatedPilImage = self.wireImage.resize((int(totalLength)*2,int(self.bbp.bmpW/3.0)),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
+		rotatedPilImage = self.wireImage.resize((int(totalLength)*2,int(self.bbp.bmpW/2.0)),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
 		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
 		imageWid, imageHgt = rotated_wxImage.GetSize()
 		offsetX = (x1) -(imageWid / 2) #x1 is the pointx to draw from
