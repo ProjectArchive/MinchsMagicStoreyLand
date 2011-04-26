@@ -41,8 +41,25 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_MOTION, self.OnMotion)
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
+		self.Bind(wx.EVT_LEFT_DCLICK,self.OnDoubleClick)
 		
+	def OnDoubleClick(self,evt):
+		posx,posy = evt.GetPosition()
+		xLoc = posx//self.bmpW
+		yLoc = posy//self.bmpH
 		
+		if self.currentComponent!= None: #we are moving something and should place it...
+			print 'dblclick while dragging component, placing it...'
+			self.OnLeftDown(evt)
+			return
+		
+		potentialTarget = self.breadboard.getComponentAtLocation(xLoc,yLoc)
+		if potentialTarget == None:
+			potentialTarget = self.getVariableTarget(posx,posy)
+			
+		if potentialTarget != None:
+			self.PopupEditor(potentialTarget)
+			
 	def OnLeaveWindow(self,evt):
 		self.currentComponent = None
 		self.Refresh()
@@ -200,8 +217,33 @@ class BreadboardPanel(wx.Panel):
 			
 	def killCurrent(self):
 		self.wrappedComponents = {}
+	
+	def PopupEditor(self,component):
+		dlg = wx.MessageDialog(self, str(component), "edit the part?", wx.OK)
+		dlg.ShowModal() # Shows it
+		dlg.Destroy() # finally destroy it when finished.
 
-
+	def getVariableTarget(self,posx,posy):
+		closest = None
+		dist = 100
+		for comp in self.wrappedComponents.keys():
+			if isinstance(comp,VariableBreadboardComponent):
+				x1,y1 = self.getCenteredXY(comp.pinList[0].getLocationTuple())
+				x2,y2 = self.getCenteredXY(comp.pinList[1].getLocationTuple())
+				centerx,centery = (x1+x2)/2,(y1+y2)/2
+				print self.dist(posx,posy,centerx,centery)
+				if self.dist(posx,posy,centerx,centery) < 1.5*self.bmpW:
+					if closest == None or dist < dist(posx,posy,centerx,centery):
+						closest = comp
+						dist =self.dist(posx,posy,centerx,centery)
+						print 'setclosest'
+		return closest
+		
+	def dist(self,x1,y1,x2,y2):
+		xdif = x2-x1
+		ydif = y2-y1			
+		return math.sqrt(xdif**2 + ydif**2)
+		
 class BreadboardComponentWrapper:
 	"""Wraps an image, a bbc and a position for ease of drawing while moving..."""
 	def __init__(self,bbp,breadboardComponent):
@@ -211,7 +253,7 @@ class BreadboardComponentWrapper:
 		self.breadboardComponent = breadboardComponent
 		self.typeName = type(self.breadboardComponent).__name__
 		self.typeName = self.typeName.lower()
-		if isinstance(self.breadboardComponent,FixedBreadboardComponent):
+		if isinstance(self.breadboardComponent,BreadboardComponent):
 			print 'we are fixed'
 			self.image = wx.Image('res/components/'+ self.typeName + '_image.png')
 			self.image.SaveFile("something.png",wx.BITMAP_TYPE_PNG)

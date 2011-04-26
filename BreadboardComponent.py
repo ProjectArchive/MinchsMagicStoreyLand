@@ -194,7 +194,7 @@ class InputDevice(FixedBreadboardComponent):
 		
 		#~ technicalName = '%g%s%gHz' % (self.voltage.volts,self.voltageType,self.frequency)
 		spiceName = 'V'
-		FixedBreadboardComponent.__init__(self,1,1,attributes,displayName,spiceName,technicalName,referencePin,pinList,[])
+		FixedBreadboardComponent.__init__(self,1,1,attributes,displayName,spiceName,technicalName,referencePin,pinList,[RelativeLocation(0,0)])
 		
 class Scope(FixedBreadboardComponent):
 	"""Basically a flag for the gui to make a plot""" #this needs to be a Fixed component
@@ -206,7 +206,7 @@ class Scope(FixedBreadboardComponent):
 		technicalName = ''
 		referencePin = RelativeLocation(0,0)
 		pinList = [referencePin]
-		FixedBreadboardComponent.__init__(self,1,1,attributes,displayName,spiceName,technicalName,referencePin,pinList,[])
+		FixedBreadboardComponent.__init__(self,1,1,attributes,displayName,spiceName,technicalName,referencePin,pinList,[RelativeLocation(0,0)])
 
 if __name__ == "__main__":
 	a = Scope()

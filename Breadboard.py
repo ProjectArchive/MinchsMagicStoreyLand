@@ -306,12 +306,16 @@ class Breadboard(object):
 			aComponent.pinList[i] = pinListCopy[(i+lenth/2)%(lenth)]  #adds half the length
 		return True
 	
-	def getComponentAtLocation(self,x,y):
+	def getComponentAtLocation(self,x,y): #does this need to be dead pins? I added it...
 		"""gets component at an x,y location"""
 		for component in self.componentList:
 			for pin in component.pinList:
 				if pin.xLoc==x and pin.yLoc==y:
 					return component
+			if isinstance(component,FixedBreadboardComponent):
+				for pin in component.deadPins:
+					if pin.xLoc==x and pin.yLoc==y:
+						return component
 		return None
 	
 	def setVoltageAtRail0(self,voltage):
