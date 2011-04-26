@@ -59,7 +59,7 @@ class B2Spice(object):
 				#~ inputDeviceCards += 'V' + str(id(item)) + ' ' + str(item.pinList[0].Node.number) + ' 0 ' + 'dc ' + str(item.voltage.volts) + ' \n'
 		return inputDeviceCards
 
-	def makeAnalysisCards(self,analysisType,scopedNode=0,vMin=0,vMax=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def makeAnalysisCards(self,analysisType='tran',scopedNode=0,vMin=0,vMax=5,tstep=.01,ttotal=1,stepType='lin',numSteps=20,startFreq=.001,endFreq=100000):
 		if len(self.inputDeviceList) <1:
 			return '.dc V1 %g %g 1 V2 %g %g 1 V3 %g %g 1\n.print dc v(%d) \n' % (self.board.rails[1],self.board.rails[1],self.board.rails[2],self.board.rails[2],self.board.rails[3],self.board.rails[3], scopedNode)
 		if analysisType == 'ac':
@@ -163,7 +163,7 @@ class B2Spice(object):
 		pinDict['plusSupply'] = opamp.pinList[5]
 		pinDict['out'] = opamp.pinList[6]
 		pinDict['notUsed2'] = opamp.pinList[7]
-		opAmpNodeString = '%d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['out'].Node.numberpinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number)		
+		opAmpNodeString = '%d %d %d %d %d' % (pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number,pinDict['out'].Node.number,pinDict['plusSupply'].Node.number,pinDict['negSupply'].Node.number)		
 		opAmpID = 'X%d' % id(opamp)
 		subCktID = opamp.technicalName.upper()
 		subCktFileName = '%s.txt' % opamp.technicalName
@@ -174,7 +174,7 @@ class B2Spice(object):
 		return (opAmpCard,opAmpSubCkt)
 		#~ return 'e%d %d 0 %d %d 999k\n' % (id(opamp),pinDict['out'].Node.number,pinDict['plusIn'].Node.number,pinDict['negIn'].Node.number)
 	
-	def buildNetList(self,analysisFlag='dc',scopedNode=0,vMin=0,vMax=0,stepSize=0,tstep=0,ttotal=0,stepType='lin',numSteps=0,startFreq=0,endFreq=0):
+	def buildNetList(self,analysisType='tran',scopedNode=0,vMin=0,vMax=5,tstep=.01,ttotal=1,stepType='lin',numSteps=20,startFreq=.001,endFreq=100000):
 		"""dc requires scopedNode,vMin,vMax,and stepSize. tran requires scopedNode, tstep, and ttotal. ac requires stepType, numSteps,
 		startFreq, and endFreq"""
 		makeFileCommand = 'touch %s' % self.fileName
@@ -197,11 +197,11 @@ class B2Spice(object):
 				netList += ''
 		if icCount > 0:
 			netList += subCktCard
-		if analysisFlag == 'dc':
+		if analysisType == 'dc':
 			netList += self.makeAnalysisCards('dc',scopedNode=scopedNode,vMin=vMin,vMax = vMax,numSteps=numSteps)
-		if analysisFlag == 'ac':
+		if analysisType == 'ac':
 			netList += self.makeAnalysisCards('ac',scopedNode=scopedNode,stepType=stepType,numSteps=numSteps,startFreq=startFreq,endFreq=endFreq)
-		if analysisFlag == 'tran':
+		if analysisType == 'tran':
 			netList += self.makeAnalysisCards('tran',scopedNode=scopedNode,tstep=tstep,ttotal=ttotal)
 		netList += '.write %s allv\n' % self.resName
 		netList += '.end'
@@ -223,8 +223,8 @@ class B2Spice(object):
 		#~ res = os.system(spiceCommand)
 		delFileCommand = 'rm %s' % self.fileName
 		os.system(delFileCommand)
-		subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
-		return res
+		#~ subprocess.Popen(['gwave',self.resName],stdout=subprocess.PIPE).communicate()[0]
+		return self.resName
 	
 	def scopeAnalysis(self):
 		"""searches for the scope or scopes,

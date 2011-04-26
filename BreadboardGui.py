@@ -93,16 +93,21 @@ class BreadboardGUI(wx.Frame):
 		self.Destroy()
 		
 	def OnSimulateButtonPress(self,event):
-		try:
-			b = B2Spice(self.breadboard)
-			#~ print b.nodeList
-			b.buildNetList('dc',28,10,10,0)
-			#~ print b.inputDeviceList
-			#~ print bb.componentList
-			print b.netList
-		except:
-			randomplotter.runMe()
-		randomplotter.runMe()
+		
+		simType = self.simulationPanel.comboBox.GetValue()
+		b = B2Spice(self.breadboard)
+		if simType.find('AC') != -1:
+			print 'AC'
+			b.buildNetList('ac')
+		elif simType.find('Transient') != -1:
+			print 'Transient'
+			b.buildNetList('tran')
+		elif simType.find('DC') != -1:
+			print 'Transient'
+			b.buildNetList('tran')
+		else:
+			print "no mode of analysis"
+
 
 if __name__=="__main__":
 
