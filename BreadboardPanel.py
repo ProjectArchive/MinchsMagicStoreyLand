@@ -43,7 +43,28 @@ class BreadboardPanel(wx.Panel):
 		self.Bind(wx.EVT_ERASE_BACKGROUND, self.OnEraseBackground)
 		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow)
 		self.Bind(wx.EVT_LEFT_DCLICK,self.OnDoubleClick)
-
+		self.Bind(wx.EVT_RIGHT_DOWN,self.OnRightClick)
+		
+		
+	def OnRightClick(self,evt):
+		posx,posy = evt.GetPosition()
+		xLoc = posx//self.bmpW
+		yLoc = posy//self.bmpH
+		
+		if self.currentComponent!= None: #we are moving something and should place it...
+			print 'dblclick while dragging component, placing it...'
+			self.OnLeftDown(evt)
+			return
+		
+		potentialTarget = self.breadboard.getComponentAtLocation(xLoc,yLoc)
+		if potentialTarget == None:
+			potentialTarget = self.getVariableTarget(posx,posy)
+		if potentialTarget != None:
+			self.breadboard.removeComponent(potentialTarget)
+			print "wtf we killed it"
+		self.Refresh()
+		self.Update()
+		
 	def OnDoubleClick(self,evt):
 		posx,posy = evt.GetPosition()
 		xLoc = posx//self.bmpW
@@ -159,6 +180,8 @@ class BreadboardPanel(wx.Panel):
 	def PaintBreadboardComponents(self,dc,rescale):
 		"""paint all components, pass in devic context and whether or not we have been scaled since last redraww"""
 		paintLaterList = []
+		if len(self.wrappedComponents.keys()) > len(self.breadboard.componentList):
+			self.wrappedComponents = {}
 		for component in self.breadboard.componentList:
 			if not component in self.wrappedComponents.keys():
 				if isinstance(component, FixedBreadboardComponent):
@@ -172,8 +195,7 @@ class BreadboardPanel(wx.Panel):
 		for wrapped in paintLaterList: #paint fbbc after all vbbc
 			wrapped.drawSelf(dc,rescale)
 		
-		if len(self.wrappedComponents.keys()) > len(self.breadboard.componentList):
-			print "something was deleted, dolphin you need to fix this"
+
 		
 	def OnEraseBackground(self, evt):
 		dc = evt.GetDC()
@@ -344,11 +366,14 @@ class VariableBreadboardComponentWrapper:
 			xprime = x1-(self.bbp.bmpW*xRate)
 			yprime = y1-(self.bbp.bmpW*yRate)
 			width = self.bbp.bmpW/2
-		elif self.typeName.lower().find('resistor') != -1:
+		elif self.typeName.lower().find('resistor')  != -1 or self.typeName.lower().find('capacitor') != -1:
 			lengthToDraw = 2*self.bbp.bmpW
 			xprime = float(x1-(((totalLength-lengthToDraw)/2.0)*xRate))
 			yprime = float(y1-(((totalLength-lengthToDraw)/2.0)*yRate))
 			width = self.bbp.bmpW
+			if self.typeName.lower().find('capacitor') != -1:
+				width = self.bbp.bmpW*4
+
 		rotatedPilImage = self.mainImage.resize((int(lengthToDraw)*2,width),Image.ANTIALIAS).rotate(self.getTheta(dx,dy),Image.BICUBIC, expand=True )
 		rotated_wxImage = ImgConv.WxImageFromPilImage( rotatedPilImage )
 		imageWid, imageHgt = rotated_wxImage.GetSize()
