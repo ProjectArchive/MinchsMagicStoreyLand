@@ -90,7 +90,7 @@ class GraphFrame(wx.Frame):
 	"""
 	title = "Minch's Magic Storey Land"
 	
-	def __init__(self,data=[[1,2,3,4,5],[1,2,3,4,5],[10,20,30,40,50]]):
+	def __init__(self,data=[[1,2,3,4,5],[-1,-22,3,4,5],[10,-20,30,-40,50]]):
 		wx.Frame.__init__(self, None, -1, self.title)
 		self.data = data
 		self.dataSetNames = range(1,len(data))
@@ -175,11 +175,9 @@ class GraphFrame(wx.Frame):
 	def init_plot(self):
 		self.dpi = 100
 		self.fig = Figure((3.0, 3.0), dpi=self.dpi)
-
 		self.axes = self.fig.add_subplot(111)
 		self.axes.set_axis_bgcolor('black')
 		self.axes.set_title('Simulation Results', size=12)
-		
 		pylab.setp(self.axes.get_xticklabels(), fontsize=8)
 		pylab.setp(self.axes.get_yticklabels(), fontsize=8)
 
