@@ -2,13 +2,15 @@ from Voltage import *
 
 class Node(object):
 	"""This class represents the in-between
-	for spice and the breadboard class"""
+	for spice and the breadboard class.  A Node lives at a Location
+	and each Node has a unique number to it; several Locations share the
+	same Node.  Nodes have Voltages, but unless it is a power rail or someone 
+	places an input device on it, the Voltage has a value of 0 volts.
+	What number Node it is depends on a calculation
+	done in Breadboard, and if there is no Node at a Location, such as between rows,
+	the value is -1 for debugging purposes."""
 
 	def __init__(self,number=-1):
-		"""assigns the node a number
-		based on its position use the predetermined 
-		nodeDictionary. takes in a tuple containing x and y"""
-		
 		self.number = number
 		self.voltage = Voltage()
 			

@@ -4,24 +4,26 @@ class Matrix(object):
 	the index column, row. EX: the value at a given index is found by
 	accessing the column in which it lives, at the row'th index of said
 	column """
+	
 	def __init__(self , cols , rows):
 		self.numColumns = cols
 		self.numRows = rows
 		 # initialize matrix and fill with zeroes
 		self.matrix = []
 		for i in range(self.numColumns): #for every column we must make a column of length numRows
-			ea_col = [] #initalize an empty column
+			col = [] #initalize an empty column
 			for j in range(self.numRows): #there are numRows rows in a column
-				ea_col.append(0)
-			self.matrix.append(ea_col)#append this column to the row
+				col.append(0)
+			self.matrix.append(col)#append this column to the row
 			# which contains column, the overarching matrix
 
 	def setItem(self, col, row, value):
-		#to set a value, we first get the column in which it lives,
-		#then the index at which that value lives, the rowNumber.
+		"""to set a value, we first get the column in which it lives,
+		then the index at which that value lives, the rowNumber."""
 		self.matrix[col][row] = value
   
 	def getItem(self, col, row):
+		"""grabs whatever lives at a given column,row index"""
 		return self.matrix[col][row]
   
 	def __repr__(self):
